@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Antifraude de evidência · processo</title>
+<style>
+  :root{
+    --tinta:#0f172a; --texto:#334155; --fraco:#64748b; --fraquinho:#94a3b8;
+    --linha:#e2e8f0; --fundo:#f1f5f9; --papel:#ffffff; --azul:#0055ff; --azul-f:rgba(0,85,255,.07);
+    --ambar-b:#e8d3b0; --ambar-f:#fdfaf5; --ambar-t:#7a4800;
+    --verde-b:#bbe5d5; --verde-f:#f3faf7; --verde-t:#1f7a5c;
+    --verm-b:#f5c2c2; --verm-f:#fef5f5; --verm-t:#b91c1c; --cinza-f:#f8fafc;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{--tinta:#f1f5f9;--texto:#cbd5e1;--fraco:#94a3b8;--fraquinho:#64748b;--linha:#1e293b;--fundo:#0b1220;
+      --papel:#111a2e;--cinza-f:#0f172a;--azul:#6f9bff;--azul-f:rgba(111,155,255,.12);--ambar-f:#2a2110;--ambar-b:#5a4620;--ambar-t:#f3cf8a;
+      --verde-f:#0f2a22;--verde-b:#1f5a46;--verde-t:#7fd9b4;--verm-f:#2a1212;--verm-b:#6b2a2a;--verm-t:#fca5a5}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fundo);color:var(--texto);font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .folha{max-width:1000px;margin:0 auto;padding:36px 16px 80px}
+  h1{font-size:26px;line-height:1.2;color:var(--tinta);margin:0 0 6px;font-weight:800}
+  .sub{color:var(--fraco);font-size:14px;margin:0 0 4px;max-width:76ch}
+  .data{color:var(--fraquinho);font-size:12px;margin:0 0 28px}
+  h2{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--fraco);font-weight:700;margin:44px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--linha)}
+  h3{font-size:15px;color:var(--tinta);margin:22px 0 8px;font-weight:700}
+  p{margin:0 0 12px;max-width:80ch}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;background:var(--cinza-f);padding:1px 5px;border-radius:4px;color:var(--tinta);border:1px solid var(--linha)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin:8px 0 6px}
+  .card{background:var(--papel);border:1px solid var(--linha);border-radius:10px;padding:12px 14px}
+  .card b{display:block;color:var(--tinta);font-size:13.5px;margin-bottom:3px}
+  .card span{font-size:12.5px;color:var(--fraco)}
+  .aviso{border-radius:10px;padding:12px 14px;margin:12px 0;font-size:13px;max-width:80ch}
+  .aviso.amb{border:1px solid var(--ambar-b);background:var(--ambar-f);color:var(--ambar-t)}
+  .aviso.verm{border:1px solid var(--verm-b);background:var(--verm-f);color:var(--verm-t)}
+  .aviso.verde{border:1px solid var(--verde-b);background:var(--verde-f);color:var(--verde-t)}
+  .aviso b{display:block;margin-bottom:2px}
+  .tabela-wrap{overflow-x:auto;border:1px solid var(--linha);border-radius:10px;background:var(--papel);margin:8px 0 14px}
+  table{border-collapse:collapse;width:100%;min-width:640px;font-size:12.5px}
+  th{text-align:left;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--fraco);background:var(--cinza-f);padding:9px 11px;border-bottom:1px solid var(--linha)}
+  td{padding:10px 11px;border-bottom:1px solid var(--linha);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  td.id{font-weight:800;color:var(--tinta);white-space:nowrap;width:58px}
+  .tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.03em;padding:1px 6px;border-radius:4px;vertical-align:1px;margin-left:4px}
+  .t-prop{background:#fef3c7;color:#92400e}.t-fixa{background:#dcfce7;color:#15803d}.t-forte{background:#fee2e2;color:#b91c1c}.t-susp{background:#fef3c7;color:#92400e}.t-info{background:#e2e8f0;color:#475569}
+  .linha{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0 4px}
+  .passo{background:var(--papel);border:1px solid var(--linha);border-radius:10px;padding:10px 12px;font-size:12.5px;position:relative}
+  .passo i{font-style:normal;font-weight:800;color:var(--azul);font-size:11px;display:block;margin-bottom:2px}
+  .passo b{color:var(--tinta);display:block;margin-bottom:2px}
+  ul{margin:0 0 12px;padding-left:18px}li{margin:3px 0}
+  .fonte{font-size:12px;color:var(--fraco)}
+</style>
+</head>
+<body><div style="background:#FFF4CC;color:#5A4500;font:13px/1.4 sans-serif;padding:8px 16px;text-align:center;border-bottom:1px solid #E8D48A">Versão para publicação: nomes de franquias, códigos de imóveis e IDs foram trocados por dados fictícios.</div>
+<div class="folha">
+
+<h1>Antifraude de evidência</h1>
+<p class="sub">Como o bot descobre que a evidência de um card não é deste serviço, o que ele grava, o que ele nunca faz e como saímos da sombra sem punir ninguém por engano.</p>
+<p class="data">Versão 0.3 (proposta para aprovação) · 26/10/2026 · dono: Central de Manutenção (Vinicius Satores) · origem: Weekly Prioridades - Manutenções de 05/10/2026 com a Ray · ajustes de 26/10/2026 (Ray): bot reposicionado como suporte operacional, não antifraude processual</p>
+
+<div class="aviso amb"><b>Tudo marcado como "proposta" é padrão meu, não decisão tomada.</b>
+Os limites numéricos (distância da imagem, janelas de idade) não foram medidos no Sapron ainda. A primeira tarefa depois da aprovação é medir a base de evidências existentes e ajustar.</div>
+
+<h2>1 · Para que serve</h2>
+<div class="cards">
+  <div class="card"><b>A pergunta</b><span>A evidência que a franquia mandou é genuína e é deste serviço, neste imóvel, depois do pedido?</span></div>
+  <div class="card"><b>Não é o validador</b><span>O validador e o auditor conferem se a foto cobre o que o card pediu. O antifraude olha a origem do arquivo, nunca o que a foto mostra.</span></div>
+  <div class="card"><b>Princípio</b><span>Foto repetida não é fraude processual, é <b>alerta operacional</b>: a franquia reaproveitou a evidência errada, por engano ou pressa. O bot pede uma foto nova — não acusa, não abre ocorrência e não trava o fechamento sozinho. Quem decide seguir adiante continua sendo gente.</span></div>
+</div>
+
+<div class="aviso amb"><b>Ajuste de 26/10/2026 (Ray)</b>
+Esta versão tira o bot do terreno jurídico (que exigiria parecer formal) e o recoloca como <b>suporte operacional</b>. R29 e R35 (seção 3.7) mudaram: antes seguravam o fechamento em silêncio, agora avisam a franquia e pedem evidência nova.</div>
+
+<h2>2 · A linha do processo</h2>
+<div class="linha">
+  <div class="passo"><i>1</i><b>Evidência chega</b>Franquia anexa foto no chamado do card</div>
+  <div class="passo"><i>2</i><b>Validador lê</b>Parecer item a item (já existe, :10/:40)</div>
+  <div class="passo"><i>3</i><b>Antifraude compara</b>Impressão de cada imagem, comparada com o histórico</div>
+  <div class="passo"><i>4</i><b>Sinal dispara → alerta à franquia</b>Nível forte ou suspeito: mensagem automática pede evidência nova (R29). O card segue seu fluxo normal</div>
+  <div class="passo"><i>5</i><b>Pessoa confirma ou descarta</b>Na aba, em um clique; vira rótulo para medir o bot</div>
+</div>
+
+<h2>3 · As regras</h2>
+<p class="fonte">Código de cada regra: <code>R</code> + número. Uma regra por linha, para poder citar na revisão ("R12 está errada"). <span class="tag t-fixa">FIXA</span> vem de decisão já tomada; <span class="tag t-prop">PROPOSTA</span> é padrão a aprovar.</p>
+
+<h3>3.1 Quem entra na fila</h3>
+<div class="tabela-wrap"><table>
+<tr><th>Regra</th><th>O que diz</th><th></th></tr>
+<tr><td class="id">R1</td><td>Só entra card em <code>aguardando_aprovacao</code>, no chamado individual (nunca o canal permanente do imóvel, que é compartilhado entre cards).</td><td><span class="tag t-fixa">FIXA</span> mesma fila do validador</td></tr>
+<tr><td class="id">R2</td><td>Só conta mensagem <b>pública</b> do chamado (não interna e não do sistema), a mesma regra do validador. O Sapron não marca quem é franquia e quem é Seazone na mensagem; separar por autor fica para depois.</td><td><span class="tag t-fixa">FIXA</span> <span class="tag t-prop">AJUSTADA NO CÓDIGO</span></td></tr>
+<tr><td class="id">R3</td><td>Conversa parada há pelo menos 10 minutos (a franquia manda evidência em rajada; ver tudo de uma vez evita checar seis vezes).</td><td><span class="tag t-fixa">FIXA</span></td></tr>
+<tr><td class="id">R4</td><td>Só reavalia quando chegou mensagem nova depois da última checagem, até 5 passadas por card.</td><td><span class="tag t-fixa">FIXA</span></td></tr>
+<tr><td class="id">R5</td><td>A fila é atendida por <b>quem espera há mais tempo</b>, não por data de criação do card. Espera acima de 4 horas acende "atenção" na aba; o teto aceito é 24 horas.</td><td><span class="tag t-fixa">FIXA</span> (PR #5170, aberto e validado, ainda não mergeado)</td></tr>
+</table></div>
+
+<h3>3.2 Quais arquivos entram</h3>
+<div class="tabela-wrap"><table>
+<tr><th>Regra</th><th>O que diz</th><th></th></tr>
+<tr><td class="id">R6</td><td>Na v1 só <b>imagens jpg, png e webp</b>. HEIC fica de fora (exige biblioteca extra) e conta como arquivo de fora, ou seja, checagem parcial. Vídeo fica para a fase 2. PDF é ignorado e não conta como falta.</td><td><span class="tag t-prop">PROPOSTA</span> <span class="tag t-prop">AJUSTADA NO CÓDIGO</span></td></tr>
+<tr><td class="id">R7</td><td>Até 20 arquivos por card, os mais novos primeiro (a última leva é a evidência do reparo). Se algum ficou de fora, o card é marcado como <b>checagem parcial</b> e nunca recebe "limpo".</td><td><span class="tag t-fixa">FIXA</span> mesmo teto do validador</td></tr>
+<tr><td class="id">R8</td><td>Imagem com algum lado menor que 200 px, ou quase uniforme (desvio de tons de cinza abaixo de 8: parede lisa, tela apagada), é ignorada: não tem informação para comparar.</td><td><span class="tag t-prop">PROPOSTA</span></td></tr>
+<tr><td class="id">R9</td><td>Arquivo que não baixa ou não abre conta como <b>falha</b>, nunca como sinal. Falha repetida aparece na aba, não no card.</td><td><span class="tag t-fixa">FIXA</span></td></tr>
+</table></div>
+
+<h3>3.3 Como a imagem é comparada</h3>
+<div class="tabela-wrap"><table>
+<tr><th>Regra</th><th>O que diz</th><th></th></tr>
+<tr><td class="id">R10</td><td>Cada imagem vira uma <b>impressão perceptual de 64 bits</b> (pHash), guardada em tabela própria. O arquivo da foto não é copiado nem lido por nenhuma IA externa.</td><td><span class="tag t-prop">PROPOSTA</span></td></tr>
+<tr><td class="id">R11</td><td>Hash exato (SHA-256) não serve: o WhatsApp recomprime e redimensiona. Por isso a comparação é por <b>distância</b> entre impressões.</td><td><span class="tag t-fixa">FIXA</span></td></tr>
+<tr><td class="id">R12</td><td>Distância até <b>6</b> = mesma imagem. De 7 a 10 = parecida (só aparece como informação, não gera sinal). Acima de 10 = diferente.</td><td><span class="tag t-prop">PROPOSTA</span> a calibrar</td></tr>
+<tr><td class="id">R13</td><td>Compara contra <b>todo o histórico</b> de evidências, de cards abertos e fechados, sem corte de data. A idade da coincidência só muda o peso (R23).</td><td><span class="tag t-prop">PROPOSTA</span></td></tr>
+<tr><td class="id">R14</td><td>Carga inicial: gerar a impressão de todas as evidências existentes antes de ligar o bot. Sem ela o bot só enxerga reuso a partir do dia em que ligar.</td><td><span class="tag t-fixa">FIXA</span></td></tr>
+</table></div>
+
+<h3>3.4 Os sinais</h3>
+<div class="tabela-wrap"><table>
+<tr><th>Regra</th><th>Sinal</th><th>Como dispara</th></tr>
+<tr><td class="id">R15</td><td><b>S1 · Reuso no mesmo imóvel</b></td><td>Imagem do card é a mesma (R12) de uma imagem de <b>outro card do mesmo imóvel</b>.</td></tr>
+<tr><td class="id">R16</td><td><b>S3 · Reuso em outro imóvel</b></td><td>Imagem do card é a mesma de uma imagem de card de <b>outro imóvel</b>, da mesma franquia ou de outra.</td></tr>
+<tr><td class="id">R17</td><td><b>S2 · Foto anterior ao pedido</b></td><td>A data de captura da foto (EXIF) é <b>mais de 7 dias anterior</b> ao envio do card à franquia (<code>sent_to_franchise_at</code>).</td></tr>
+<tr><td class="id">R18</td><td><b>Ausência não é sinal</b></td><td>Foto sem EXIF (o WhatsApp costuma remover) nunca gera S2 nem pesa contra a franquia.</td></tr>
+</table></div>
+
+<h3>3.5 Exceções: o que NÃO é fraude</h3>
+<div class="tabela-wrap"><table>
+<tr><th>Regra</th><th>O que diz</th><th></th></tr>
+<tr><td class="id">R19</td><td>Mesma imagem <b>dentro do mesmo card</b> (reenvio, mensagem duplicada) não é sinal.</td><td><span class="tag t-fixa">FIXA</span></td></tr>
+<tr><td class="id">R20</td><td>Mesma foto reenviada no mesmo card vale uma imagem só: duas cópias de uma foto coincidente não furam a R22. Card que foi devolvido e reenviado conta como o mesmo card: a mesma foto de antes não é reuso.</td><td><span class="tag t-fixa">FIXA</span></td></tr>
+<tr><td class="id">R21</td><td><b>Certificado.</b> Item que exige certificado (dedetização, caixa d'água): a foto do <i>mesmo documento</i> em imóveis do <b>mesmo prédio</b> não gera S3, porque o serviço cobre o prédio todo.</td><td><span class="tag t-prop">PROPOSTA</span> falta definir como reconhecer "mesmo prédio"</td></tr>
+<tr><td class="id">R22</td><td><b>Etiqueta e número de série.</b> Foto de etiqueta do equipamento sozinha, sem nenhuma outra imagem coincidente no card, <b>não eleva o nível acima de informativo</b>. Para ser S1 ou S3 forte, precisa de ao menos uma imagem coincidente que não seja só etiqueta; enquanto o bot não distinguir etiqueta, vale: <b>uma única imagem coincidente em card com mais de uma foto = suspeito, nunca forte</b>.</td><td><span class="tag t-prop">PROPOSTA</span></td></tr>
+</table></div>
+
+<h3>3.6 Nível do card</h3>
+<div class="tabela-wrap"><table>
+<tr><th>Regra</th><th>Nível</th><th>Quando</th></tr>
+<tr><td class="id">R23</td><td><span class="tag t-forte">FORTE</span></td><td>S3 com coincidência de qualquer idade, ou S1 com coincidência de até 30 dias, em card onde ao menos 2 imagens coincidem (ou onde a regra R22 não segura o nível).</td></tr>
+<tr><td class="id">R24</td><td><span class="tag t-susp">SUSPEITO</span></td><td>S1 de 31 a 180 dias; S2; qualquer sinal que a R22 segurou; checagem parcial (R7) com algum sinal.</td></tr>
+<tr><td class="id">R25</td><td><span class="tag t-info">INFORMATIVO</span></td><td>S1 com mais de 180 dias, imagem "parecida" (distância 7 a 10), ou checagem parcial sem nenhum sinal (R7), ou card sem imagem verificável. Aparece no card, <b>não entra nas contagens de alerta</b>.</td></tr>
+<tr><td class="id">R26</td><td><b>Limpo</b></td><td>Todas as imagens checadas, nenhuma coincidência, nenhuma falha, nada de fora do teto. Card <b>sem nenhuma imagem verificável</b> não é limpo: fica informativo, com o sinal "sem imagem".</td></tr>
+<tr><td class="id">R27</td><td>Nível do card</td><td>É o <b>pior</b> nível entre os sinais dos arquivos.</td></tr>
+</table></div>
+
+<h3>3.7 O que o bot pode e não pode fazer</h3>
+<div class="aviso verm"><b>Nunca</b>
+R28 · não altera <code>status</code> nem <code>evidence_received_at</code>. R30 · não devolve card sozinho. R31 · não cria ocorrência, multa ou nota. R32 · não acusa: o texto na tela e na mensagem à franquia diz "imagem parecida com a do card #N", nunca "fraude".</div>
+<div class="aviso verde"><b>Pode</b>
+R29 · <b>manda mensagem automática à franquia</b> pedindo evidência nova quando o nível é forte ou suspeito, pelo template padrão (3.7.1). É a única ação automática do bot sobre o fluxo. R33 · gravar o sinal, os arquivos e os cards relacionados. R34 · aparecer na aba Agentes de IA e como selo no card. R35 · <b>não segura mais o fechamento automático</b>: o auditor segue o fluxo normal de aprovação enquanto a franquia responde ao alerta de R29. Se a franquia não corrigir, o card entra na fila de gente (seção 3.8) — não é mais o bot que trava.</div>
+
+<h3>3.7.1 Template da mensagem à franquia (R29)</h3>
+<div class="aviso amb"><b>Texto padrão — sem diminutivo, sem emoji, com próximo passo</b>
+"Identificamos que a foto enviada no card #{id} é parecida com uma evidência de outro serviço. Por favor, envie uma foto nova do serviço realizado neste imóvel, anexada diretamente no card. Isso evita atraso na aprovação."</div>
+
+<h3>3.7.2 Realidade em produção hoje (26/10/2026) e o tamanho do problema</h3>
+<div class="aviso verm"><b>O código ainda é a R35 antiga — isto é proposta, não o que roda agora</b>
+Em <code>maintenance/actions/fraud_evidence.py::segura_baixa</code> (chamado por <code>audit_evidence.py</code>), o agente hoje <b>trava o fechamento</b> e <b>não manda mensagem nenhuma</b>. A flag <code>ff_sapron_backend_enable_maintenance_evidence_fraud</code> está ligada desde 13/10/2026 — ou seja, essa trava já está ativa em produção agora, não é uma fase futura. R29 (mensagem automática) não existe no código: é feature nova a construir. Enquanto a mudança não entra, o comportamento real segue sendo "trava e silêncio", não "alerta".</div>
+
+<div class="tabela-wrap"><table>
+<tr><th>Medida</th><th>Valor</th></tr>
+<tr><td>Cards checados pelo antifraude</td><td><b>522</b> · janela 13/10 a 20/10/2026</td></tr>
+<tr><td>Nível forte</td><td><b>82</b></td></tr>
+<tr><td>Nível suspeito</td><td><b>33</b></td></tr>
+<tr><td>Forte + suspeito (travados pela R35 de hoje)</td><td><b>115</b></td></tr>
+<tr><td>Decisão humana registrada até agora</td><td><b>1</b> (26/10/2026, descartado, motivo "outro") — <b>114</b> seguem travados sem decisão</td></tr>
+</table></div>
+<p class="fonte">Fonte: Sapron, <code>maintenance_maintenancecard</code> (campos <code>ai_fraud_*</code>) e <code>maintenance_evidencefraudreview</code>. Consulta de 26/10/2026.</p>
+
+<div class="aviso amb"><b>Taxa de falso positivo do pHash (distância ≤6) — ainda não medível</b>
+Não há no Sapron rótulo humano suficiente para calcular uma taxa real: até agora existe <b>1 única decisão humana</b> registrada. A literatura de pHash costuma apontar falso positivo baixo (abaixo de 1-2%) para distância ≤6 em bases genéricas de imagens, mas isso é <b>estimativa de referência, não medição</b> — a taxa real só sai depois que a fila de revisão (115 cards hoje) acumular decisões suficientes. Primeira meta: 40 cards rotulados (etapa 1, seção 4).</div>
+
+<h3>3.8 Decisão humana e como medimos o bot</h3>
+<div class="tabela-wrap"><table>
+<tr><th>Regra</th><th>O que diz</th><th></th></tr>
+<tr><td class="id">R36</td><td>Cada card sinalizado tem três saídas na aba: <b>Confirmar reuso</b>, <b>Descartar (foto legítima)</b> com motivo de lista fechada, ou <b>Abrir o card</b>. Confirmar não cria ocorrência: só registra.</td><td><span class="tag t-prop">PROPOSTA</span></td></tr>
+<tr><td class="id">R37</td><td>Motivos de descarte: mesmo prédio · certificado · etiqueta · foto genérica · reenvio da franquia · outro.</td><td><span class="tag t-prop">PROPOSTA</span></td></tr>
+<tr><td class="id">R38</td><td>Toda decisão grava quem, quando e o motivo. Isso é o <b>rótulo</b>: a precisão do bot é calculada por ele, sem ninguém rotular em planilha.</td><td><span class="tag t-fixa">FIXA</span></td></tr>
+<tr><td class="id">R39</td><td>Consequência contra a franquia (ocorrência, nota) só existe por clique de gente, <b>fora</b> deste bot, e só depois da etapa 3 do lançamento (seção 4).</td><td><span class="tag t-fixa">FIXA</span></td></tr>
+</table></div>
+
+<h3>3.9 Falhas e funcionamento</h3>
+<div class="tabela-wrap"><table>
+<tr><th>Regra</th><th>O que diz</th><th></th></tr>
+<tr><td class="id">R40</td><td>Flag fechada por padrão: <code>ff_sapron_backend_enable_maintenance_evidence_fraud</code>. Criar nos <b>dois</b> projetos do PostHog (staging 125066, produção 127887).</td><td><span class="tag t-fixa">FIXA</span></td></tr>
+<tr><td class="id">R41</td><td>Tarefa própria com trava própria e limite de tempo por lote, nos minutos <code>:12, :27, :42, :57</code>: depois do validador, antes do auditor (:05/:20/:35/:50) lê o parecer.</td><td><span class="tag t-prop">PROPOSTA</span></td></tr>
+<tr><td class="id">R42</td><td>Cálculo local, sem chamada ao AI Hub: custo zero por card e sem fila por vídeo.</td><td><span class="tag t-prop">PROPOSTA</span></td></tr>
+<tr><td class="id">R43</td><td>Imagem reduzida antes do cálculo e no máximo 20 por card, para não travar o worker compartilhado.</td><td><span class="tag t-fixa">FIXA</span></td></tr>
+<tr><td class="id">R44</td><td>O monitor mostra: fila, espera do mais antigo (alerta em 4 h), checados em 24 h, quantos por nível, falhas, decisões humanas e taxa de descarte.</td><td><span class="tag t-fixa">FIXA</span></td></tr>
+</table></div>
+
+<h2>4 · Como o bot sai da sombra</h2>
+<div class="tabela-wrap"><table>
+<tr><th>Etapa</th><th>O que acontece</th><th>Só passa para a próxima quando</th></tr>
+<tr><td class="id">0</td><td><b>Medir.</b> Carga inicial das impressões; conferir no Sapron quantas imagens existem e se a distância 6 separa bem "igual" de "diferente".</td><td>Você aprovar os limites com números na mão</td></tr>
+<tr><td class="id">1</td><td><b>Sombra.</b> Roda e grava; só você vê na aba. Você rotula cada sinalizado.</td><td>Ao menos 40 cards rotulados e <b>zero descarte em nível forte</b></td></tr>
+<tr><td class="id">2</td><td><b>Alerta liga</b> para a franquia (R29); R35 deixa de travar o fechamento, o auditor volta ao fluxo normal.</td><td>Duas semanas sem reclamação de franquia por alerta disparado sem motivo</td></tr>
+<tr><td class="id">3</td><td><b>Consequência por clique de gente</b> (ocorrência). Decisão separada, com a Ray.</td><td>Decisão registrada com data</td></tr>
+</table></div>
+
+<h2>5 · Decisões abertas, com o padrão que usei</h2>
+<div class="tabela-wrap"><table>
+<tr><th>#</th><th>Decisão</th><th>Padrão nesta versão</th><th>Quem fecha</th></tr>
+<tr><td class="id">1</td><td>Janela de comparação</td><td>Todo o histórico; a idade só muda o peso (R13, R23, R25). A Ray falou em 30 dias.</td><td>Vinicius + Ray</td></tr>
+<tr><td class="id">2</td><td>Foto de etiqueta reaproveitada</td><td>Não leva sozinha a "forte" (R22)</td><td>Vinicius</td></tr>
+<tr><td class="id">3</td><td>Reuso entre imóveis da mesma franquia pesa mais?</td><td>Não: S3 é forte para qualquer franquia (R16)</td><td>Vinicius + Ray</td></tr>
+<tr><td class="id">4</td><td>Quem vê o sinal</td><td>Etapa 1: só Manutenção. Etapa 2: quem aprova o card</td><td>Ray</td></tr>
+<tr><td class="id">5</td><td>O que "forte" dispara</td><td>Dispara o alerta automático à franquia (R29). Não trava fechamento. Ocorrência é decisão separada (R39)</td><td>Ray + Diretoria de Franquias</td></tr>
+<tr><td class="id">6</td><td>Como reconhecer "mesmo prédio" (R21)</td><td>Ainda sem padrão. Opção: sigla do imóvel + raio, como já existe na escolha de franqueado</td><td>Vinicius</td></tr>
+</table></div>
+
+<h2>6 · Glossário</h2>
+<div class="tabela-wrap"><table>
+<tr><th>Termo</th><th>Significado</th></tr>
+<tr><td><b>Impressão perceptual (pHash)</b></td><td>Número de 64 bits que resume a aparência de uma imagem. Imagens iguais, mesmo recomprimidas, dão números quase iguais.</td></tr>
+<tr><td><b>Distância</b></td><td>Quantos bits diferem entre duas impressões. Zero é idêntica.</td></tr>
+<tr><td><b>EXIF</b></td><td>Dados gravados pela câmera na foto, como a data de captura. O WhatsApp costuma removê-los.</td></tr>
+<tr><td><b>Sombra</b></td><td>O bot roda e grava, mas ninguém além do dono vê nem sofre efeito.</td></tr>
+<tr><td><b>Rótulo</b></td><td>A decisão de uma pessoa (confirmou ou descartou) sobre um sinal. Serve para medir o acerto do bot.</td></tr>
+</table></div>
+
+<h2>7 · Histórico</h2>
+<div class="tabela-wrap"><table>
+<tr><th>Versão</th><th>Data</th><th>Mudança</th></tr>
+<tr><td>0.3</td><td>26/10/2026</td><td>Ajustes da Ray: R29 e R35 reescritas (alerta operacional à franquia, não trava por fraude), template de mensagem (3.7.1), quantificação real do problema e checagem contra o código em produção (3.7.2).</td></tr>
+<tr><td>0.2</td><td>08/10/2026</td><td>Regras R1 a R44, mockup da aba e etapas de lançamento. Substitui a lógica 0.1 (<code>LOGICA.md</code>).</td></tr>
+<tr><td>0.1</td><td>08/10/2026</td><td>Primeira lógica, a partir da Weekly de 05/10 com a Ray.</td></tr>
+</table></div>
+
+</div>
+</body>
+</html>

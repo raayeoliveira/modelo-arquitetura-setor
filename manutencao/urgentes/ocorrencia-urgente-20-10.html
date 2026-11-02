@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ocorrência do urgente</title>
+<style>
+  :root {
+    --navy: #080E32; --blue: #0055FF; --blue50: #F0F2FA; --border: #E1E7ED;
+    --g50: #F4F4F4; --g300: #CECFD6; --g600: #6A7282; --g700: #525670;
+    --red100: #FFE2E2; --red700: #9F0712; --or50: #FFF7ED; --or100: #FFEDD4; --or700: #9F2D00;
+    --green100: #ECFCCA; --green900: #35530E; --bg: #F7F8FA; --card: #fff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --navy: #E8EAF6; --blue50: #1C2440; --border: #2C3242; --g50: #23283A; --g300: #3A4054;
+      --g600: #9AA0B4; --g700: #B8BDCC; --red100: #3A1418; --red700: #FFB4B4;
+      --or50: #2E2014; --or100: #3A2614; --or700: #FFC58F; --green100: #1E2A12; --green900: #C7E89A;
+      --bg: #12151F; --card: #1A1E2B;
+    }
+  }
+  :root[data-theme="dark"] {
+    --navy: #E8EAF6; --blue50: #1C2440; --border: #2C3242; --g50: #23283A; --g300: #3A4054;
+    --g600: #9AA0B4; --g700: #B8BDCC; --red100: #3A1418; --red700: #FFB4B4;
+    --or50: #2E2014; --or100: #3A2614; --or700: #FFC58F; --green100: #1E2A12; --green900: #C7E89A;
+    --bg: #12151F; --card: #1A1E2B;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--navy);
+    font: 14px/1.5 Inter, "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif; letter-spacing: .02em; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 20px 16px 48px; }
+  .faixa { font-size: 13px; color: var(--g600); margin-bottom: 14px; }
+  .abas { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .abas span { padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--card); color: var(--g700); }
+  .abas span.on { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 600; }
+  .grid { display: grid; grid-template-columns: 240px 1fr; gap: 16px; }
+  @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+  .menu { display: flex; flex-direction: column; gap: 6px; }
+  .menu div { padding: 10px 12px; border-radius: 10px; background: var(--card); border: 1px solid var(--border); display: flex; justify-content: space-between; gap: 8px; }
+  .menu div.on { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(0,85,255,.15); font-weight: 600; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-top: 6px; flex: none; }
+  .ok { background: #5EA500; } .at { background: #FF832B; }
+  .cartao { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; min-width: 0; }
+  h2 { margin: 0 0 4px; font-size: 18px; }
+  .sub { color: var(--g600); margin: 0 0 14px; }
+  .estado { display: inline-block; padding: 2px 10px; border-radius: 999px; font-weight: 700; background: var(--or100); color: var(--or700); margin-left: 8px; font-size: 13px; }
+  .nums { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+  .num { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+  .num.al { border-color: #FFB86A; background: var(--or50); }
+  .num b { display: block; font-size: 24px; }
+  .num small { color: var(--g600); }
+  .lbl { color: var(--g600); font-size: 13px; }
+  h4 { margin: 22px 0 10px; font-size: 14px; text-transform: uppercase; color: var(--g600); }
+  .caso { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+  .cab { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .selo { padding: 2px 10px; border-radius: 999px; font-weight: 700; background: var(--red100); color: var(--red700); }
+  .selo.cinza { background: var(--g50); color: var(--g700); }
+  a { color: var(--navy); font-weight: 600; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .meta { color: var(--g600); }
+  dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px 16px; margin: 10px 0; }
+  dt { color: var(--g600); font-size: 13px; } dd { margin: 0; font-weight: 600; }
+  .aviso { margin: 6px 0; padding: 8px 10px; border-radius: 8px; background: var(--or50); color: var(--or700); }
+  ul { margin: 4px 0 10px; padding-left: 18px; color: var(--g700); }
+  textarea { width: 100%; min-height: 200px; font: inherit; padding: 10px 12px; border: 1px solid var(--g300); border-radius: 8px; color: var(--navy); background: var(--card); resize: vertical; }
+  .acoes { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  button, select { font: inherit; font-weight: 600; padding: 7px 16px; border-radius: 999px; border: 1px solid var(--g300); background: var(--card); color: var(--navy); cursor: pointer; }
+  button.pri { background: var(--blue); border-color: var(--blue); color: #fff; }
+  select { font-weight: 400; padding: 6px 10px; }
+  .tab-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 560px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--g600); font-weight: 600; }
+  .nota { margin-top: 26px; padding: 12px 14px; border-radius: 10px; background: var(--blue50); color: var(--g700); }
+</style>
+</head>
+<body><div style="background:#FFF4CC;color:#5A4500;font:13px/1.4 sans-serif;padding:8px 16px;text-align:center;border-bottom:1px solid #E8D48A">Versão para publicação: nomes de franquias, códigos de imóveis e IDs foram trocados por dados fictícios.</div>
+<div class="wrap">
+  <div class="faixa">Mockup · Sapron › Central de Manutenção › Agentes de IA · casos reais do banco de produção em 20/10/2026, ~15h (o que o agente proporia hoje)</div>
+  <div class="abas"><span>Cards</span><span>Por imóvel</span><span>Dashboard</span><span>Score de manutenção</span><span class="on">Agentes de IA</span></div>
+
+  <div class="grid">
+    <nav class="menu">
+      <div><span>Classificador de urgência</span><i class="dot ok"></i></div>
+      <div><span>Verificador de duplicata</span><i class="dot ok"></i></div>
+      <div><span>Triagem automática</span><i class="dot ok"></i></div>
+      <div><span>Validador de evidência</span><i class="dot ok"></i></div>
+      <div><span>Antifraude de evidência</span><i class="dot ok"></i></div>
+      <div><span>Auditor do parecer</span><i class="dot ok"></i></div>
+      <div><span>Despesa prova o card</span><i class="dot ok"></i></div>
+      <div class="on"><span>Ocorrência do urgente</span><i class="dot at"></i></div>
+    </nav>
+
+    <section class="cartao">
+      <h2>Ocorrência do urgente <span class="estado">Atenção</span></h2>
+      <p class="sub">Acha o card urgente sem resposta da franquia em 48 horas úteis e propõe a ocorrência 6.2 com as provas. Só propõe. Roda de hora em hora.</p>
+
+      <div class="aviso">
+        <b>De onde vem o "Urgente":</b> não é lista marcada à mão — é o Classificador de urgência (em produção), que soma gatilho duro (frases fechadas de risco à segurança/imóvel inutilizável: gás, choque, curto, incêndio/fumaça, sem água, sem energia, alagamento, hóspede preso, sem acesso), severidade por IA (0-80) e reincidência 90 dias (0-20); nota ≥ 70 é <code>ai_is_urgent</code>, mas só ordena — virar <code>status="urgente"</code> segue sendo decisão humana. Regras completas no documento v0.3 (22/10).<br>
+        <b>Escopo:</b> este agente nunca lança no Pipefy / Central de Ocorrências e Multas — só propõe; quem efetivamente abre o chamado e conta os pontos é o app da Victória.<br>
+        <b>MGO:</b> chamado de atualização da página 28 aberto no Suporte em 20/10 — dono e prazo de retorno ainda <b>a confirmar</b>.
+      </div>
+
+      <div class="nums">
+        <div class="num al"><span class="lbl">Para decidir</span><b>2</b><small>nada vai para a franquia até alguém lançar</small></div>
+        <div class="num"><span class="lbl">Espera da mais antiga</span><b>9h</b><small>alerta a partir de 24h</small></div>
+        <div class="num"><span class="lbl">Urgentes no relógio</span><b>20</b><small>6 da operação própria ficam fora</small></div>
+        <div class="num"><span class="lbl">Descartadas por gente</span><b>0%</b><small>0 descartadas · 0 lançadas</small></div>
+        <div class="num"><span class="lbl">Falhas na Central de Qualidade</span><b>0</b><small>reenviar pela lista</small></div>
+      </div>
+
+      <h4>Ocorrências para decidir (2)</h4>
+
+      <div class="caso">
+        <div class="cab">
+          <span class="selo">6.2 · Grave · 4 pts</span>
+          <a href="#">#7997 · Extensão da pia da cozinha em curto, cai o disjuntor do apto</a>
+          <span class="meta">EXP0101 · Helena Lacerda (GRU-001-TTP)</span>
+        </div>
+        <dl>
+          <div><dt>Enviado à franquia</dt><dd>14/10/2026 11:00</dd></div>
+          <div><dt>Prazo do urgente</dt><dd>15/10/2026</dd></div>
+          <div><dt>Venceram as 48 h úteis</dt><dd>16/10/2026 23:59 · há 3 dias</dd></div>
+          <div><dt>Cobranças da Seazone</dt><dd>2</dd></div>
+        </dl>
+        <span class="meta">O que a Seazone escreveu no chamado depois do envio:</span>
+        <ul>
+          <li>14/10 11:00 · Sistema: “🔧 Nova manutenção — EXP0101 … ⚠️ manutenção URGENTE”</li>
+          <li>16/10 10:00 · Sistema: “🚨 Manutenção urgente: o prazo de 1 dia útil venceu em 15/10/2026…”</li>
+        </ul>
+        <span class="meta">Última mensagem da franquia no chamado: nenhuma</span>
+        <h4 style="margin-top:12px">Texto que vai para a franquia</h4>
+        <textarea>Ocorrência 6.2 — Manutenção urgente sem resposta
+
+Imóvel: EXP0101
+Card: #7997 — Extensão da pia da cozinha em curto, qdo utilizada cai o djuntor do apto (Apontamentos)
+Link: https://sapron.com.br/central-manutencao?aba=cards&card=7997
+
+Enviado à franquia em 14/10/2026 às 11:00.
+Sem resposta até 16/10/2026 (48 horas úteis).
+
+Regra: MGO, Manutenção urgente — card urgente sem resposta em 48 horas úteis gera a ocorrência 6.2 (Grave, 4 pontos).
+
+Se houve resposta por outro canal, responda aqui com o print.</textarea>
+        <div class="acoes">
+          <button class="pri">Lançar ocorrência</button>
+          <select><option>Motivo do descarte…</option><option>Respondeu fora do chamado</option><option>Não era urgente</option><option>Depende do proprietário</option><option>O atraso foi da Seazone</option><option>Card duplicado</option><option>Outro</option></select>
+          <button>Descartar</button>
+          <a href="#">Abrir o card</a>
+        </div>
+      </div>
+
+      <div class="caso">
+        <div class="cab">
+          <span class="selo">6.2 · Grave · 4 pts</span>
+          <a href="#">#8026 · Manutenção - limpeza - EXP0102</a>
+          <span class="meta">EXP0102 · Bruno Xavier (GPI-001-CEN)</span>
+        </div>
+        <dl>
+          <div><dt>Enviado à franquia</dt><dd>14/10/2026 10:53</dd></div>
+          <div><dt>Prazo do urgente</dt><dd>15/10/2026</dd></div>
+          <div><dt>Venceram as 48 h úteis</dt><dd>16/10/2026 23:59 · há 3 dias</dd></div>
+          <div><dt>Cobranças da Seazone</dt><dd>2</dd></div>
+        </dl>
+        <div class="aviso">Infestação de baratas com checkout antecipado do hóspede (reserva PR70J). Veio da ponte do Suporte em 14/10.</div>
+        <span class="meta">Última mensagem da franquia no chamado: nenhuma</span>
+        <div class="acoes">
+          <button class="pri">Lançar ocorrência</button>
+          <select><option>Motivo do descarte…</option></select>
+          <button>Descartar</button>
+          <a href="#">Abrir o card</a>
+        </div>
+      </div>
+
+      <h4>Últimas decisões</h4>
+      <div class="tab-wrap">
+        <table>
+          <thead><tr><th>Card</th><th>Imóvel</th><th>Decisão</th><th>Central de Qualidade</th><th>Por</th><th>Em</th></tr></thead>
+          <tbody>
+            <tr><td><a href="#">#0000</a></td><td>EXEMPLO</td><td><span class="selo">Lançada</span></td><td>Enviada à Central de Qualidade</td><td>Vinicius Satores</td><td>—</td></tr>
+            <tr><td><a href="#">#0000</a></td><td>EXEMPLO</td><td><span class="selo cinza">Descartada · Respondeu fora do chamado</span></td><td>—</td><td>Vinicius Satores</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="nota">
+        <b>Retrato de hoje (20/10, banco de produção):</b> 20 urgentes enviados → 6 da operação própria (fora) · 3 responderam a tempo · 3 ainda no prazo · 6 venceram antes de 16/10 (sem retroativo) · <b>2 propostas</b>.
+      </div>
+    </section>
+  </div>
+</div>
+</body>
+</html>

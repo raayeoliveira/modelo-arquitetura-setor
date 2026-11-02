@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Score de Manutenção × Score Geral</title>
+<style>
+@page{size:A4;margin:12mm 14mm}
+*{box-sizing:border-box}
+body{margin:0;font:10.5px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#0f172a;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+h1{font-size:19px;margin:0;letter-spacing:-.2px}
+.meta{color:#64748b;margin:2px 0 10px}
+h2{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:#475569;margin:12px 0 5px}
+.tldr{background:#f1f5f9;border-left:3px solid #0d4bd8;padding:8px 12px;font-size:11.5px;line-height:1.5}
+.tldr b{color:#0d4bd8}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px}
+.card h3{margin:0 0 4px;font-size:11.5px}
+.card.now h3{color:#b45309}.card.new h3{color:#15803d}
+ul{margin:0;padding-left:15px}li{margin-bottom:2px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:4px 6px;border-bottom:1px solid #eef1f5;text-align:left;vertical-align:top}
+th{font-size:9.5px;color:#64748b;font-weight:600;border-bottom:1px solid #cbd5e1}
+.ok{color:#15803d;font-weight:600}.bad{color:#b91c1c;font-weight:600}
+.flow{display:flex;align-items:stretch;gap:6px;margin-top:2px}
+.step{flex:1;border:1px solid #e2e8f0;border-radius:8px;padding:6px 8px;font-size:10px}
+.step b{display:block;font-size:10.5px;margin-bottom:1px}
+.arr{align-self:center;color:#94a3b8;font-size:14px}
+.ask td:first-child{font-weight:700;white-space:nowrap;width:70px}
+.foot{margin-top:10px;color:#94a3b8;font-size:9px;border-top:1px solid #e2e8f0;padding-top:6px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
+/* Na tela (link publicado): letra maior, margem e coluna central. O PDF segue
+   com o layout A4 acima, porque estas regras só valem fora da impressão. */
+:root{--bg:#f8fafc;--papel:#fff;--tinta:#0f172a;--fraco:#64748b;--linha:#e2e8f0;--tldr:#eef3fb;--azul:#0d4bd8;--verde:#15803d;--verm:#b91c1c;--ambar:#b45309}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1220;--papel:#111a2e;--tinta:#e2e8f0;--fraco:#94a3b8;--linha:#1e293b;--tldr:#15213a;--azul:#7aa2ff;--verde:#4ade80;--verm:#f87171;--ambar:#fbbf24}}
+:root[data-theme="dark"]{--bg:#0b1220;--papel:#111a2e;--tinta:#e2e8f0;--fraco:#94a3b8;--linha:#1e293b;--tldr:#15213a;--azul:#7aa2ff;--verde:#4ade80;--verm:#f87171;--ambar:#fbbf24}
+@media screen{
+ html{background:var(--bg)}
+ body{max-width:920px;margin:0 auto;padding:40px 16px 64px;font-size:15px;line-height:1.6;color:var(--tinta);background:var(--bg)}
+ h1{font-size:28px;line-height:1.25}
+ .meta{font-size:14px;margin:6px 0 20px;color:var(--fraco)}
+ h2{font-size:13px;margin:32px 0 10px;color:var(--fraco)}
+ .tldr{font-size:16px;padding:14px 18px;border-radius:0 8px 8px 0;background:var(--tldr)}
+ .cols{gap:14px}
+ @media (max-width:640px){.cols{grid-template-columns:1fr}.flow{flex-direction:column}.arr{transform:rotate(90deg)}}
+ .card{padding:14px 16px;border-radius:10px;background:var(--papel);border-color:var(--linha)}
+ .card h3{font-size:16px;margin-bottom:8px}
+ li{margin-bottom:6px}
+ table{font-size:14px;background:var(--papel);border-radius:10px;overflow:hidden}
+ .tabela{overflow-x:auto}
+ th,td{padding:10px 12px;border-color:var(--linha)}
+ th{font-size:12px;color:var(--fraco)}
+ .step{font-size:14px;padding:12px 14px;border-radius:10px;background:var(--papel);border-color:var(--linha)}
+ .step b{font-size:15px;margin-bottom:4px}
+ .arr{font-size:20px}
+ .ask td:first-child{width:90px}
+ .tldr b{color:var(--azul)} .tldr{border-left-color:var(--azul)}
+ .ok,.card.new h3{color:var(--verde)} .bad{color:var(--verm)} .card.now h3{color:var(--ambar)}
+ .foot{font-size:12px;margin-top:32px;padding-top:12px;border-color:var(--linha);color:var(--fraco)}
+}
+</style></head><body><div style="background:#FFF4CC;color:#5A4500;font:13px/1.4 sans-serif;padding:8px 16px;text-align:center;border-bottom:1px solid #E8D48A">Versão para publicação: nomes de franquias, códigos de imóveis e IDs foram trocados por dados fictícios.</div>
+
+<h1>Score de manutenção × score geral da franquia</h1>
+<div class="meta">Proposta de alinhamento · Vinicius Satores, Manutenção · 07/10/2026 · para David e Ray</div>
+
+<div class="tldr">A manutenção <b>já está</b> no score geral, como o item <b>"resolução de manutenções" (0 a 5)</b>, com a regra dos 35 dias. Esse item só enxerga card esquecido: a franquia que entrega <b>sempre atrasada, mas antes dos 35 dias</b>, tira 5/5. A proposta é <b>usar o Score de manutenção como régua desse item</b>, sem criar uma nota paralela.</div>
+
+<h2>Hoje × proposta</h2>
+<div class="cols">
+ <div class="card now"><h3>Hoje — regra dos 35 dias</h3><ul>
+  <li>Até 7 dias sem impacto; depois cai um ponto por semana; card aberto há 35 dias zera.</li>
+  <li>Fonte: relatório de lead time do Sapron.</li>
+  <li>Olha o card mais atrasado, não o padrão da franquia.</li>
+  <li>Vale até 5 pontos num total de ~120.</li>
+ </ul></div>
+ <div class="card new"><h3>Proposta — Score de manutenção</h3><ul>
+  <li>Nota de 0 a 100, média ponderada de 4 pilares, últimos 90 dias: <b>SLA</b> (peso 30, % no prazo), <b>lead time</b> (peso 20, mediana de dias), <b>reincidência</b> (peso 30, card que volta em 15 dias) e <b>volume</b> (peso 20, cards por imóvel vs. mediana da rede). Pilar sem base sai da conta e redistribui o peso — já rodando automático desde 19/10.</li>
+  <li>Prazo do pilar SLA: 2 dias urgente, 7 não urgente, 21 recorrente. Lead time: 3 dias = 100, 21 dias = 0.</li>
+  <li>Entra no score geral como <b>nota ÷ 20</b> (0 a 5), no mesmo item. Mesmo peso de hoje.</li>
+  <li>Franquia com menos de 5 cards avaliados fica com a regra atual dos 35 dias.</li>
+ </ul></div>
+</div>
+
+<h2>O que os números mostram</h2>
+<div class="note" style="background:var(--tldr);border-left:3px solid var(--ambar);padding:8px 12px;font-size:13px;margin-bottom:10px"><b>Pendente:</b> a coluna do score geral abaixo é do cruzamento de ago/26 (Nekt), feito antes do beat automático existir. O score de manutenção já está em 19/10 (10 Crítica, não mais 16) — falta rodar o cruzamento de novo com um retrato novo da Nekt para esta tabela bater com o score atual. Não tenho acesso à Nekt por aqui para refazer a leitura.</div>
+<table>
+ <tr><th>Score de manutenção (07/10, cruzamento antigo)</th><th>Item de manutenção no geral (ago/26)</th><th>Classificação geral (ago/26)</th><th>Leitura</th></tr>
+ <tr><td><span class="dot" style="background:#16a34a"></span>12 Referência</td><td>12 com 5/5</td><td>10 Excelente · 2 Bom</td><td class="ok">Os dois concordam</td></tr>
+ <tr><td><span class="dot" style="background:#dc2626"></span>16 Crítica</td><td>7 com 0 · 3 com 5/5</td><td>7 Excelente · 4 Integração · 3 Bom · 2 Regular</td><td class="bad">7 Críticas em manutenção aparecem como Excelente</td></tr>
+</table>
+<p style="margin:4px 0 0;color:#475569">Exemplos do cruzamento de 07/10 (pré-automação): Vera (2 de 12 no prazo, 26 dias para resolver) e Larissa (4 de 15, 20 dias) têm 5/5 no item de manutenção do score geral. No retrato atual (19/10) a pior nota é André Lacerda (15, 0 de 5 no prazo) — o pedido de cruzamento com o score geral de outubro é o mesmo, só falta a leitura nova da Nekt.</p>
+
+<h2>Como fica o fluxo</h2>
+<div class="flow">
+ <div class="step"><b>Sapron · toda segunda</b>Calcula o Score de manutenção e guarda o retrato da semana.</div><div class="arr">→</div>
+ <div class="step"><b>Área de manutenção</b>Aba e relatório; ordena a triagem de terça e a recuperação.</div><div class="arr">→</div>
+ <div class="step"><b>Score geral · mensal</b>Recebe nota ÷ 20 no item "resolução de manutenções".</div><div class="arr">→</div>
+ <div class="step"><b>UTI e prospecção</b>Mesmo corte de Crítica (&lt; 40) da UTI; o alerta de risco segue lendo a classificação geral.</div>
+</div>
+
+<h2>Ocorrências</h2>
+<p style="margin:0">Já estão no score geral: cada ocorrência tira 1 ponto no mês (ex.: Flora, 24 ocorrências em agosto). Só existe o <b>total mensal</b>, sem o tipo. O Score de manutenção vai <b>mostrar</b> esse total ao lado da nota, sem peso, porque ela já desconta no score geral e não deve ser descontada duas vezes.</p>
+
+<h2>Cruzamento com Pré-UTI de franquias</h2>
+<p style="margin:0">Pedido (26/10): se o Score de manutenção der Crítica numa franquia que já está em Pré-UTI/UTI, o status Pré-UTI prevalece — não abrir processo novo. <b>Não encontrei a fonte da Pré-UTI de franquias no Sapron</b> (o que existe com nome parecido, <code>franchise_prospecting_alert</code>, é sobre prospecção/expansão territorial, outro assunto). Ela deve estar na Nekt ou numa planilha do time de Franquias — preciso que a Ray ou a Carol apontem onde, para o cruzamento sair do campo de "pedido" para o de "feito".</p>
+
+<h2>Franquias sem nota</h2>
+<p style="margin:0">36 das 116 franquias ficaram sem nota no retrato de 19/10 (menos de 5 cards avaliados em 90 dias). Checado contra o cadastro: nenhuma está inativa. 5 são franquias com menos de 90 dias (ainda não deu tempo de acumular cards); as outras 31 são franquias estabelecidas com volume real baixo de manutenção — não é lacuna de dado, é pouco chamado mesmo. Detalhe por franquia no relatório (<code>relatorio.html</code>).</p>
+
+<h2>O que precisamos decidir</h2>
+<table class="ask">
+ <tr><td>David</td><td>Trocar a régua do item "resolução de manutenções" pelo Score de manutenção (nota ÷ 20)? Confirmar em qual bloco o item soma (parece ser aderência aos processos) e se o peso de 5 pontos continua.</td></tr>
+ <tr><td>Ray</td><td>Começar só com prazo e tempo de resolução; volume e reincidência entram depois de calibrados. Interno em outubro, e o primeiro envio ao score geral junto com a mensal de 10/11?</td></tr>
+</table>
+
+<div class="foot">Fontes: Sapron, tabela <code>maintenance_franchisescore</code> (<code>maintenance/actions/franchise_score.py</code>), retrato de 19/10/2026, 90 dias — 1º retrato do beat automático semanal (até 19/10 a conta era manual, PRs #5139/#3660) · Nekt, nekt_operacional_silver.gs_franquias_bd_score_meses, mês 01/08/26 (121 franquias), consulta de 07/10/2026 — cruzamento ainda não refeito com o retrato novo (ver nota acima).</div>
+</body></html>

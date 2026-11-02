@@ -1,0 +1,615 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Processo de Manutenção Recorrente</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{
+  /* Paleta Seazone — sapron-frontend/app/src/styles/themes.ts */
+  --ground:#F3F6F9; --surface:#FFFFFF; --surface-2:#EBF0F5; --surface-3:#E1E7ED;
+  --ink:#151B26; --ink-2:#51626F; --ink-3:#888E9B;
+  --rule:#E1E7ED; --rule-2:#C0CDDD;
+  --brand:#0D4BD0; --brand-ink:#0D4BD0; --brand-soft:#F0F2FA; --brand-line:#C2C8F1;
+  --green:#41B592; --green-ink:#219653; --green-soft:#D9F0E9; --green-line:#BFEBDD;
+  --coral:#EB6957; --coral-ink:#CF4F44; --coral-soft:#F7E1E1; --coral-line:#E7B3B3;
+  --amber:#F5A623; --amber-ink:#51626F; --amber-soft:#FFF3E0; --amber-line:#FFCD80;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#151B26; --surface:#1B212C; --surface-2:#232B38; --surface-3:#2B3442;
+    --ink:#F3F6F9; --ink-2:#B2BBC3; --ink-3:#888E9B;
+    --rule:#2E3644; --rule-2:#3D4756;
+    --brand:#3CC3EE; --brand-ink:#3CC3EE; --brand-soft:#132A46; --brand-line:#2A5480;
+  --green:#54DBB2; --green-ink:#54DBB2; --green-soft:#16332B; --green-line:#2F6A5C;
+    --coral:#F0655A; --coral-ink:#F0655A; --coral-soft:#3A2220; --coral-line:#7D423A;
+    --amber:#FFCD80; --amber-ink:#FFCD80; --amber-soft:#332818; --amber-line:#7A5C2E;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#151B26; --surface:#1B212C; --surface-2:#232B38; --surface-3:#2B3442;
+  --ink:#F3F6F9; --ink-2:#B2BBC3; --ink-3:#888E9B;
+  --rule:#2E3644; --rule-2:#3D4756;
+  --brand:#3CC3EE; --brand-ink:#3CC3EE; --brand-soft:#132A46; --brand-line:#2A5480;
+  --green:#54DBB2; --green-ink:#54DBB2; --green-soft:#16332B; --green-line:#2F6A5C;
+  --coral:#F0655A; --coral-ink:#F0655A; --coral-soft:#3A2220; --coral-line:#7D423A;
+  --amber:#FFCD80; --amber-ink:#FFCD80; --amber-soft:#332818; --amber-line:#7A5C2E;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:14.5px; line-height:1.62; margin:0;
+  padding-inline:20px; padding-block:0 68px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:860px;margin:0 auto}
+h1,h2,h3,.dsp{font-family:Quicksand,"Trebuchet MS",sans-serif;text-wrap:balance;margin:0;line-height:1.2;font-weight:700}
+p{margin:0}
+b{font-weight:600}
+a{color:var(--brand-ink)}
+
+/* ---------- masthead ---------- */
+.mast{padding-block:38px 26px;display:flex;flex-direction:column;gap:15px;border-bottom:3px solid var(--brand)}
+.kicker{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--brand-ink)}
+.mast h1{font-size:clamp(26px,5.2vw,40px);letter-spacing:-.02em}
+.mast .deck{font-size:16px;color:var(--ink-2);max-width:60ch;line-height:1.58}
+.badges{display:flex;flex-wrap:wrap;gap:8px}
+.badge{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.badge.g{background:var(--green-soft);color:var(--green-ink);border:1px solid var(--green-line)}
+.badge.a{background:var(--amber-soft);color:var(--amber-ink);border:1px solid var(--amber-line)}
+.badge.n{background:var(--surface-2);color:var(--ink-2);border:1px solid var(--rule-2)}
+.badge.b{background:var(--brand-soft);color:var(--brand-ink);border:1px solid var(--brand-line)}
+
+/* ---------- sections ---------- */
+section{padding-block:38px 6px}
+section + section{border-top:1px solid var(--rule)}
+.shead{display:flex;gap:14px;align-items:center;margin-bottom:8px}
+.shead .sn{font-family:Quicksand,sans-serif;font-size:27px;font-weight:700;color:var(--brand);line-height:1;flex:none;font-variant-numeric:tabular-nums}
+h2{font-size:clamp(19px,3.1vw,24px);letter-spacing:-.016em}
+.sub{color:var(--ink-2);margin-top:4px;max-width:68ch;font-size:15px}
+h3{font-size:16px;margin-top:28px;letter-spacing:-.008em}
+h3 + .sub{margin-top:5px;font-size:14.5px}
+
+/* ---------- selos ---------- */
+.seal{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:2px 9px;border-radius:999px;white-space:nowrap;vertical-align:1px}
+.seal.viv{background:var(--green-soft);color:var(--green-ink);border:1px solid var(--green-line)}
+.seal.dec{background:var(--surface-2);color:var(--ink-2);border:1px solid var(--rule-2)}
+.seal.pro{background:var(--amber-soft);color:var(--amber-ink);border:1px solid var(--amber-line)}
+.seal.gap{background:var(--coral-soft);color:var(--coral-ink);border:1px solid var(--coral-line)}
+.seallist{display:flex;flex-wrap:wrap;gap:9px 20px;margin-top:18px;font-size:13.5px;color:var(--ink-2);align-items:center}
+.seallist span{display:inline-flex;align-items:center;gap:8px}
+
+/* ---------- ciclo ---------- */
+.cycle{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;margin-top:22px}
+.cyc{background:var(--surface);border:1px solid var(--rule);border-radius:11px;padding:15px 16px;display:flex;flex-direction:column;gap:8px;position:relative}
+.cyc .ci{width:29px;height:29px;border-radius:50%;background:var(--brand);color:#FFFFFF;display:grid;place-items:center;font-family:Quicksand,sans-serif;font-weight:700;font-size:13.5px}
+.cyc .ct{font-family:Quicksand,sans-serif;font-weight:700;font-size:15.5px;letter-spacing:-.01em}
+.cyc .cd{font-size:13.5px;color:var(--ink-2);line-height:1.5}
+
+/* ---------- destaque ---------- */
+.hero{background:var(--ink);color:var(--ground);border-radius:12px;padding:21px 24px;margin-top:22px;display:flex;flex-direction:column;gap:8px}
+.hero .hk{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--green)}
+.hero .hv{font-family:Quicksand,sans-serif;font-weight:700;font-size:clamp(16.5px,2.6vw,20.5px);line-height:1.38;letter-spacing:-.012em}
+
+/* ---------- pares ---------- */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.duo > div{background:var(--surface);border:1px solid var(--rule);border-radius:11px;padding:15px 17px;display:flex;flex-direction:column;gap:8px}
+.duo .dh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.duo .dn{font-family:Quicksand,sans-serif;font-weight:700;font-size:16px}
+.duo p{font-size:13.5px;color:var(--ink-2);line-height:1.55}
+.duo .a{border-color:var(--green-line)}
+.duo .b{border-color:var(--amber-line)}
+
+/* ---------- trio de estados ---------- */
+.trio{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:12px;margin-top:18px}
+.tri{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--rule-2);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.tri.ok{border-left-color:var(--green)}
+.tri.no{border-left-color:var(--ink-3)}
+.tri.wa{border-left-color:var(--amber)}
+.tri .tt{font-family:Quicksand,sans-serif;font-weight:700;font-size:15px}
+.tri .td{font-size:13.5px;color:var(--ink-2);line-height:1.5}
+
+/* ---------- calendário ---------- */
+.calwrap{overflow-x:auto;margin-top:20px}
+.cal{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;min-width:520px}
+.cal .m{background:var(--surface);border:1px solid var(--rule);border-radius:9px;padding:9px 4px 10px;display:flex;flex-direction:column;gap:6px;align-items:center}
+.cal .m.on{border-color:var(--brand-line)}
+.cal .m.off{background:var(--surface-2);border-style:dashed;border-color:var(--rule-2)}
+.cal .mn{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.cal .mv{font-family:Quicksand,sans-serif;font-size:19px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:var(--brand-ink)}
+.cal .m.off .mv{color:var(--ink-3);font-size:14px;padding-block:2px}
+.cal .bar{width:100%;height:3px;border-radius:2px;background:var(--brand)}
+.cal .m.off .bar{background:var(--rule-2)}
+.callegend{display:flex;flex-wrap:wrap;gap:16px;margin-top:11px;font-size:13px;color:var(--ink-2)}
+.callegend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:7px;vertical-align:-1px}
+.callegend i.a{background:var(--brand)}
+.callegend i.b{background:var(--surface-2);border:1px dashed var(--rule-2)}
+
+/* ---------- cadência ---------- */
+.cad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:20px}
+.cad .d{background:var(--surface);border:1px solid var(--rule);border-radius:11px;padding:14px 15px;display:flex;flex-direction:column;gap:6px}
+.cad .d.fire{background:var(--brand);border-color:var(--brand);color:#FFFFFF}
+.cad .dd{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.cad .d.fire .dd{color:rgba(255,255,255,.82)}
+.cad .dt{font-family:Quicksand,sans-serif;font-weight:700;font-size:15.5px}
+.cad .db{font-size:13px;line-height:1.5;color:var(--ink-2)}
+.cad .d.fire .db{color:rgba(255,255,255,.92)}
+
+/* ---------- etapas ---------- */
+.lane{margin-top:22px}
+.lanehead{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.lanehead .lt{font-family:Quicksand,sans-serif;font-weight:700;font-size:15.5px}
+.lanehead .lr{flex:1;height:2px;background:var(--rule)}
+.lanehead .lc{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{background:var(--surface);border:1px solid var(--rule);border-radius:11px;padding:14px 16px;display:grid;grid-template-columns:32px 1fr;gap:14px;align-items:start}
+.step .sn2{width:29px;height:29px;border-radius:50%;background:var(--surface-2);color:var(--ink-2);display:grid;place-items:center;font-family:Quicksand,sans-serif;font-weight:700;font-size:13px}
+.step.key{border-color:var(--brand-line)}
+.step.key .sn2{background:var(--brand);color:#FFFFFF}
+.step.back{border-color:var(--coral-line)}
+.step.back .sn2{background:var(--coral);color:#FFFFFF}
+.step .sh{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:4px}
+.step .stt{font-family:Quicksand,sans-serif;font-weight:700;font-size:15.5px;letter-spacing:-.008em}
+.step .sd{font-size:14px;color:var(--ink-2);line-height:1.56}
+.step .sg{font-size:13px;color:var(--ink-2);line-height:1.5;margin-top:9px;padding-top:9px;border-top:1px solid var(--rule)}
+.actor{font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:2px 9px;border-radius:999px;white-space:nowrap;margin-left:auto;background:var(--surface-2);color:var(--ink-2);border:1px solid var(--rule-2)}
+.actor.sea{background:var(--green-soft);color:var(--green-ink);border-color:var(--green-line)}
+.actor.fra{background:var(--amber-soft);color:var(--amber-ink);border-color:var(--amber-line)}
+
+/* ---------- diagrama ---------- */
+.diagwrap{overflow-x:auto;margin-top:20px;background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:18px 14px}
+svg.flow{display:block;width:100%;min-width:620px;max-width:700px;margin:0 auto;height:auto}
+svg.flow .box{fill:var(--surface-2);stroke:var(--rule-2);stroke-width:1.2}
+svg.flow .box.new{fill:var(--brand-soft);stroke:var(--brand)}
+svg.flow .box.trig{fill:none;stroke:var(--rule-2);stroke-dasharray:5 4}
+svg.flow .box.alt{fill:var(--amber-soft);stroke:var(--amber)}
+svg.flow .lbl{fill:var(--ink);font-family:Quicksand,sans-serif;font-size:13px;font-weight:700}
+svg.flow .lbl.sm{font-size:10.5px;font-weight:500;fill:var(--ink-2);font-family:Inter,sans-serif}
+svg.flow .conn{stroke:var(--rule-2);stroke-width:2;fill:none}
+svg.flow .conn.alt{stroke:var(--amber)}
+svg.flow .ret{stroke:var(--coral);stroke-width:2;fill:none;stroke-dasharray:6 4}
+svg.flow .mk-rule{fill:var(--rule-2)} svg.flow .mk-alert{fill:var(--coral)} svg.flow .mk-block{fill:var(--amber)}
+svg.flow .rl{font-family:Inter,sans-serif;font-size:10px;fill:var(--coral-ink);font-weight:600}
+svg.flow .rl.bl{fill:var(--ink-2)} svg.flow .rl.gr{fill:var(--ink-3)}
+.diaglegend{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;font-size:13px;color:var(--ink-2)}
+.diaglegend i{display:inline-block;width:13px;height:13px;border-radius:3px;margin-right:7px;vertical-align:-1px;border:1px solid var(--rule-2);background:var(--surface-2)}
+.diaglegend i.new{background:var(--brand-soft);border-color:var(--brand)}
+.diaglegend i.alt{background:var(--amber-soft);border-color:var(--amber)}
+.diaglegend i.ed{border:0;border-radius:0;height:0;border-top:2px dashed var(--coral);width:17px;vertical-align:5px}
+
+/* ---------- evidência ---------- */
+.evd{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:12px;margin-top:20px}
+.ev{background:var(--surface);border:1px solid var(--rule);border-radius:11px;padding:15px 17px;display:flex;flex-direction:column;gap:8px}
+.ev.full{border-color:var(--green);background:var(--green-soft)}
+.ev .eh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ev .et{font-family:Quicksand,sans-serif;font-weight:700;font-size:15px;letter-spacing:-.008em}
+.ev .ei{font-size:13.5px;color:var(--ink-2);line-height:1.55}
+.ev .ex{font-size:12.5px;color:var(--ink-3);line-height:1.5}
+.cov{font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:2px 9px;border-radius:999px;margin-left:auto;white-space:nowrap;background:var(--surface-2);color:var(--ink-2);border:1px solid var(--rule-2)}
+.cov.f{background:var(--green);color:#FFFFFF;border-color:var(--green)}
+
+/* ---------- SLA barras ---------- */
+.slas{display:flex;flex-direction:column;gap:9px;margin-top:20px}
+.sla{background:var(--surface);border:1px solid var(--rule);border-radius:11px;padding:13px 16px;display:grid;grid-template-columns:46px 1fr;gap:14px;align-items:center}
+.sla .lv{font-family:Quicksand,sans-serif;font-weight:700;font-size:17px;color:var(--brand-ink)}
+.sla .bd{display:flex;flex-direction:column;gap:7px;min-width:0}
+.sla .bt{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.sla .bn{font-family:Quicksand,sans-serif;font-weight:700;font-size:14.5px;font-variant-numeric:tabular-nums}
+.sla .bi{font-size:13px;color:var(--ink-2);line-height:1.45}
+.sla .track{height:8px;background:var(--surface-3);border-radius:999px;overflow:hidden}
+.sla .fill{height:100%;background:var(--brand);border-radius:999px}
+
+/* ---------- escalonamento ---------- */
+.esc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:18px}
+.es{background:var(--surface);border:1px solid var(--rule);border-top:4px solid var(--rule-2);border-radius:10px;padding:13px 15px;display:flex;flex-direction:column;gap:6px}
+.es.a{border-top-color:var(--green)} .es.b{border-top-color:var(--amber)} .es.c{border-top-color:var(--coral)} .es.d{border-top-color:var(--coral)}
+.es .ed2{font-family:Quicksand,sans-serif;font-weight:700;font-size:18.5px;font-variant-numeric:tabular-nums}
+.es .ew{font-size:13.5px;color:var(--ink-2);line-height:1.5}
+.es .ewh{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ---------- exceções ---------- */
+.exc{display:flex;flex-direction:column;gap:9px;margin-top:20px}
+.erow{background:var(--surface);border:1px solid var(--rule);border-radius:11px;padding:14px 17px;display:grid;grid-template-columns:1fr 1.45fr;gap:18px;align-items:start}
+.erow .q{font-family:Quicksand,sans-serif;font-weight:700;font-size:15px;letter-spacing:-.008em}
+.erow .a{color:var(--ink-2);line-height:1.56;font-size:14px}
+.erow .a b{color:var(--ink)}
+
+/* ---------- divergências ---------- */
+.gapl{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.gp{background:var(--surface);border:1px solid var(--coral-line);border-radius:11px;padding:15px 17px;display:flex;flex-direction:column;gap:10px}
+.gp .gt{font-family:Quicksand,sans-serif;font-weight:700;font-size:15.5px;letter-spacing:-.008em}
+.gp .gr2{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.gp .gc{display:flex;flex-direction:column;gap:3px}
+.gp .gk{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.gp .gv{font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+.gp .gc.fix .gk{color:var(--brand-ink)}
+.gp .gc.fix .gv{color:var(--ink)}
+
+/* ---------- tabela ---------- */
+.tw{overflow-x:auto;margin-top:18px;border:1px solid var(--rule);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:540px}
+th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.5}
+thead th{background:var(--surface-2);font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2);font-weight:600;white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+td.c,th.c{text-align:center;white-space:nowrap}
+tr.estr td{background:var(--green-soft)}
+tr.estr td:first-child{box-shadow:inset 3px 0 0 var(--green)}
+tr.grp td{background:var(--surface-3);font-family:Quicksand,sans-serif;font-weight:700;font-size:13px;padding-block:8px}
+
+/* ---------- notas ---------- */
+.note{border-radius:11px;padding:14px 17px;font-size:14px;margin-top:18px;line-height:1.58;background:var(--brand-soft);border:1px solid var(--brand-line)}
+.note.warn{background:var(--amber-soft);border-color:var(--amber-line)}
+.note.stop{background:var(--coral-soft);border-color:var(--coral-line)}
+.note .lbl{display:block;font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;margin-bottom:7px;color:var(--brand-ink)}
+.note.warn .lbl{color:var(--ink-2)}
+.note.stop .lbl{color:var(--coral-ink)}
+.note p + p{margin-top:9px}
+
+.foot{padding-block:30px 0;margin-top:34px;border-top:1px solid var(--rule);font-size:13px;color:var(--ink-3);line-height:1.65}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+@media (max-width:680px){
+  .cad{grid-template-columns:1fr 1fr}
+  .duo,.erow,.gp .gr2{grid-template-columns:1fr}
+  .erow{gap:8px}
+  .step{grid-template-columns:1fr;gap:10px}
+  .actor{margin-left:0}
+  .sla{grid-template-columns:1fr;gap:10px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<div class="wrap">
+
+<header class="mast">
+  <p class="kicker">Seazone · Gestão de Manutenção · Manutenção Recorrente</p>
+  <h1>Processo de Manutenção Recorrente</h1>
+  <p class="deck">O ciclo que decide quais imóveis são cobrados a cada mês, sem duplicar o que já foi feito.</p>
+  <div class="badges">
+    <span class="badge b">v2.2 · 26/10/2026</span>
+    <span class="badge a">5 decisões em aberto</span>
+  </div>
+</header>
+
+<section>
+  <div class="shead"><span class="sn">00</span><h2>Itens do processo</h2></div>
+  <p class="sub">Um item por linha, um card por serviço. <b>Cobrado</b> = card com prazo. <b>Pendente</b> = ainda não decidido.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Item</th><th>Status</th><th>Periodicidade</th><th>Mês</th><th>Prazo à franquia</th></tr></thead>
+      <tbody>
+        <tr class="estr"><td><b>Ar-condicionado</b> + Split</td><td><span class="badge g">Cobrado</span></td><td>Anual</td><td>Setembro</td><td>15 dias úteis</td></tr>
+        <tr class="estr"><td>Filtro do exaustor</td><td><span class="badge g">Cobrado</span></td><td>Anual</td><td>Setembro</td><td>15 dias úteis</td></tr>
+        <tr><td>Filtro de água</td><td><span class="badge a">Pendente</span></td><td>a definir</td><td>Abril e setembro</td><td>15 dias úteis</td></tr>
+        <tr><td>Limpeza da caixa d'água</td><td><span class="badge a">Pendente</span></td><td>a definir</td><td>Abril e outubro</td><td>15 dias úteis</td></tr>
+        <tr class="estr"><td>Higienização de sofá / estofado</td><td><span class="badge g">Cobrado</span></td><td>Anual</td><td>Maio</td><td>15 dias úteis</td></tr>
+        <tr class="estr"><td>Higienização de colchão</td><td><span class="badge g">Cobrado</span></td><td>Anual</td><td>Maio</td><td>15 dias úteis</td></tr>
+        <tr><td>Troca de travesseiro</td><td><span class="badge g">Cobrado</span></td><td>Anual</td><td>Novembro</td><td>15 dias úteis</td></tr>
+        <tr><td>Higienização da máquina de lavar</td><td><span class="badge g">Cobrado</span></td><td>Anual</td><td>Agosto</td><td>15 dias úteis</td></tr>
+        <tr><td>Dedetização</td><td><span class="badge g">Cobrado</span></td><td>Anual</td><td>Outubro</td><td>15 dias úteis</td></tr>
+        <tr><td>Lavagem de cortinas</td><td><span class="badge g">Cobrado</span></td><td>Anual</td><td>Novembro</td><td>15 dias úteis</td></tr>
+        <tr><td>Senha de fechadura eletrônica</td><td><span class="badge a">Pendente</span></td><td>A cada check-out</td><td>—</td><td>sem prazo</td></tr>
+        <tr><td>Troca de pilhas</td><td><span class="badge a">Pendente</span></td><td>Por alerta de bateria</td><td>—</td><td>sem prazo</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">Prazo padrão</span>
+    <b>15 dias úteis para todo item cobrado.</b>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="sn">01</span><h2>O ciclo</h2></div>
+  <p class="sub">Oito etapas, repetidas todo mês.</p>
+
+  <div class="cycle">
+    <div class="cyc"><span class="ci">1</span><span class="ct">Chega o mês</span><span class="cd">O calendário diz qual item cobrar.</span></div>
+    <div class="cyc"><span class="ci">2</span><span class="ct">Já foi lançado?</span><span class="cd">Quatro perguntas antes de cobrar.</span></div>
+    <div class="cyc"><span class="ci">3</span><span class="ct">Cadença de comunicação</span><span class="cd">Comunicado, reforço, alerta e abertura dos cards.</span></div>
+    <div class="cyc"><span class="ci">4</span><span class="ct">Franquia executa</span><span class="cd">15 dias úteis a partir da cobrança.</span></div>
+    <div class="cyc"><span class="ci">5</span><span class="ct">Evidência no card</span><span class="cd">Sem prova, o card não fecha.</span></div>
+    <div class="cyc"><span class="ci">6</span><span class="ct">Validar ou corrigir</span><span class="cd">Evidência errada volta para a franquia.</span></div>
+    <div class="cyc"><span class="ci">7</span><span class="ct">Aprovar e finalizar</span><span class="cd">Custo registrado, próxima entrada agendada.</span></div>
+    <div class="cyc"><span class="ci">8</span><span class="ct">Monitorar</span><span class="cd">Todo dia, com retro a cada 15 dias.</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="sn">02</span><h2>1 · Chega o mês</h2><span class="actor">Sistema</span></div>
+  <p class="sub">Cada item tem mês fixo, igual para toda a carteira.</p>
+
+  <div class="calwrap">
+    <div class="cal">
+      <div class="m on"><span class="mn">Abr</span><span class="mv">2</span><span class="bar"></span></div>
+      <div class="m on"><span class="mn">Mai</span><span class="mv">2</span><span class="bar"></span></div>
+      <div class="m on"><span class="mn">Jun</span><span class="mv">0</span><span class="bar"></span></div>
+      <div class="m on"><span class="mn">Jul</span><span class="mv">0</span><span class="bar"></span></div>
+      <div class="m on"><span class="mn">Ago</span><span class="mv">1</span><span class="bar"></span></div>
+      <div class="m on"><span class="mn">Set</span><span class="mv">3</span><span class="bar"></span></div>
+      <div class="m on"><span class="mn">Out</span><span class="mv">2</span><span class="bar"></span></div>
+      <div class="m on"><span class="mn">Nov</span><span class="mv">2</span><span class="bar"></span></div>
+      <div class="m off"><span class="mn">Dez</span><span class="mv">—</span><span class="bar"></span></div>
+      <div class="m off"><span class="mn">Jan</span><span class="mv">—</span><span class="bar"></span></div>
+      <div class="m off"><span class="mn">Fev</span><span class="mv">—</span><span class="bar"></span></div>
+      <div class="m off"><span class="mn">Mar</span><span class="mv">—</span><span class="bar"></span></div>
+    </div>
+    <div class="callegend">
+      <span><i class="a"></i>entradas de card no mês</span>
+      <span><i class="b"></i>bloqueio · alta temporada</span>
+    </div>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Mês</th><th>Item</th></tr></thead>
+      <tbody>
+        <tr><td><b>Abril</b></td><td>Filtro de água · Caixa d'água — reabre o ciclo</td></tr>
+        <tr class="estr"><td><b>Maio</b></td><td>Sofá · Colchão</td></tr>
+        <tr><td><b>Agosto</b></td><td>Máquina de lavar</td></tr>
+        <tr class="estr"><td><b>Setembro</b></td><td>Ar-condicionado · Filtro do exaustor · Filtro de água</td></tr>
+        <tr><td><b>Outubro</b></td><td>Caixa d'água · Dedetização</td></tr>
+        <tr><td><b>Novembro</b></td><td>Lavagem de cortinas · Travesseiro — vence antes do bloqueio</td></tr>
+        <tr><td><b>Dez–Mar</b></td><td>Bloqueio. Nenhum card recorrente entra ou vence</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="duo">
+    <div class="a">
+      <div class="dh"><span class="dn">Primeira execução</span></div>
+      <p>O imóvel entra no <b>primeiro mês do calendário que ocorrer depois de 12 meses de ativação</b>. Ativado em jul/2026 entra no ar-condicionado de set/2027.</p>
+    </div>
+    <div class="b">
+      <div class="dh"><span class="dn">Ativado durante o bloqueio</span></div>
+      <p>Imóvel ativado entre dezembro e março não abre card na janela. Entra no primeiro ciclo válido de abril em diante, respeitando os 12 meses.</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <span class="lbl">Governança</span>
+    A Coordenação ajusta cadença e datas apenas na retro de 15 dias — nunca no meio de um ciclo.
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="sn">03</span><h2>2 · Já foi lançado?</h2><span class="actor">Sistema</span></div>
+  <p class="sub">Quatro perguntas, nessa ordem — a mais barata primeiro. Números do <b>Ar-condicionado</b> sobre 3.496 imóveis ativos.</p>
+
+  <div class="lane">
+    <div class="steps">
+
+      <div class="step key">
+        <span class="sn2">1</span>
+        <div>
+          <div class="sh"><span class="stt">O imóvel está ativo há mais tempo que o ciclo do item?</span></div>
+          <p class="sd">Ar-condicionado: mais de 1 ano de ativação. <b>1.782 barrados</b>, seguem 1.714.</p>
+        </div>
+      </div>
+
+      <div class="step key">
+        <span class="sn2">2</span>
+        <div>
+          <div class="sh"><span class="stt">O imóvel tem esse item no cadastro?</span></div>
+          <p class="sd">Separa imóvel elegível de imóvel sem o ativo. <b>20 barrados</b>, seguem 1.694.</p>
+        </div>
+      </div>
+
+      <div class="step key">
+        <span class="sn2">3</span>
+        <div>
+          <div class="sh"><span class="stt">Já existe despesa lançada desse item, neste ciclo?</span></div>
+          <p class="sd">Despesa aprovada ou paga, dentro da janela do ciclo. <b>526 barrados</b>, seguem 1.168.</p>
+        </div>
+      </div>
+
+      <div class="step key">
+        <span class="sn2">4</span>
+        <div>
+          <div class="sh"><span class="stt">Já existe manutenção registrada, mesmo sem despesa?</span></div>
+          <p class="sd">Cobre o caso do proprietário que pagou por conta própria. <b>4 barrados</b>, seguem 1.164.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="hero">
+    <span class="hk">Resultado do ciclo de ar-condicionado</span>
+    <span class="hv">Passou pelas quatro sem barrar → o card é gerado. São 1.091 cards.</span>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="sn">04</span><h2>3 · Cadença de comunicação</h2><span class="actor">BackOffice</span></div>
+  <p class="sub">Aviso na semana anterior à abertura, que é sempre na <b>primeira segunda-feira útil do mês</b>.</p>
+
+  <div class="cad">
+    <div class="d"><span class="dd">Terça</span><span class="dt">Comunicado</span><span class="db">Avisa que vai ocorrer a manutenção.</span></div>
+    <div class="d"><span class="dd">Quinta</span><span class="dt">Reforço</span><span class="db">Reforça o comunicado de terça.</span></div>
+    <div class="d"><span class="dd">Sábado</span><span class="dt">Alerta</span><span class="db">Último aviso antes da segunda.</span></div>
+    <div class="d fire"><span class="dd">1ª segunda útil</span><span class="dt">Abertura</span><span class="db">Os cards abrem. O lead time começa a contar aqui.</span></div>
+  </div>
+
+  <div class="note">
+    <span class="lbl">Volume</span>
+    Os três avisos vão <b>um por franqueado</b>, com a lista dos imóveis no corpo. A abertura de segunda gera <b>um card por imóvel</b>.
+  </div>
+
+  <h3>Textos-padrão · fechados em 26/10/2026</h3>
+  <p class="sub">Decisão 2. Sem diminutivo, sem emoji, sempre com o próximo passo explícito.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Quando</th><th>Texto</th></tr></thead>
+      <tbody>
+        <tr class="estr"><td><b>Terça · Comunicado</b></td><td>&ldquo;A manutenção recorrente de [item] entra em cobrança na segunda-feira, [data]. O card abre automaticamente para os imóveis elegíveis da sua franquia.&rdquo;</td></tr>
+        <tr><td><b>Quinta · Reforço</b></td><td>&ldquo;Lembrete: a cobrança de [item] abre na segunda-feira, [data]. Organize o fornecedor com antecedência — o prazo de execução é de 15 dias úteis a partir da abertura.&rdquo;</td></tr>
+        <tr class="estr"><td><b>Sábado · Alerta</b></td><td>&ldquo;Último aviso: os cards de [item] abrem segunda-feira, [data]. A partir da abertura, você tem 15 dias úteis para executar e anexar a evidência no card.&rdquo;</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="sn">05</span><h2>4 · Franquia executa</h2><span class="actor fra">Franquia</span></div>
+  <p class="sub">Agenda, executa e prepara a evidência. <b>15 dias úteis</b> a partir da abertura de segunda.</p>
+
+  <h3>Passou do prazo</h3>
+  <p class="sub">Contado em dias corridos a partir do vencimento.</p>
+
+  <div class="esc">
+    <div class="es a"><span class="ewh">Venceu</span><span class="ed2">D+0</span><span class="ew">O card entra em atraso.</span></div>
+    <div class="es b"><span class="ewh">1º marco</span><span class="ed2">D+7</span><span class="ew">Lembrete automático para a franquia.</span></div>
+    <div class="es b"><span class="ewh">2º marco</span><span class="ed2">D+14</span><span class="ew">BackOffice aciona o gestor da franquia, por nome.</span></div>
+    <div class="es c"><span class="ewh">3º marco</span><span class="ed2">D+21</span><span class="ew">Coordenação abre ocorrência formal contra a franquia.</span></div>
+    <div class="es d"><span class="ewh">4º marco</span><span class="ed2">D+30</span><span class="ew">Multa aplicada. Valor e gatilho exatos saem da tabela oficial da Política REV03 — não reproduzidos aqui por falta de fonte numérica neste documento.</span></div>
+    <div class="es d"><span class="ewh">Depois</span><span class="ed2">+7 em +7</span><span class="ew">O lembrete se repete a cada 7 dias enquanto o card estiver aberto, mesmo após a multa.</span></div>
+  </div>
+
+  <h3>Textos-padrão de atraso · fechados em 26/10/2026</h3>
+  <p class="sub">Mesma régua da Decisão 2: sem diminutivo, sem emoji, com o próximo passo explícito.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Quando</th><th>Texto</th></tr></thead>
+      <tbody>
+        <tr class="estr"><td><b>D+7 · Lembrete</b></td><td>&ldquo;O card de [item], imóvel [código], está em atraso há 7 dias. Anexe a evidência do serviço no card para fechar o ciclo.&rdquo;</td></tr>
+        <tr><td><b>D+14 · Alerta ao gestor</b></td><td>&ldquo;[Nome do gestor], o card de [item], imóvel [código], está em atraso há 14 dias. Em 7 dias a Coordenação abre ocorrência formal. Anexe a evidência ou avise o motivo do atraso.&rdquo;</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">Decisão 3 · fechada em 26/10/2026</span>
+    D+21 abre ocorrência, D+30 aplica multa. O <b>valor</b> da multa não está neste documento — confere na tabela oficial da Política REV03 antes de aplicar; não existe fonte numérica aqui para citar um R$ sem risco de errar.
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="sn">06</span><h2>5 · Evidência no card</h2><span class="actor fra">Franquia</span></div>
+  <p class="sub"><b>Uma foto do serviço já basta</b> — o mesmo padrão da manutenção corretiva. Fora do card não conta.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Item</th><th>A foto precisa mostrar</th><th>Documento</th></tr></thead>
+      <tbody>
+        <tr><td><b>Ar-condicionado + Split</b></td><td>O aparelho aberto com o filtro removido e o filtro já limpo, no ambiente do imóvel</td><td>—</td></tr>
+        <tr><td>Filtro do exaustor</td><td>O filtro novo instalado no exaustor</td><td>—</td></tr>
+        <tr><td>Filtro de água</td><td>O filtro trocado no ponto de instalação, com a data da etiqueta visível quando houver</td><td>—</td></tr>
+        <tr class="estr"><td>Caixa d'água</td><td>A caixa aberta e limpa, e depois tampada</td><td><b>Certificado</b> com CNPJ e responsável técnico</td></tr>
+        <tr><td>Sofá / estofado e colchão</td><td>A peça durante a extração, molhada, no ambiente do imóvel</td><td>—</td></tr>
+        <tr><td>Travesseiro</td><td>Os travesseiros novos sobre a cama, com etiqueta</td><td>—</td></tr>
+        <tr><td>Máquina de lavar</td><td>Tambor e gaveta de sabão limpos, com a máquina aberta</td><td>—</td></tr>
+        <tr class="estr"><td>Dedetização</td><td>A aplicação em andamento no imóvel</td><td><b>Certificado</b> com CNPJ, responsável técnico e praga alvo</td></tr>
+        <tr><td>Lavagem de cortinas</td><td>A cortina de volta no trilho depois da lavagem</td><td>Nota do serviço, quando terceirizado</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">Documento regulado · RDC 52/2009 · Portaria nº 5/2017</span>
+    Sobe como anexo <b>no próprio card</b>. Confere-se: <b>CNPJ ativo</b> · <b>responsável técnico</b> com registro no conselho · <b>data dentro do ciclo</b> · <b>imóvel identificado</b>. Faltou uma, volta para a franquia.
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="sn">07</span><h2>6 · Validar ou corrigir</h2><span class="actor sea">Manutenção</span></div>
+  <p class="sub">Evidência certa segue para aprovação. Errada ou incompleta volta para a franquia corrigir.</p>
+
+  <div class="slas">
+    <div class="sla">
+      <span class="lv">2</span>
+      <div class="bd">
+        <div class="bt"><span class="bn">dias úteis · Manutenção valida</span></div>
+        <span class="bi">Prazo interno para aprovar ou devolver. Estourou, o relógio da franquia <b>congela</b> até a devolução sair.</span>
+      </div>
+    </div>
+    <div class="sla">
+      <span class="lv">3</span>
+      <div class="bd">
+        <div class="bt"><span class="bn">dias úteis · mínimo após devolução</span></div>
+        <span class="bi">Evidência devolvida mantém o <b>prazo original</b>, com piso de 3 dias úteis para reapresentar.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <span class="lbl">Evidência parcial não fecha</span>
+    Serviço pela metade: <b>o mesmo card volta para &ldquo;Programada&rdquo;</b>, com o prazo original correndo. Não se cria card novo.
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="sn">08</span><h2>7 · Aprovar e finalizar</h2><span class="actor">Sistema</span></div>
+  <p class="sub">Custo registrado, documento arquivado, próxima entrada agendada no mesmo mês do ano seguinte.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Papel</th><th>O que faz</th><th>Responde pelo prazo</th></tr></thead>
+      <tbody>
+        <tr><td><b>Fornecedor ou zelador</b></td><td>Executa o serviço</td><td>Franquia</td></tr>
+        <tr><td><b>Franquia</b></td><td>Contrata, paga e anexa a evidência no card</td><td>Franquia</td></tr>
+        <tr class="estr"><td><b>Manutenção</b></td><td>Valida a evidência — e a validação <b>é</b> a aprovação</td><td>Time interno</td></tr>
+        <tr><td><b>Coordenação de Manutenção Recorrente</b></td><td>Dona das regras, do calendário e das exceções; assume os casos escalados e conduz a retro</td><td>Time interno</td></tr>
+        <tr><td><b>Sistema</b></td><td>Registra o custo, fecha o card e agenda a próxima entrada</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="lbl">Custo</span>
+    A franquia contrata e paga o fornecedor. A despesa lançada no imóvel, com o item certo, é o que satisfaz o ciclo e fecha o card.
+  </div>
+
+  <div class="note">
+    <span class="lbl">Decisão 4 · rateio e reembolso · fechada em 26/10/2026</span>
+    <b>Regra padrão: o custo é 100% da franquia.</b> Rateio com o proprietário só existe com <b>autorização expressa dele</b>, dada pelo processo próprio do Pipefy — nunca por decisão unilateral da franquia ou do BackOffice. Sem essa autorização registrada no Pipefy, a cobrança segue 100% franquia e não trava o ciclo.
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="sn">09</span><h2>8 · Monitorar</h2><span class="actor sea">Manutenção</span></div>
+  <p class="sub">Ciclo de qualidade contínuo, com retro a cada 15 dias.</p>
+
+  <div class="esc">
+    <div class="es a"><span class="ewh">Identificar</span><span class="ew">O que não está conforme.</span></div>
+    <div class="es a"><span class="ewh">Analisar</span><span class="ew">Por quê.</span></div>
+    <div class="es b"><span class="ewh">Priorizar</span><span class="ew">O que resolver primeiro.</span></div>
+    <div class="es b"><span class="ewh">Tratar</span><span class="ew">Aplicar a correção.</span></div>
+    <div class="es c"><span class="ewh">Acompanhar</span><span class="ew">Ver se pegou.</span></div>
+    <div class="es d"><span class="ewh">Registrar</span><span class="ew">Boas práticas, para o ciclo seguinte.</span></div>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">Report · sexta, 09h</span>
+    Volume de ciclos em andamento, cards presos, gargalo de comunicação com a franquia. Direto para Ray e Carol.
+  </div>
+
+  <div class="note">
+    <span class="lbl">Retro a cada 15 dias</span>
+    <b>Regra de ouro: nunca mudar o processo no meio de um ciclo.</b> Fecha primeiro, aprende depois. Quem convoca é a Coordenação; toda decisão sai em ata e vira nova versão deste documento.
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="sn">10</span><h2>Decisões em aberto</h2></div>
+  <p class="sub">O que ainda não tem regra. As quatro primeiras travam ciclo.</p>
+
+  <div class="exc">
+    <div class="erow"><span class="q">1 · Filtro de água e caixa d'água</span><span class="a">Semestral, ou uma entrada é revisão e a outra é troca?</span></div>
+    <div class="erow"><span class="q">2 · Canal oficial</span><span class="a">Remetente nominal dos três avisos — o texto-padrão já está fechado (seção 3), falta só o canal e o remetente.</span></div>
+    <div class="erow"><span class="q">3 · Fechadura eletrônica</span><span class="a">Vira card com evidência ou sai para o checklist de check-out?</span></div>
+    <div class="erow"><span class="q">4 · Troca de pilhas</span><span class="a">De onde vem o alerta de bateria.</span></div>
+    <div class="erow"><span class="q">5 · Regulação estadual</span><span class="a">Exigência da vigilância sanitária praça a praça, além das normas federais.</span></div>
+  </div>
+
+  <div class="note">
+    <span class="lbl">Fechadas em 26/10/2026</span>
+    Depois do D+21/D+30 — seção 5, "Passou do prazo". Rateio e reembolso — seção 7, "Aprovar e finalizar".
+  </div>
+</section>
+
+<p class="foot">v2.2 · 26/10/2026. Autoria: <b>Ray</b> (BackOffice Franquias) · Revisão técnica: <b>Vinicius</b> (Manutenção).</p>
+
+</div>

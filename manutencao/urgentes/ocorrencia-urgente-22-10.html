@@ -1,0 +1,438 @@
+<title>Ocorrência do Urgente</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap">
+<style>
+  /* Conceito: documento de trabalho da Central de Manutenção. Regras em cima, a tela da aba embaixo, no mesmo azul do Sapron. */
+  :root {
+    --navy: #080E32; --blue: #0055FF; --blue50: #F0F2FA; --border: #E1E7ED;
+    --g50: #F4F4F4; --g300: #CECFD6; --g600: #6A7282; --g700: #525670;
+    --am-bg: #FEF9C2; --am-fg: #733E0A; --am-bar: #F0B100;
+    --or-bg: #FFEDD4; --or-fg: #9F2D00; --or-bar: #FF832B;
+    --rd-bg: #FFE2E2; --rd-fg: #9F0712; --rd-bar: #E7000B;
+    --gr-bg: #ECFCCA; --gr-fg: #35530E; --bg: #F7F8FA; --card: #FFFFFF;
+    --head: "Quicksand", "Helvetica Neue", Arial, sans-serif;
+    --body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --navy: #E8EAF6; --blue: #5B8CFF; --blue50: #1C2440; --border: #2C3242;
+      --g50: #23283A; --g300: #3A4054; --g600: #9AA0B4; --g700: #B8BDCC;
+      --am-bg: #332B0A; --am-fg: #F5DC8A; --or-bg: #3A2614; --or-fg: #FFC58F;
+      --rd-bg: #3A1418; --rd-fg: #FFB4B4; --gr-bg: #1E2A12; --gr-fg: #C7E89A;
+      --bg: #12151F; --card: #1A1E2B; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --navy: #E8EAF6; --blue: #5B8CFF; --blue50: #1C2440; --border: #2C3242;
+    --g50: #23283A; --g300: #3A4054; --g600: #9AA0B4; --g700: #B8BDCC;
+    --am-bg: #332B0A; --am-fg: #F5DC8A; --or-bg: #3A2614; --or-fg: #FFC58F;
+    --rd-bg: #3A1418; --rd-fg: #FFB4B4; --gr-bg: #1E2A12; --gr-fg: #C7E89A;
+    --bg: #12151F; --card: #1A1E2B; color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--navy); font: 15px/1.6 var(--body); letter-spacing: .01em;
+    padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .page { max-width: 1080px; margin: 0 auto; }
+  h1, h2, h3 { font-family: var(--head); text-wrap: balance; margin: 0; }
+  h1 { font-size: 34px; line-height: 1.15; }
+  h2 { font-size: 22px; margin: 44px 0 14px; }
+  h3 { font-size: 16px; margin: 0 0 8px; }
+  .eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: 12px; color: var(--g600); font-weight: 600; margin: 0 0 8px; }
+  .lead { color: var(--g700); max-width: 68ch; margin: 10px 0 0; }
+  .meta { color: var(--g600); }
+  .decisoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .decisoes span { padding: 4px 12px; border-radius: 999px; background: var(--blue50); border: 1px solid var(--border); color: var(--g700); font-size: 13px; }
+  .decisoes b { color: var(--navy); }
+  .fluxo { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+  .fluxo li { border: 1px solid var(--border); background: var(--card); border-radius: 10px; padding: 12px 12px 14px; font-size: 14px; min-width: 0; }
+  .fluxo li b { display: block; font-family: var(--head); font-size: 15px; margin-bottom: 4px; }
+  .fluxo li.trava { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(0,85,255,.14); }
+  .fluxo li span { color: var(--g600); }
+  .regras { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+  .regra { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; min-width: 0; }
+  .regra ul, .regra ol { margin: 6px 0 0; padding-left: 20px; color: var(--g700); }
+  .regra li { margin: 3px 0; }
+  .regra p { margin: 6px 0 0; color: var(--g700); }
+  .regra.larga { grid-column: 1 / -1; }
+  .marcos { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .marcos th, .marcos td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .marcos th { color: var(--g600); font-weight: 600; font-size: 13px; }
+  .tabw { overflow-x: auto; }
+  .faixas { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .faixas span { padding: 2px 12px; border-radius: 999px; font-weight: 600; font-size: 13px; }
+  .f1 { background: var(--am-bg); color: var(--am-fg); } .f2 { background: var(--or-bg); color: var(--or-fg); } .f3 { background: var(--rd-bg); color: var(--rd-fg); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; background: var(--g50); padding: 1px 6px; border-radius: 5px; }
+  .moldura { border: 1px solid var(--border); border-radius: 16px; padding: 16px; background: var(--blue50); }
+  .moldura .faixa-top { font-size: 13px; color: var(--g600); margin: 0 0 12px; }
+  .abas-fake { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .abas-fake span { padding: 5px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--card); color: var(--g700); font-size: 13px; }
+  .abas-fake span.on { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 600; }
+  .estado { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin-top: 14px; color: var(--g700); }
+  @media (max-width: 760px) { .fluxo { grid-template-columns: 1fr; } h1 { font-size: 28px; } }
+  /* ---- mockup, escopado em .mock ---- */
+  .mock { min-width: 0; }
+  .mock .cartao{background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; min-width: 0;}
+.mock h2{margin: 0 0 4px; font-size: 18px;}
+.mock .sub{color: var(--g600); margin: 0 0 12px;}
+.mock .cfg{display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;}
+.mock .pill{padding: 3px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--g50); color: var(--g700); font-size: 13px;}
+.mock .pill b{color: var(--navy);}
+.mock .pill.trava{background: var(--blue50); border-color: var(--blue);}
+.mock .nums{display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;}
+.mock .num{border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px;}
+.mock .num b{display: block; font-size: 26px; line-height: 1.2;}
+.mock .num small{color: var(--g600);}
+.mock .num.rd{background: var(--rd-bg); border-color: var(--rd-bar);}
+.mock .num.rd b,.mock .num.rd .lbl{color: var(--rd-fg);}
+.mock .lbl{color: var(--g600); font-size: 13px;}
+.mock h4{margin: 24px 0 10px; font-size: 14px; text-transform: uppercase; color: var(--g600);}
+.mock .caso{border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px;}
+.mock .topo{display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap;}
+.mock .id{min-width: 0; flex: 1 1 320px;}
+.mock .id a{color: var(--navy); font-weight: 700; text-decoration: none;}
+.mock .id a:hover{text-decoration: underline;}
+.mock .meta{color: var(--g600);}
+.mock .atraso{text-align: right; padding: 6px 14px; border-radius: 10px; flex: none;}
+.mock .atraso b{display: block; font-size: 24px; line-height: 1.15;}
+.mock .atraso small{font-size: 12px;}
+.mock .a1{background: var(--am-bg); color: var(--am-fg);}
+.mock .a2{background: var(--or-bg); color: var(--or-fg);}
+.mock .a3{background: var(--rd-bg); color: var(--rd-fg);}
+.mock .rel{position: relative; height: 10px; border-radius: 999px; background: var(--g50); border: 1px solid var(--border); margin: 26px 6px 30px;}
+.mock .rel .fill{position: absolute; top: -1px; bottom: -1px; border-radius: 999px;}
+.mock .rel .m{position: absolute; top: -6px; width: 2px; height: 20px; background: var(--g600);}
+.mock .rel .m span{position: absolute; white-space: nowrap; font-size: 12px; color: var(--g700); transform: translateX(-50%);}
+.mock .rel .m .s{top: -19px;}
+.mock .rel .m .i{top: 22px; color: var(--g600);}
+.mock .rel .m.hoje{background: var(--navy); width: 3px;}
+.mock .rel .m.hoje span{color: var(--navy); font-weight: 700;}
+.mock .fill.a1{background: var(--am-bar);}
+.mock .fill.a2{background: var(--or-bar);}
+.mock .fill.a3{background: var(--rd-bar);}
+.mock .fill.ok{background: var(--g300);}
+.mock .prova{color: var(--g700); margin: 0 0 8px;}
+.mock details{margin: 6px 0;}
+.mock summary{cursor: pointer; color: var(--g700); font-weight: 600;}
+.mock ul{margin: 6px 0 8px; padding-left: 18px; color: var(--g700);}
+.mock textarea{width: 100%; min-height: 190px; font: inherit; padding: 10px 12px; border: 1px solid var(--g300); border-radius: 8px; color: var(--navy); background: var(--card); resize: vertical; margin-top: 6px;}
+.mock .acoes{display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px;}
+.mock button,.mock select{font: inherit; font-weight: 600; padding: 7px 16px; border-radius: 999px; border: 1px solid var(--g300); background: var(--card); color: var(--navy); cursor: pointer;}
+.mock button.pri{background: var(--blue); border-color: var(--blue); color: #fff;}
+.mock select{font-weight: 400; padding: 6px 10px;}
+.mock .acoes a{color: var(--navy); font-weight: 600;}
+.mock .tab-wrap{overflow-x: auto;}
+.mock table{width: 100%; border-collapse: collapse; min-width: 640px;}
+.mock th,.mock td{text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border);}
+.mock th{color: var(--g600); font-weight: 600;}
+.mock td a{color: var(--navy); font-weight: 600;}
+.mock .selo{padding: 2px 10px; border-radius: 999px; font-weight: 600; font-size: 13px; background: var(--g50); color: var(--g700); white-space: nowrap;}
+.mock .selo.gr{background: var(--gr-bg); color: var(--gr-fg);}
+.mock .legenda{display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 0; font-size: 13px; color: var(--g700);}
+.mock .legenda i{display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -1px;}
+.mock .nota{margin-top: 26px; padding: 12px 14px; border-radius: 10px; background: var(--blue50); color: var(--g700);}
+</style>
+
+<div class="page">
+  <header>
+    <p class="eyebrow">Central de Manutenção · Agentes de IA</p>
+    <h1>Ocorrência do urgente</h1>
+    <p class="lead">Acha o card urgente que a franquia não respondeu em 48 horas úteis, mostra o atraso e monta a ocorrência. Você aprova cada uma antes de ela ir para a Central de Ocorrências e Multas. Regras v0.3 e mockup da aba, em 22/10/2026.</p>
+    <div class="decisoes">
+      <span><b>Fica dentro</b> da Central de Manutenção</span>
+      <span><b>Aprovação sua</b> em toda ocorrência, por enquanto</span>
+      <span><b>Atraso</b> sempre visível</span>
+      <span><b>Corte:</b> só cards novos, a partir de 22/10/2026</span>
+      <span><b>Subcategoria</b> 6.2 hoje, a nova da Victória depois</span>
+    </div>
+  </header>
+
+  <h2>Como funciona</h2>
+  <ol class="fluxo">
+    <li><b>1. Detecta</b><span>A cada hora, acha o urgente enviado à franquia, sem resposta.</span></li>
+    <li><b>2. Mede o atraso</b><span>Agora menos o vencimento das 48 horas úteis.</span></li>
+    <li class="trava"><b>3. Você aprova</b><span>Lê as provas, edita o texto, aprova ou descarta com motivo.</span></li>
+    <li><b>4. Vai para a Victória</b><span>Entra em "Nova ocorrência", origem Manutenções. Ela abre o chamado e conta os pontos.</span></li>
+    <li><b>5. Lê a etapa</b><span>A cada hora, mostra em que etapa do funil dela a ocorrência está.</span></li>
+  </ol>
+
+  <h2>Regras</h2>
+  <div class="regras">
+    <section class="regra larga">
+      <h3>Antes deste agente: o que vira "Urgente" na origem</h3>
+      <p>Não é uma lista marcada à mão — é o <b>Classificador de urgência</b> (já em produção, <code>maintenance/actions/classify_card.py</code>), que roda assim que o card chega e monta uma nota de 0 a 100:</p>
+      <ol>
+        <li><b>Gatilho duro</b> — a descrição bate uma de ~20 frases fechadas de risco à segurança ou imóvel inutilizável: vazamento/cheiro de gás, choque elétrico, curto-circuito, fiação exposta, princípio de incêndio/fumaça, falta de água ou sem água (exceto "água quente" — chuveiro frio não entra aqui), falta de energia/sem luz, alagamento/inundação, esgoto vazando, hóspede preso/trancado, porta não abre, fechadura travada, sem acesso ao imóvel. Bateu, a nota vai direto ao piso de 95.</li>
+        <li><b>Severidade por IA (0-80)</b> — sem gatilho duro, o modelo avalia a gravidade do problema em si: 70-80 é imóvel inutilizável ou risco à segurança (sozinho já cruza o corte), 45-69 é função essencial parada (ar-condicionado no verão, geladeira, chuveiro, vazamento ativo), abaixo disso é conforto ou estético.</li>
+        <li><b>Reincidência (0-20)</b> — soma pontos se o mesmo imóvel teve o mesmo tipo de problema nos últimos 90 dias.</li>
+      </ol>
+      <p>Severidade + reincidência ≥ 70, ou gatilho duro, é o corte do binário <code>ai_is_urgent</code>. <b>Mas a nota só ordena — ela não move o card sozinha.</b> Virar <code>status="urgente"</code> de fato continua sendo decisão humana: é por isso que "toda manutenção vira urgente pra pular fila" não acontece — o classificador prioriza, não decide.</p>
+      <p class="meta">Fonte: <code>maintenance/constants.py</code> (<code>URGENCY_HARD_TRIGGERS</code>, <code>URGENCY_URGENT_THRESHOLD</code>) e <code>maintenance/actions/classify_card.py</code>, sapron-backend, conferido em 26/10/2026. A lista literal completa de gatilhos e os limiares exatos moram no código — aqui citamos os âncoras, pra não duplicar fonte de verdade.</p>
+    </section>
+
+    <section class="regra">
+      <h3>Quem entra</h3>
+      <ol>
+        <li>Está na coluna <b>Urgente</b>.</li>
+        <li>Já foi <b>enviado à franquia</b>.</li>
+        <li>Tem prazo e ainda não tem proposta.</li>
+        <li>O host não é o 17 (operação própria da Seazone).</li>
+        <li><b>Enviado a partir de 22/10/2026.</b> Card enviado antes nunca entra, mesmo que só vença depois. A data é uma configuração.</li>
+      </ol>
+    </section>
+
+    <section class="regra">
+      <h3>O que conta como resposta</h3>
+      <p>Qualquer uma destas, antes do vencimento:</p>
+      <ul>
+        <li>mensagem no chamado de quem não é da Seazone (funcionário da franquia conta);</li>
+        <li>evidência enviada no card;</li>
+        <li>agendamento com motivo.</li>
+      </ul>
+      <p>Resposta depois do vencimento não impede a proposta. Ela aparece nas provas como "respondeu com atraso".</p>
+    </section>
+
+    <section class="regra larga">
+      <h3>O relógio e o atraso</h3>
+      <div class="tabw">
+        <table class="marcos">
+          <thead><tr><th>Marco</th><th>Quando</th><th>O que significa</th></tr></thead>
+          <tbody>
+            <tr><td><b>Enviado</b></td><td>data em que o card foi à franquia</td><td>a bola passou para a franquia</td></tr>
+            <tr><td><b>Prazo</b></td><td>1 dia útil depois do envio</td><td>a franquia já foi cobrada</td></tr>
+            <tr><td><b>Venceu</b></td><td>fim do dia útil seguinte ao prazo (48 h úteis)</td><td>dispara a proposta</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><b>Atraso = agora menos o vencimento</b>, em dias corridos, como "5 d 11 h", sempre com a data em que venceu. Continua contando enquanto a proposta espera você, e o valor do momento do envio fica gravado. Dias úteis não contam fim de semana nem feriado nacional.</p>
+      <div class="faixas"><span class="f1">até 1 dia</span><span class="f2">2 a 4 dias</span><span class="f3">5 dias ou mais</span></div>
+    </section>
+
+    <section class="regra">
+      <h3>A fila de aprovação</h3>
+      <ul>
+        <li>Toda proposta nasce <b>Para aprovar</b>, com o maior atraso primeiro.</li>
+        <li>Só você aprova. Outras pessoas só veem.</li>
+        <li>Ações: <b>Aprovar e enviar</b> (com texto editável), <b>Descartar</b> com motivo, abrir o card.</li>
+        <li>Motivos: respondeu fora do chamado, não era urgente, depende do proprietário, o atraso foi da Seazone, card duplicado, outro.</li>
+        <li>Proposta parada mais de 2 dias úteis vira alerta no topo.</li>
+        <li>O agente nunca aprova sozinho, nem por tempo.</li>
+        <li>Uma proposta por card. Descartada só volta por "Reabrir".</li>
+      </ul>
+    </section>
+
+    <section class="regra">
+      <h3>O que vai para a Victória</h3>
+      <ul>
+        <li><b>Escopo: este agente nunca lança nada no Pipefy / Central de Ocorrências e Multas.</b> Ele só monta a ocorrência e espera sua aprovação; "Aprovar e enviar" manda os dados pro app da Victória — é o app dela, nunca este agente, que de fato abre o chamado e conta os pontos. Isso existe pra não duplicar ocorrência (uma pelo agente, outra lançada à mão).</li>
+        <li>Origem <b>Manutenções</b> (já existe no formulário dela).</li>
+        <li>Chave <code>card:&lt;id&gt;</code>: reenviar atualiza, nunca duplica.</li>
+        <li>Subcategoria <b>6.2</b> por enquanto. A troca pelo código novo é uma configuração.</li>
+        <li>Franquia, imóvel, descrição com as provas e o atraso no envio, link do card, e-mail de quem aprovou.</li>
+        <li>Pontos e gravidade não vão. Ela deriva da subcategoria.</li>
+      </ul>
+    </section>
+
+    <section class="regra">
+      <h3>Depois do envio</h3>
+      <ul>
+        <li>A cada hora o agente lê a etapa no sistema dela: Nova ocorrência, Reclamações passíveis, Primeiro e Segundo contato, Aguardando evidências, Aplicação, Com pontuação, Sem pontuação, Justificativa válida, Excluída.</li>
+        <li>Falha de envio fica <b>Pendente de reenvio</b>.</li>
+        <li>Card concluído depois do envio mostra "avisar a Victória". O agente não apaga nada lá.</li>
+      </ul>
+    </section>
+
+    <section class="regra">
+      <h3>Fora da regra</h3>
+      <p>Urgentes enviados antes de 22/10 ficam numa lista recolhida, só para consulta, com o atraso. Não geram proposta e não têm botão de incluir. Em 22/10, às 11h25, eram 8 sem resposta (#5951, #7849, #7991, #7994, #8023, #7997, #8026 e #8135).</p>
+    </section>
+
+    <section class="regra larga">
+      <h3>Ainda em aberto</h3>
+      <ul>
+        <li><b>Quando tirar a trava.</b> Sugestão: 2 semanas de uso, 90% ou mais aprovadas sem edição e nenhuma contestação aceita pela Victória.</li>
+        <li><b>Com a Victória:</b> função de entrada, chave de API, código da subcategoria nova e se o nome da franquia que enviamos bate com o cadastro dela.</li>
+        <li><b>Medidas:</b> propostas geradas, aprovadas e descartadas (por motivo), tempo até a decisão, contestações aceitas (os falsos positivos) e atraso médio no envio.</li>
+        <li><b>MGO sem dono nem prazo.</b> O chamado de atualização da MGO p.28 (a regra citada no texto da ocorrência) foi aberto no Suporte Unificado em 20/10/2026. Faltam: <b>[a confirmar — quem é o dono da MGO que assina a página 28]</b> e <b>[a confirmar — prazo de retorno]</b>. Enquanto isso não fechar, o agente cita uma regra que pode mudar sem aviso.</li>
+      </ul>
+    </section>
+  </div>
+
+  <h2>A tela na Central de Manutenção</h2>
+  <p class="meta">Os números vêm do banco de produção do Sapron em 22/10/2026, às 11h25. Os 3 casos da simulação são anteriores ao corte e não entrariam; estão ali para mostrar como o atraso aparece.</p>
+  <div class="moldura">
+    <p class="faixa-top">Sapron › Central de Manutenção › Agentes de IA › Ocorrência do urgente</p>
+    <div class="abas-fake"><span>Cards</span><span>Por imóvel</span><span>Dashboard</span><span>Score de manutenção</span><span class="on">Agentes de IA</span></div>
+    <div class="mock">
+<section class="cartao">
+    <h2>Ocorrência do urgente</h2>
+    <p class="sub">Acha o card urgente que a franquia não respondeu em 48 horas úteis, mostra o atraso e monta a ocorrência. <b>Nada vai para a Central de Ocorrências e Multas sem você aprovar.</b></p>
+
+    <div class="cfg">
+      <span class="pill trava">Aprovação obrigatória: <b>ligada</b></span>
+      <span class="pill">Destino: <b>Central de Ocorrências e Multas</b> · origem Manutenções</span>
+      <span class="pill">Vale para cards enviados desde <b>22/10/2026</b> <span class="meta">(só cards novos)</span></span>
+      <span class="pill">Subcategoria enviada: <b>6.2</b> <span class="meta">(trocar pela nova quando a Victória criar)</span></span>
+    </div>
+
+    <div class="nums">
+      <div class="num"><span class="lbl">Para aprovar</span><b>0</b><small>a fila começa vazia em 22/10</small></div>
+      <div class="num"><span class="lbl">Maior atraso</span><b>—</b><small>nenhum card novo atrasado</small></div>
+      <div class="num"><span class="lbl">Quase vencendo</span><b>0</b><small>passou o prazo, ainda dentro das 48h</small></div>
+      <div class="num"><span class="lbl">No prazo</span><b>1</b><small>EXP0103, vence em 26/10</small></div>
+      <div class="num"><span class="lbl">Antes do corte</span><b>11</b><small>fora da regra, só consulta</small></div>
+    </div>
+
+    <h4>Para aprovar (0) · maior atraso primeiro</h4>
+    <div class="nota" style="margin:0 0 12px">
+      <b>Simulação da tela.</b> Hoje não há proposta, porque nenhum card enviado a partir de 22/10 venceu. Os 3 cards abaixo são
+      <b>anteriores ao corte</b> e <b>não entrariam</b>; estão aqui só para mostrar como o atraso aparece quando a fila tiver casos.
+    </div>
+
+    <!-- 1 -->
+    <div class="caso">
+      <div class="topo">
+        <div class="id">
+          <a href="#">#7997 · Extensão da pia da cozinha em curto, cai o disjuntor do apto</a><br>
+          <span class="meta">EXP0101 · Helena Lacerda · 6.2 · Grave · 4 pts</span>
+        </div>
+        <div class="atraso a3"><b>5 d 11 h</b><small>de atraso · venceu 16/10 às 23:59</small></div>
+      </div>
+      <div class="rel">
+        <div class="fill ok" style="left:0;width:31%"></div>
+        <div class="fill a3" style="left:31%;width:69%"></div>
+        <div class="m" style="left:0"><span class="s">Enviado</span><span class="i">14/10 14:00</span></div>
+        <div class="m" style="left:18%"><span class="s">Prazo (1 dia útil)</span><span class="i">15/10</span></div>
+        <div class="m" style="left:31%"><span class="s">Venceu (48h úteis)</span><span class="i">16/10</span></div>
+        <div class="m hoje" style="left:100%"><span class="s">Hoje</span><span class="i">22/10 11:25</span></div>
+      </div>
+      <p class="prova">Última mensagem da franquia no chamado: <b>nenhuma</b> · cobranças da Seazone: 2</p>
+      <details><summary>Ver texto que vai para a Central de Ocorrências e Multas</summary>
+<textarea>Manutenção urgente sem resposta da franquia em 48 horas úteis
+
+Imóvel: EXP0101
+Card: #7997 — Extensão da pia da cozinha em curto, qdo utilizada cai o djuntor do apto
+Link: https://sapron.com.br/central-manutencao?aba=cards&card=7997
+
+Enviado à franquia em 14/10/2026 às 11:00.
+Prazo do urgente: 15/10/2026.
+Venceu em 16/10/2026 às 23:59 (48 horas úteis).
+Atraso no envio: calculado na hora de enviar.
+Última resposta da franquia: nenhuma.
+Cobranças da Seazone no chamado: 2.
+
+Regra: MGO p. 28 — card urgente sem resposta em 48 horas úteis.</textarea></details>
+      <div class="acoes">
+        <button class="pri">Aprovar e enviar</button>
+        <select><option>Motivo do descarte…</option><option>Respondeu fora do chamado</option><option>Não era urgente</option><option>Depende do proprietário</option><option>O atraso foi da Seazone</option><option>Card duplicado</option><option>Outro</option></select>
+        <button>Descartar</button>
+        <a href="#">Abrir o card</a>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="caso">
+      <div class="topo">
+        <div class="id">
+          <a href="#">#8026 · Manutenção - limpeza - EXP0102 (baratas, hóspede saiu antes)</a><br>
+          <span class="meta">EXP0102 · Bruno Xavier · 6.2 · Grave · 4 pts</span>
+        </div>
+        <div class="atraso a3"><b>5 d 11 h</b><small>de atraso · venceu 16/10 às 23:59</small></div>
+      </div>
+      <div class="rel">
+        <div class="fill ok" style="left:0;width:31%"></div>
+        <div class="fill a3" style="left:31%;width:69%"></div>
+        <div class="m" style="left:0"><span class="s">Enviado</span><span class="i">14/10 13:53</span></div>
+        <div class="m" style="left:18%"><span class="s">Prazo (1 dia útil)</span><span class="i">15/10</span></div>
+        <div class="m" style="left:31%"><span class="s">Venceu (48h úteis)</span><span class="i">16/10</span></div>
+        <div class="m hoje" style="left:100%"><span class="s">Hoje</span><span class="i">22/10 11:25</span></div>
+      </div>
+      <p class="prova">Última mensagem da franquia no chamado: <b>nenhuma</b> · cobranças da Seazone: 2</p>
+      <div class="acoes">
+        <button class="pri">Aprovar e enviar</button>
+        <select><option>Motivo do descarte…</option></select>
+        <button>Descartar</button>
+        <a href="#">Abrir o card</a>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="caso">
+      <div class="topo">
+        <div class="id">
+          <a href="#">#8135 · Manutenção - internet - EXP0104</a><br>
+          <span class="meta">EXP0104 · Yuri Fontes · 6.2 · Grave · 4 pts</span>
+        </div>
+        <div class="atraso a1"><b>11 h</b><small>de atraso · venceu 21/10 às 23:59</small></div>
+      </div>
+      <div class="rel">
+        <div class="fill ok" style="left:0;width:62%"></div>
+        <div class="fill a1" style="left:62%;width:38%"></div>
+        <div class="m" style="left:0"><span class="s">Enviado</span><span class="i">19/10 13:53</span></div>
+        <div class="m" style="left:36%"><span class="s">Prazo (1 dia útil)</span><span class="i">20/10</span></div>
+        <div class="m" style="left:62%"><span class="s">Venceu (48h úteis)</span><span class="i">21/10</span></div>
+        <div class="m hoje" style="left:100%"><span class="s">Hoje</span><span class="i">22/10 11:25</span></div>
+      </div>
+      <p class="prova">Última mensagem da franquia no chamado: <b>nenhuma</b> · veio da ponte do Suporte (#8135)</p>
+      <div class="acoes">
+        <button class="pri">Aprovar e enviar</button>
+        <select><option>Motivo do descarte…</option></select>
+        <button>Descartar</button>
+        <a href="#">Abrir o card</a>
+      </div>
+    </div>
+
+    <div class="legenda">
+      <span><i style="background:var(--am-bar)"></i>até 1 dia de atraso</span>
+      <span><i style="background:var(--or-bar)"></i>2 a 4 dias</span>
+      <span><i style="background:var(--rd-bar)"></i>5 dias ou mais</span>
+      <span class="meta">· o vencimento conta dias úteis; o atraso é mostrado em dias corridos</span>
+    </div>
+
+    <h4>Enviadas à Central de Ocorrências e Multas</h4>
+    <div class="tab-wrap">
+      <table>
+        <thead><tr><th>Card</th><th>Imóvel</th><th>Atraso no envio</th><th>Etapa na Victória</th><th>Aprovada por</th><th>Em</th></tr></thead>
+        <tbody>
+          <tr><td><a href="#">#0000</a></td><td>EXEMPLO</td><td>5 d 11 h</td><td><span class="selo gr">Com pontuação</span></td><td>Vinicius Satores</td><td>—</td></tr>
+          <tr><td><a href="#">#0000</a></td><td>EXEMPLO</td><td>1 d 2 h</td><td><span class="selo">Primeiro contato</span></td><td>Vinicius Satores</td><td>—</td></tr>
+          <tr><td><a href="#">#0000</a></td><td>EXEMPLO</td><td>0 d 11 h</td><td><span class="selo">Pendente de reenvio</span></td><td>Vinicius Satores</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Outros urgentes no relógio (9) · não geram proposta</h4>
+    <p class="meta" style="margin:-4px 0 8px">Enviados antes de 22/10 ou ainda no prazo. Os 3 da simulação acima (#7997, #8026, #8135) também são anteriores ao corte e não entram nesta lista.</p>
+    <details open>
+      <summary>Ver a lista</summary>
+      <div class="tab-wrap">
+        <table>
+          <thead><tr><th>Card</th><th>Imóvel</th><th>Franquia</th><th>Situação</th><th>Atraso</th></tr></thead>
+          <tbody>
+            <tr><td><a href="#">#5951</a></td><td>EXP0105</td><td>Vera Duarte</td><td><span class="selo">Antes do corte · venceu 01/10</span></td><td>20 d 11 h</td></tr>
+            <tr><td><a href="#">#7849</a></td><td>EXP0106</td><td>Yuri Fontes</td><td><span class="selo">Antes do corte · venceu 13/10</span></td><td>8 d 11 h</td></tr>
+            <tr><td><a href="#">#7991</a></td><td>EXP0107</td><td>Alice Coutinho</td><td><span class="selo">Antes do corte · venceu 15/10</span></td><td>6 d 11 h</td></tr>
+            <tr><td><a href="#">#7994</a></td><td>EXP0108</td><td>Yuri Fontes</td><td><span class="selo">Antes do corte · venceu 15/10</span></td><td>6 d 11 h</td></tr>
+            <tr><td><a href="#">#8023</a></td><td>EXP0109</td><td>Yuri Fontes</td><td><span class="selo">Antes do corte · venceu 15/10</span></td><td>6 d 11 h</td></tr>
+            <tr><td><a href="#">#5899</a></td><td>EXP0110</td><td>Elisa Sampaio</td><td><span class="selo gr">Franquia respondeu (6 mensagens)</span></td><td>—</td></tr>
+            <tr><td><a href="#">#8022</a></td><td>EXP0111</td><td>Cecília Tavares</td><td><span class="selo gr">Franquia respondeu (1 mensagem)</span></td><td>—</td></tr>
+            <tr><td><a href="#">#8216</a></td><td>EXP0112</td><td>Alice Xavier</td><td><span class="selo gr">Franquia respondeu (5 mensagens)</span></td><td>—</td></tr>
+            <tr><td><a href="#">#8294</a></td><td>EXP0103</td><td>Nina Rezende</td><td><span class="selo">No prazo · vence 26/10</span></td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <div class="nota">
+      <b>Retrato de 22/10/2026, 11h25 (banco de produção do Sapron):</b> 12 urgentes enviados a franquias, sem contar a operação própria (host 904) ·
+      <b>1 card novo</b> (enviado em 22/10, no prazo, vence 26/10) · 11 enviados antes do corte, sendo 8 sem resposta e 3 com mensagem da franquia
+      (a data da resposta ainda não foi conferida contra o vencimento).
+    </div>
+  </section>
+    </div>
+  </div>
+
+  <h2>Situação do código</h2>
+  <div class="estado">
+    Em andamento no back, na branch <code>feat/manutencao-ocorrencia-envio-victoria</code>, ainda sem PR e sem testes rodados. Aprovar passa a enviar à Victória em vez de abrir o chamado no Sapron (o app dela já abre). Entram o job de status por hora, o atraso no envio, o texto aprovado gravado, e a subcategoria e a data de corte como configuração. A aba do front muda depois, em PR separado.
+  </div>
+</div>

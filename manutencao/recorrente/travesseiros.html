@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recorrente · Travesseiros</title>
+<style>
+:root{--tinta:#0f172a;--texto:#334155;--fraco:#64748b;--linha:#e2e8f0;--fundo:#f5f7fb;--papel:#fff;--azul:#0055ff;--azul-f:rgba(0,85,255,.07);--verde:#15803d;--verde-f:#dcfce7;--ambar:#92400e;--ambar-f:#fef3c7}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--tinta:#f1f5f9;--texto:#cbd5e1;--fraco:#94a3b8;--linha:#334155;--fundo:#0b1220;--papel:#111a2e;--azul:#6b9bff;--azul-f:rgba(107,155,255,.12);--verde:#4ade80;--verde-f:rgba(74,222,128,.12);--ambar:#fbbf24;--ambar-f:rgba(251,191,36,.12)}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fundo);color:var(--texto);font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 16px 56px}
+h1{font-size:26px;color:var(--tinta);margin:0 0 4px;letter-spacing:-.01em}
+h2{font-size:18px;color:var(--tinta);margin:32px 0 10px}
+.sub{color:var(--fraco);margin:0 0 18px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.kpi{background:var(--papel);border:1px solid var(--linha);border-radius:12px;padding:14px 16px}
+.kpi .l{font-size:12px;color:var(--fraco)}.kpi .v{font-size:24px;font-weight:700;color:var(--tinta);font-variant-numeric:tabular-nums}.kpi .s{font-size:12px;color:var(--fraco)}
+.card{background:var(--papel);border:1px solid var(--linha);border-radius:12px;padding:16px 18px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;border-bottom:1px solid var(--linha);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+th{font-size:12px;color:var(--fraco);font-weight:600;position:sticky;top:0;background:var(--papel)}
+tfoot td{font-weight:700;color:var(--tinta)}
+.scroll{max-height:520px;overflow:auto;border:1px solid var(--linha);border-radius:12px;background:var(--papel)}
+.ctl{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:14px}
+.ctl label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--fraco)}
+.ctl input{width:120px;padding:8px 10px;border:1px solid var(--linha);border-radius:8px;background:var(--papel);color:var(--tinta);font:inherit}
+.ctl .chk{flex-direction:row;align-items:center;gap:8px;font-weight:500;color:var(--texto)}
+.ctl .chk input{width:auto}
+.tag{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px}
+.tag.ok{background:var(--verde-f);color:var(--verde)}.tag.at{background:var(--ambar-f);color:var(--ambar)}
+.nota{font-size:12.5px;color:var(--fraco);margin-top:8px}
+.big{font-size:22px;font-weight:700;color:var(--tinta)}
+ul{margin:6px 0;padding-left:20px}
+pre{white-space:pre-wrap;background:var(--fundo);border:1px solid var(--linha);border-radius:10px;padding:12px 14px;font:13px/1.55 inherit}
+@media (max-width:600px){h1{font-size:22px}.kpi .v{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Manutenção Recorrente · Travesseiros</h1>
+<p class="sub">Troca anual dos travesseiros: regra, estimativa de compra e comissão. Dados do Sapron e da Loja Seazone, 30/10/2026. Rascunho para decisão: regra ainda não ativada.</p>
+
+<div class="kpis">
+<div class="kpi"><div class="l">Imóveis que receberiam card</div><div class="v">1.663</div><div class="s">recontagem da regra 21, 29/10</div></div>
+<div class="kpi"><div class="l">Travesseiros (camas)</div><div class="v" id="k-trav">–</div><div class="s">solteiro 1 · casal/queen/king 4</div></div>
+<div class="kpi"><div class="l">Compra estimada</div><div class="v" id="k-compra">–</div><div class="s" id="k-compra-s">–</div></div>
+<div class="kpi"><div class="l">Comissão Seazone estimada</div><div class="v" id="k-com">–</div><div class="s" id="k-com-s">–</div></div>
+</div>
+
+<h2>Simulação de compra e comissão</h2>
+<div class="card">
+<div class="ctl">
+<label>Preço por travesseiro (R$)<input id="preco" type="number" step="0.5" min="0" value="30"></label>
+<label>Comissão Harus (%)<input id="txh" type="number" step="0.5" min="0" value="5"></label>
+<label>Comissão Mercado Livre (%)<input id="txm" type="number" step="0.5" min="0" placeholder="informe"></label>
+<label>% da compra pelo Mercado Livre<input id="mix" type="number" step="5" min="0" max="100" value="50"></label>
+<label class="chk"><input id="sofa" type="checkbox"> incluir sofá-cama</label>
+</div>
+<div class="grid2">
+<div><div class="nota">Tudo pela Harus</div><div class="big" id="r-h">–</div><div class="nota" id="r-h-s"></div></div>
+<div><div class="nota">Tudo pelo Mercado Livre</div><div class="big" id="r-m">–</div><div class="nota" id="r-m-s"></div></div>
+<div><div class="nota">Divisão entre os dois</div><div class="big" id="r-x">–</div><div class="nota" id="r-x-s"></div></div>
+</div>
+<p class="nota">Harus: 5% é a taxa padrão das notas da Loja (endpoint de comissões, outubro/2026: Harus teve R$ 18.314,79 em 40 notas e R$ 915,74 de comissão). <b>A Harus hoje não vende travesseiro na Loja</b>: o catálogo dela é de amenities e limpeza. Os travesseiros da Loja são da RM Enxoval (R$ 42,90 o mais fino e R$ 54,90 o mais grosso), da Matinali (R$ 51,90) e um link de indicação do Mercado Livre (R$ 36,72 a R$ 134,89). A taxa de comissão do Mercado Livre não está na Loja: preencha o campo.</p>
+</div>
+
+<h2>Por franquia</h2>
+<div class="scroll"><table id="tab"><thead><tr><th>Franquia</th><th>Imóveis</th><th>Solteiro</th><th>Casal</th><th>Travesseiros</th><th>Compra</th><th>Comissão Harus</th><th>Comissão ML</th></tr></thead><tbody></tbody><tfoot></tfoot></table></div>
+<p class="nota">Camas pelo cadastro do imóvel no Sapron. Casal inclui queen e king. "A Definir" tem 4 imóveis sem cama cadastrada.</p>
+
+<h2>Como a regra decide quem recebe card</h2>
+<div class="card">
+<ul>
+<li>Regra 21 no Sapron, "Travesseiros · Troca", a cada 12 meses, todos os imóveis ativos há mais de 12 meses. <span class="tag at">rascunho</span></li>
+<li>Não recebe card quem, nos últimos 12 meses, tem despesa de travesseiro (3 itens "Travesseiros" do financeiro), despesa sem item com "travesseiro" na descrição (a IA confirma) ou card concluído que fale de travesseiro e de troca, novo, compra ou reposição.</li>
+<li>Contagem de 29/10: 3.712 ativos; 1.854 com menos de 12 meses ficam fora; 1.858 elegíveis; 174 já trocaram por despesa e 21 por card; <b>1.663 receberiam card</b>.</li>
+<li>Prova que fecha o card: foto dos travesseiros novos sobre a cama, com etiqueta, ou nota/recibo da compra.</li>
+</ul>
+</div>
+
+<h2>Decisões em aberto</h2>
+<div class="card"><ul>
+<li>Data do disparo e prazo (15 dias úteis, como no ar-condicionado?).</li>
+<li>Sofá-cama entra na troca?</li>
+<li>Mostrar no card quantos travesseiros trocar?</li>
+<li>Imóveis da própria Seazone (89) entram?</li>
+<li>Disparo de uma vez ou em levas?</li>
+<li>Quem paga a compra, e por onde as franquias compram (Loja, Mercado Livre)?</li>
+</ul></div>
+
+<p class="nota" style="margin-top:28px">Fontes: banco do Sapron (property_property, regra 21, despesas e cards), consulta de 29–30/10/2026; Loja Seazone (catálogo e endpoint nf-commissions), 30/10/2026. Preço de R$ 30 é estimativa.</p>
+</div>
+<script>
+const D=[{"f": "Camila Moura Lacerda", "i": 137, "s": 23, "c": 134, "ss": 10, "sc": 27}, {"f": "Katia Leite do Nascimento Emmel", "i": 94, "s": 28, "c": 132, "ss": 2, "sc": 38}, {"f": "Seazone", "i": 89, "s": 58, "c": 91, "ss": 3, "sc": 69}, {"f": "Ana Paula Friedrich de Oliveira", "i": 87, "s": 24, "c": 117, "ss": 1, "sc": 63}, {"f": "Neli Schuatz", "i": 51, "s": 51, "c": 84, "ss": 11, "sc": 9}, {"f": "Agatha de Assis Souza Gloria", "i": 37, "s": 5, "c": 42, "ss": 5, "sc": 3}, {"f": "Camila Bresolin Pereira", "i": 37, "s": 18, "c": 46, "ss": 0, "sc": 14}, {"f": "Andreia Real da Rosa", "i": 32, "s": 29, "c": 44, "ss": 2, "sc": 13}, {"f": "Erion Xhafaj", "i": 31, "s": 4, "c": 32, "ss": 4, "sc": 25}, {"f": "Roberta de Freitas Costa", "i": 30, "s": 3, "c": 33, "ss": 2, "sc": 5}, {"f": "Sandra Maria Gervásio Sales", "i": 30, "s": 24, "c": 34, "ss": 12, "sc": 3}, {"f": "Silvia Regina Costa Silva", "i": 30, "s": 30, "c": 36, "ss": 1, "sc": 1}, {"f": "Rodrigo Maruco Ruas de Oliveira", "i": 28, "s": 0, "c": 43, "ss": 0, "sc": 0}, {"f": "Luciana Dellamora Pata Fernandes Lima", "i": 26, "s": 20, "c": 36, "ss": 12, "sc": 6}, {"f": "Nabiha Kasmas Denis", "i": 26, "s": 18, "c": 38, "ss": 4, "sc": 6}, {"f": "Gabriela da Luz Nunes", "i": 25, "s": 1, "c": 27, "ss": 3, "sc": 10}, {"f": "Ana Márcia Pereira Buzzacchino", "i": 24, "s": 43, "c": 38, "ss": 4, "sc": 4}, {"f": "IAM Consultoria", "i": 24, "s": 3, "c": 25, "ss": 10, "sc": 3}, {"f": "Luanda Tavares Santana", "i": 24, "s": 26, "c": 36, "ss": 2, "sc": 4}, {"f": "Mariana Lopes Ribeiro De Carvalho", "i": 24, "s": 39, "c": 35, "ss": 3, "sc": 6}, {"f": "Edite Alves", "i": 23, "s": 19, "c": 39, "ss": 3, "sc": 7}, {"f": "Ricardo Portella Junior", "i": 21, "s": 27, "c": 33, "ss": 1, "sc": 7}, {"f": "Wolnei Roberto Ramos", "i": 21, "s": 0, "c": 24, "ss": 1, "sc": 5}, {"f": "Christina Elisabeth Carpes Antunes", "i": 20, "s": 0, "c": 20, "ss": 2, "sc": 5}, {"f": "Jayson Luckemeyer", "i": 20, "s": 29, "c": 33, "ss": 0, "sc": 3}, {"f": "Dineia Pedroso de Almeida", "i": 19, "s": 2, "c": 20, "ss": 8, "sc": 3}, {"f": "Gustavo Ribas", "i": 19, "s": 17, "c": 31, "ss": 1, "sc": 6}, {"f": "Letícia Fagundes", "i": 19, "s": 15, "c": 33, "ss": 2, "sc": 9}, {"f": "Rael Michaelsen", "i": 19, "s": 13, "c": 46, "ss": 0, "sc": 0}, {"f": "Dreicom Adolfo Neckel Wolter", "i": 18, "s": 5, "c": 15, "ss": 0, "sc": 0}, {"f": "Lucas Taniguti Bertarelli", "i": 18, "s": 3, "c": 18, "ss": 1, "sc": 0}, {"f": "Gladys Timmerman", "i": 17, "s": 14, "c": 26, "ss": 1, "sc": 4}, {"f": "Fábio Moreira Campos Monteiro", "i": 16, "s": 15, "c": 18, "ss": 1, "sc": 2}, {"f": "Glauciene Sacramento Santos", "i": 16, "s": 37, "c": 30, "ss": 0, "sc": 6}, {"f": "Kathellyne Soares de Moraes", "i": 16, "s": 32, "c": 23, "ss": 2, "sc": 3}, {"f": "Patrícia Aparecida de Melo", "i": 16, "s": 37, "c": 26, "ss": 0, "sc": 0}, {"f": "Dhennyfer Rosa de Almeida", "i": 15, "s": 21, "c": 27, "ss": 1, "sc": 3}, {"f": "Filipe de Jesus Santos", "i": 15, "s": 0, "c": 16, "ss": 0, "sc": 6}, {"f": "Alan Mesquita Maciel", "i": 14, "s": 26, "c": 25, "ss": 1, "sc": 1}, {"f": "Caroline Sorondo Vaghetti", "i": 14, "s": 13, "c": 27, "ss": 0, "sc": 2}, {"f": "Flávio de Souza Porto", "i": 14, "s": 24, "c": 22, "ss": 1, "sc": 6}, {"f": "Kemille Negromonte de Souza", "i": 14, "s": 9, "c": 15, "ss": 2, "sc": 1}, {"f": "Diego Bezerra da Silva", "i": 13, "s": 15, "c": 22, "ss": 0, "sc": 1}, {"f": "Diego Rafael Padilha dos Santos", "i": 13, "s": 16, "c": 20, "ss": 1, "sc": 2}, {"f": "Isadora Corrêa de Oliveira", "i": 13, "s": 0, "c": 15, "ss": 7, "sc": 5}, {"f": "Marco André Munchen", "i": 13, "s": 22, "c": 25, "ss": 0, "sc": 0}, {"f": "Michele Maciel Duarte Machado", "i": 13, "s": 15, "c": 21, "ss": 0, "sc": 3}, {"f": "Pedro Henrique Do Erre de Jesus", "i": 13, "s": 6, "c": 17, "ss": 7, "sc": 1}, {"f": "Edilson Machado da Silva", "i": 12, "s": 3, "c": 12, "ss": 1, "sc": 0}, {"f": "Evelyn Gabriela dos Santos", "i": 12, "s": 10, "c": 16, "ss": 1, "sc": 3}, {"f": "Jane Terezinha de Souza de Jesus", "i": 12, "s": 7, "c": 15, "ss": 0, "sc": 0}, {"f": "José Fernando de Campos", "i": 12, "s": 2, "c": 12, "ss": 2, "sc": 1}, {"f": "Marcela S Gambelli", "i": 12, "s": 5, "c": 13, "ss": 1, "sc": 3}, {"f": "Tiago dos Santos e Santos", "i": 12, "s": 2, "c": 13, "ss": 1, "sc": 4}, {"f": "Matias Clementino Trindade dos Santos", "i": 11, "s": 1, "c": 11, "ss": 2, "sc": 4}, {"f": "Sônia Maria Gervásio Sales", "i": 11, "s": 0, "c": 13, "ss": 0, "sc": 2}, {"f": "Jéssica Schirley Sibilio Dutra Jordão Macedo", "i": 10, "s": 30, "c": 15, "ss": 4, "sc": 2}, {"f": "Maria Carolina de Rodrigues de Souza", "i": 10, "s": 0, "c": 10, "ss": 1, "sc": 6}, {"f": "Roberta de Almeida Turra Vieira", "i": 10, "s": 0, "c": 10, "ss": 1, "sc": 3}, {"f": "Giselia Soares da Silva", "i": 9, "s": 0, "c": 9, "ss": 0, "sc": 0}, {"f": "Jeferson Luis Fernandes", "i": 9, "s": 9, "c": 12, "ss": 0, "sc": 0}, {"f": "John Erik Gasparello", "i": 9, "s": 4, "c": 12, "ss": 0, "sc": 1}, {"f": "Camila Silva Costa", "i": 8, "s": 17, "c": 29, "ss": 0, "sc": 0}, {"f": "Carlos Eduardo Inácio Diniz", "i": 8, "s": 18, "c": 10, "ss": 2, "sc": 0}, {"f": "Gustavo Henrique de Barros Silva", "i": 8, "s": 6, "c": 9, "ss": 5, "sc": 1}, {"f": "Vinicius Vieira dos Reis", "i": 8, "s": 2, "c": 7, "ss": 1, "sc": 2}, {"f": "André Demetrio", "i": 7, "s": 3, "c": 9, "ss": 4, "sc": 0}, {"f": "Fabricia Noemi Silva Laranja", "i": 7, "s": 10, "c": 14, "ss": 0, "sc": 0}, {"f": "Jaciane Melo Graciliano", "i": 7, "s": 8, "c": 12, "ss": 1, "sc": 0}, {"f": "Stefanie Maria Castro", "i": 7, "s": 2, "c": 8, "ss": 0, "sc": 0}, {"f": "Débora Renata Gomes Soares", "i": 6, "s": 0, "c": 6, "ss": 1, "sc": 1}, {"f": "Eduardo José Pereira Santos", "i": 6, "s": 4, "c": 7, "ss": 0, "sc": 0}, {"f": "Jhenyffer Paola Ramos da Silva", "i": 6, "s": 0, "c": 6, "ss": 1, "sc": 3}, {"f": "Lucas Abel da Silveira", "i": 6, "s": 6, "c": 8, "ss": 0, "sc": 1}, {"f": "Lucilene Cora", "i": 6, "s": 10, "c": 10, "ss": 0, "sc": 1}, {"f": "William Aguiar Messias", "i": 6, "s": 0, "c": 6, "ss": 0, "sc": 0}, {"f": "Cassiana Outeiro Silva de Souza", "i": 5, "s": 0, "c": 5, "ss": 0, "sc": 3}, {"f": "A Definir", "i": 4, "s": 0, "c": 0, "ss": 0, "sc": 0}, {"f": "Ana Carla de Aguiar Lopes", "i": 4, "s": 3, "c": 4, "ss": 0, "sc": 1}, {"f": "Clara dos Santos Soares de Souza", "i": 4, "s": 0, "c": 4, "ss": 2, "sc": 1}, {"f": "Daniela Lopes Nasario", "i": 4, "s": 0, "c": 4, "ss": 0, "sc": 4}, {"f": "Luan Navarro", "i": 4, "s": 1, "c": 4, "ss": 0, "sc": 0}, {"f": "Mariana Paola Monteiro Ferrari", "i": 4, "s": 0, "c": 4, "ss": 0, "sc": 0}, {"f": "Reinaldo Jorge Fernandes", "i": 4, "s": 1, "c": 8, "ss": 0, "sc": 0}, {"f": "Thiago Rodrigues Pinto", "i": 4, "s": 3, "c": 14, "ss": 0, "sc": 0}, {"f": "Carine Cerqueira de Carvalho", "i": 3, "s": 0, "c": 4, "ss": 1, "sc": 0}, {"f": "Cleverson de Oliveira Redivo", "i": 3, "s": 0, "c": 4, "ss": 1, "sc": 2}, {"f": "Erica Bianca da Silva", "i": 3, "s": 6, "c": 6, "ss": 0, "sc": 1}, {"f": "Juliana Lemos da Silva", "i": 3, "s": 0, "c": 7, "ss": 1, "sc": 0}, {"f": "Laura Vitoria da Rosa de Almeida", "i": 3, "s": 0, "c": 3, "ss": 0, "sc": 0}, {"f": "Leonardo Fernandes", "i": 3, "s": 3, "c": 3, "ss": 0, "sc": 0}, {"f": "Thiago Reis", "i": 3, "s": 3, "c": 3, "ss": 0, "sc": 0}, {"f": "Celia Sales Lima", "i": 2, "s": 5, "c": 2, "ss": 1, "sc": 0}, {"f": "Driely Lohanne Constantino", "i": 2, "s": 8, "c": 2, "ss": 2, "sc": 0}, {"f": "Fernanda Kieling Kist", "i": 2, "s": 0, "c": 5, "ss": 1, "sc": 0}, {"f": "Andrea Mara dos Santos Podlasinski", "i": 1, "s": 0, "c": 3, "ss": 0, "sc": 0}, {"f": "Cingridi Cristina Mariano", "i": 1, "s": 4, "c": 1, "ss": 0, "sc": 0}, {"f": "Lucas Sena da Silva", "i": 1, "s": 0, "c": 1, "ss": 0, "sc": 0}, {"f": "Naihana Loyola Andriani", "i": 1, "s": 0, "c": 1, "ss": 0, "sc": 0}, {"f": "Raquel Ramos de Nazareth", "i": 1, "s": 0, "c": 2, "ss": 0, "sc": 0}];
+const brl=v=>v.toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
+const num=v=>v.toLocaleString("pt-BR");
+function el(id){return document.getElementById(id)}
+function calc(){
+  const p=parseFloat(el("preco").value)||0, h=(parseFloat(el("txh").value)||0)/100;
+  const mRaw=el("txm").value, m=(parseFloat(mRaw)||0)/100, temM=mRaw!=="";
+  const mix=Math.min(100,Math.max(0,parseFloat(el("mix").value)||0))/100, sofa=el("sofa").checked;
+  let T=0,tb="",tot={i:0,s:0,c:0};
+  const rows=D.map(r=>{const t=r.s+4*r.c+(sofa?r.ss+4*r.sc:0);return {...r,t}}).sort((a,b)=>b.t-a.t);
+  rows.forEach(r=>{T+=r.t;tot.i+=r.i;tot.s+=r.s+(sofa?r.ss:0);tot.c+=r.c+(sofa?r.sc:0);
+    const c=r.t*p; tb+=`<tr><td>${r.f}</td><td>${r.i}</td><td>${r.s+(sofa?r.ss:0)}</td><td>${r.c+(sofa?r.sc:0)}</td><td>${num(r.t)}</td><td>${brl(c)}</td><td>${brl(c*h)}</td><td>${temM?brl(c*m):"–"}</td></tr>`});
+  const C=T*p;
+  el("tab").tBodies[0].innerHTML=tb;
+  el("tab").tFoot.innerHTML=`<tr><td>Total</td><td>${num(tot.i)}</td><td>${num(tot.s)}</td><td>${num(tot.c)}</td><td>${num(T)}</td><td>${brl(C)}</td><td>${brl(C*h)}</td><td>${temM?brl(C*m):"–"}</td></tr>`;
+  el("k-trav").textContent=num(T); el("k-compra").textContent=brl(C); el("k-compra-s").textContent=`a ${brl(p)} por travesseiro${sofa?", com sofá-cama":""}`;
+  el("r-h").textContent=brl(C*h); el("r-h-s").textContent=`${(h*100).toLocaleString("pt-BR")}% de ${brl(C)}`;
+  el("r-m").textContent=temM?brl(C*m):"informe a taxa"; el("r-m-s").textContent=temM?`${(m*100).toLocaleString("pt-BR")}% de ${brl(C)}`:`cada 1% = ${brl(C*0.01)}`;
+  const x=C*(1-mix)*h+(temM?C*mix*m:0);
+  el("r-x").textContent=temM?brl(x):"informe a taxa"; el("r-x-s").textContent=`${Math.round((1-mix)*100)}% Harus + ${Math.round(mix*100)}% Mercado Livre`;
+  el("k-com").textContent=brl(C*h); el("k-com-s").textContent=`tudo pela Harus, ${(h*100).toLocaleString("pt-BR")}%`;
+}
+["preco","txh","txm","mix","sofa"].forEach(i=>el(i).addEventListener("input",calc)); calc();
+</script>
+</body>
+</html>

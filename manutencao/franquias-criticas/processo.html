@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recuperação de Franquias Críticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#F2F5F3; --surface:#FFFFFF; --surface-2:#E9EFEC;
+  --line:#D6E0DB; --line-soft:#E6ECE9;
+  --ink:#151B26; --ink-2:#44524D; --ink-3:#6B7A74;
+  --accent:#2C8F73; --crit:#C0341F; --med:#C2810E; --blue:#2E62C4; --uti:#7A1A14;
+  --display:'Quicksand','Trebuchet MS',sans-serif;
+  --body:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#12161A; --surface:#1A1F23; --surface-2:#232A2E;
+    --line:#303A3E; --line-soft:#262E32;
+    --ink:#EDF2F0; --ink-2:#B3C0BB; --ink-3:#8A9994;
+    --accent:#4FC3A1; --crit:#F0705C; --med:#E8B33C; --blue:#7BA3F0; --uti:#F0705C;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#12161A; --surface:#1A1F23; --surface-2:#232A2E;
+  --line:#303A3E; --line-soft:#262E32;
+  --ink:#EDF2F0; --ink-2:#B3C0BB; --ink-3:#8A9994;
+  --accent:#4FC3A1; --crit:#F0705C; --med:#E8B33C; --blue:#7BA3F0; --uti:#F0705C;
+}
+*{box-sizing:border-box;}
+body{margin:0; background:var(--ground); color:var(--ink); font-family:var(--body); line-height:1.55;}
+.wrap{max-width:900px; margin:0 auto; padding-inline:16px; padding-block:44px 64px;}
+h1,h2,h3{font-family:var(--display); text-wrap:balance; margin:0;}
+p{margin:0;}
+.eyebrow{font-family:var(--display); font-size:12px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--accent);}
+header h1{font-size:clamp(28px,5vw,38px); font-weight:700; letter-spacing:-.01em; margin-top:10px;}
+.sub{color:var(--ink-2); font-size:15.5px; margin-top:12px; max-width:60ch;}
+.tagline{margin-top:16px; font-size:13px; color:var(--ink-3);}
+.tagline b{color:var(--ink-2); font-weight:600;}
+
+section{margin-top:50px;}
+section > h2{font-size:21px; font-weight:700; letter-spacing:-.01em;}
+section > .lede{color:var(--ink-2); font-size:14.5px; margin-top:8px; max-width:70ch;}
+
+/* linha do tempo */
+.antes{margin-top:22px; padding:13px 18px; background:var(--surface-2); border-radius:9px;
+  font-size:13px; color:var(--ink-2);}
+.antes b{color:var(--ink); font-weight:600;}
+
+.fase{margin-top:16px; background:var(--surface); border:1px solid var(--line);
+  border-radius:12px; overflow:hidden;}
+.fase-h{padding:16px 20px; border-left:5px solid var(--ink-3);
+  display:flex; align-items:baseline; gap:10px 14px; flex-wrap:wrap;}
+.fase.f1 .fase-h{border-left-color:var(--blue);}
+.fase.f2 .fase-h{border-left-color:var(--med);}
+.fase.f3 .fase-h{border-left-color:var(--crit);}
+.fase.f4 .fase-h{border-left-color:var(--uti);}
+.fase.f5 .fase-h{border-left-color:var(--accent);}
+.fase-h h3{font-size:18px; font-weight:700;}
+.fase-h .cad{font-size:12px; color:var(--ink-3); font-weight:600;}
+.fase-h .entra{flex-basis:100%; font-size:13px; color:var(--ink-2); margin-top:3px;}
+.fase-h .entra b{color:var(--ink); font-weight:600;}
+
+.tl{padding:2px 20px 14px;}
+.ti{display:grid; grid-template-columns:1fr 210px; gap:14px; align-items:start;
+  padding:13px 0; border-top:1px solid var(--line-soft);}
+@media (max-width:660px){ .ti{grid-template-columns:1fr; gap:6px;} }
+.ti .acao{font-size:14px; color:var(--ink); line-height:1.45;}
+.ti .acao b{font-weight:700;}
+.ti .quem{font-size:11.8px; font-weight:700; color:var(--ink-2); text-align:right;
+  padding-top:2px;}
+@media (max-width:660px){ .ti .quem{text-align:left; color:var(--ink-3);} }
+.ti.gate .acao{color:var(--crit); font-weight:700;}
+.ti.alta .acao{color:var(--accent); font-weight:700;}
+
+.tablebox{overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--surface);
+  margin-top:16px;}
+table{border-collapse:collapse; width:100%; min-width:600px; font-size:13.4px;}
+th{font-family:var(--display); font-size:10.5px; font-weight:700; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--ink-3); text-align:left; padding:12px 15px;
+  border-bottom:1px solid var(--line); background:var(--surface-2); white-space:nowrap;}
+td{padding:12px 15px; border-bottom:1px solid var(--line-soft); vertical-align:top; color:var(--ink-2);}
+tr:last-child td{border-bottom:0;}
+td.b{font-weight:700; color:var(--ink); white-space:nowrap;}
+td.w{min-width:200px;}
+td.c{text-align:center; white-space:nowrap; font-variant-numeric:tabular-nums;}
+
+.sinais{display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:18px;}
+@media (max-width:900px){ .sinais{grid-template-columns:repeat(2,1fr);} }
+@media (max-width:500px){ .sinais{grid-template-columns:1fr;} }
+.sinal{background:var(--surface); border:1px solid var(--line); border-radius:9px; padding:14px;
+  border-top:3px solid var(--accent);}
+.sinal h4{font-family:var(--display); font-size:13.5px; font-weight:700; margin:0;}
+.sinal .q{font-size:12px; color:var(--ink-3); margin-top:6px; line-height:1.4;}
+.sinal .lim{margin-top:9px; padding-top:8px; border-top:1px solid var(--line-soft);
+  font-size:12px; font-weight:700; color:var(--crit);}
+
+.regras{margin-top:18px; background:var(--surface); border:1px solid var(--line);
+  border-left:3px solid var(--blue); border-radius:0 10px 10px 0; padding:16px 20px;}
+.regras h3{font-size:14.5px; font-weight:700;}
+.regras ul{margin:10px 0 0; padding-left:19px;}
+.regras li{font-size:13.5px; color:var(--ink-2); margin-top:7px;}
+.regras li b{color:var(--ink); font-weight:600;}
+
+.foot{margin-top:52px; padding-top:20px; border-top:1px solid var(--line);
+  font-size:12.5px; color:var(--ink-3);}
+
+.prompt{margin-top:14px; border:1px solid var(--line); border-radius:10px; background:var(--surface); overflow:hidden;}
+.prompt-h{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid var(--line-soft); flex-wrap:wrap;}
+.prompt-h b{font-family:var(--display); font-size:14.5px;}
+.prompt-h span{color:var(--ink-3); font-size:13px;}
+.prompt pre{margin:0; padding:12px 14px; font:12.5px/1.5 'IBM Plex Mono',ui-monospace,monospace; white-space:pre-wrap; word-break:break-word; color:var(--ink-2); max-height:260px; overflow:auto; background:var(--surface-2);}
+.copy{font:600 12.5px var(--body); border:1px solid var(--line); background:var(--surface); color:var(--ink); border-radius:7px; padding:5px 11px; cursor:pointer;}
+.copy:hover{border-color:var(--accent); color:var(--accent);}
+.passos{margin:14px 0 0; padding-left:20px; color:var(--ink-2); font-size:14.5px;}
+.passos li{margin:4px 0;}
+</style>
+</head>
+<body><div style="background:#FFF4CC;color:#5A4500;font:13px/1.4 sans-serif;padding:8px 16px;text-align:center;border-bottom:1px solid #E8D48A">Versão para publicação: nomes de franquias, códigos de imóveis e IDs foram trocados por dados fictícios.</div>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">Central de Manutenção · Processo</p>
+  <h1>Recuperação de franquias críticas</h1>
+  <p class="sub">O que a Seazone faz quando uma franquia para de resolver manutenção: como ela
+  entra, quem conduz, o que acontece em cada etapa e como ela sai.</p>
+  <p class="tagline"><b>Versão 1.4</b> · 26/10/2026 · dono: Central de Manutenção (Vinicius) + BackOffice Franquias (Ray) ·
+  valida: Diretoria de Franquias, Financeiro e Jurídico</p>
+
+  <div class="antes" style="margin-top:20px">
+    <b>Resumo</b><br>
+    Quantas franquias estão em Crítica hoje: número final depende do <b>Score de Manutenção</b>
+    (lead time × SLA × reincidência), em fechamento em documento separado — não antecipado aqui
+    para não divergir do score quando ele publicar.<br>
+    Impacto em R$: sem base própria nesta página; o impacto por franquia sai do Score de
+    Manutenção quando ele cruzar com despesa e card (ver <code>folha-de-contexto.md</code>, seção 5 —
+    hoje não existe ligação direta entre despesa e card).<br>
+    <b>Decisões pendentes:</b> (1) Jurídico assinar, junto com a Coordenação de Manutenção, o
+    critério de validação de multa na UTI; (2) Diretoria confirmar a regra de stop de crescimento
+    por franquia Crítica (exceto mesmo prédio); (3) Iara/BackOffice triar os 6 casos em pré-UTI do
+    ScorePulse (pedido de 12/10) e dizer se entram por este processo ou pela Pré-UTI já existente.<br>
+    <b>Dono e prazo:</b> Central de Manutenção, fechar com os 3 ajustes acima até 30/10/2026
+    (prazo proposto pela Ray em 23/10).
+  </div>
+</header>
+
+<section>
+  <h2>A linha do tempo</h2>
+  <p class="lede">Cinco etapas em sequência. As linhas em vermelho são passagens automáticas: se a
+  condição não for cumprida, o caso sobe sem nova reunião para decidir. <b>A partir da v1.4, só a
+  Triagem tem reunião fixa.</b> Recuperação, Crítica e UTI viram acompanhamento assíncrono por
+  status/score — a UTI e a Pré-UTI de Franquias, que já existem como processo do time de
+  Franquias, continuam com as calls delas; este processo não cria reunião nova, só entra na pauta
+  quando a UTI/Pré-UTI pedir.</p>
+
+  <p class="antes"><b>Antes de tudo:</b> a régua do Sapron roda sozinha no card — ele vence e a franquia recebe
+  lembrete no chat do card em D+7, D+14, D+21 e a cada 7 dias depois. Acionar o gestor por nome em
+  D+14 e passar à Coordenação em D+21 ainda é manual (aviso no Slack em construção).
+  Este processo começa depois disso, e trata a <b>franquia</b>, não o card.</p>
+
+  <div class="fase f1">
+    <div class="fase-h">
+      <h3>1 · Triagem</h3><span class="cad">toda semana, dia fixo</span>
+      <p class="entra">É a única porta de entrada. Ninguém entra por percepção ou por pedido.</p>
+    </div>
+    <div class="tl">
+      <div class="ti"><p class="acao">Dar o start com o input da semana: data de corte, o que cada call combinou (card, responsável, dia) e os fatos de fora do sistema — ocorrência, reincidência, multa.</p><p class="quem">Central de Manutenção</p></div>
+      <div class="ti"><p class="acao">Rodar a triagem (<b>/recuperacao-franquias</b> no Claude): recalcula os cinco sinais no Sapron, classifica cada franquia em faixa e gera o relatório Plano · Ação · Resultado.</p><p class="quem">Central de Manutenção</p></div>
+      <div class="ti"><p class="acao">Aprovar os cards que já vieram com evidência e estão parados na nossa fila.</p><p class="quem">BackOffice · Franquias</p></div>
+      <div class="ti"><p class="acao">Avisar a franquia que entrou, com o responsável nomeado e a data da primeira call.</p><p class="quem">Dono da faixa</p></div>
+    </div>
+  </div>
+
+  <div class="fase f2">
+    <div class="fase-h">
+      <h3>2 · Recuperação</h3><span class="cad">acompanhamento assíncrono · sem reunião própria</span>
+      <p class="entra"><b>Entra com</b> dois sinais ruins, ou qualquer card vencido há mais de 60 dias. <b>Conduz:</b> Coordenação de Consultoria de Franquias.</p>
+    </div>
+    <div class="tl">
+      <div class="ti"><p class="acao">Montar a planilha da franquia e <b>quebrar os cards mistos</b> em franquia × proprietário.</p><p class="quem">Central de Manutenção</p></div>
+      <div class="ti"><p class="acao">Contato assíncrono com a franquia (mensagem no card/chamado), card a card, pedindo <b>data assumida por ela</b> em cada um — sem reunião de calendário fixa.</p><p class="quem">Coordenação + consultor regional</p></div>
+      <div class="ti"><p class="acao">Confirmar em campo o que a franquia declarou. Declaração sem confirmação não fecha card.</p><p class="quem">Consultoria Regional</p></div>
+      <div class="ti"><p class="acao">Encaminhar ao proprietário o que depender de orçamento dele.</p><p class="quem">Relacionamento</p></div>
+      <div class="ti gate"><p class="acao">Duas calls seguidas sem entrega → sobe para Crítica.</p><p class="quem">Automático</p></div>
+      <div class="ti alta"><p class="acao">Alta: nenhum card vencido há mais de 30 dias e evidência acima de 50% dos abertos.</p><p class="quem">Triagem semanal</p></div>
+    </div>
+  </div>
+
+  <div class="fase f3">
+    <div class="fase-h">
+      <h3>3 · Crítica</h3><span class="cad">acompanhamento assíncrono · reunião só se a UTI/Pré-UTI de Franquias pedir</span>
+      <p class="entra"><b>Entra com</b> três sinais ruins, alcance acima de 50% da carteira, ou card de avaliação de hóspede aberto há mais de 30 dias. <b>Conduz:</b> Gerência de BackOffice · Franquias.
+      <br><b>Antes de classificar:</b> confere se a franquia já está em Pré-UTI/UTI de Franquias (processo do time de Franquias) — se já está, não abre caso novo aqui, só referencia o status existente lá, para não duplicar.</p>
+    </div>
+    <div class="tl">
+      <div class="ti"><p class="acao">Publicar a ordem de ataque da franquia e enviar o relatório — sem convocar call própria.</p><p class="quem">Central de Manutenção</p></div>
+      <div class="ti"><p class="acao">Fechar a posição da Seazone antes de qualquer contato. Ninguém negocia prazo ao vivo sem posição fechada.</p><p class="quem">Gerência + Coordenação + Manutenção</p></div>
+      <div class="ti"><p class="acao">Contato assíncrono com a franquia (mensagem no card/chamado). Termina sempre com <b>card, responsável e dia</b>. Vira call presencial só se a franquia já estiver na pauta da UTI/Pré-UTI de Franquias.</p><p class="quem">Gerência de BackOffice</p></div>
+      <div class="ti"><p class="acao">Registrar <b>ocorrência formal</b> com o prazo final declarado por escrito.</p><p class="quem">Gerência de BackOffice</p></div>
+      <div class="ti"><p class="acao">Entrar em <b>stop de crescimento</b>: trava novas aquisições de imóveis para a franquia, exceto imóveis no mesmo prédio onde ela já opera (esses seguem liberados).</p><p class="quem">Automático</p></div>
+      <div class="ti gate"><p class="acao">Prazo da ocorrência vencido sem entrega → sobe para UTI.</p><p class="quem">Automático</p></div>
+      <div class="ti alta"><p class="acao">Alta: plano cumprido por 30 dias seguidos, sem card novo vencendo.</p><p class="quem">Triagem semanal</p></div>
+    </div>
+  </div>
+
+  <div class="fase f4">
+    <div class="fase-h">
+      <h3>4 · UTI</h3><span class="cad">prazo máximo de 60 dias</span>
+      <p class="entra"><b>Entra com</b> quatro ou cinco sinais ruins, descumprimento do prazo da ocorrência, ou reincidência. <b>Conduz:</b> Diretoria de Franquias, com a COO informada.</p>
+    </div>
+    <div class="tl">
+      <div class="ti"><p class="acao">Manter o stop de crescimento da Crítica (exceto mesmo prédio) e comunicar a franquia por escrito, com prazo e consequência.</p><p class="quem">Diretoria de Franquias</p></div>
+      <div class="ti gate"><p class="acao">Acionar multa e caminho contratual <b>nunca automático</b>: exige validação conjunta de Financeiro + Jurídico, com registro de <b>quem validou e quando</b> antes de aplicar.</p><p class="quem">Financeiro + Jurídico</p></div>
+      <div class="ti"><p class="acao">Onde houver <b>risco ao hóspede</b>, executar direto pela Seazone e cobrar da franquia depois.</p><p class="quem">Diretoria + Financeiro</p></div>
+      <div class="ti"><p class="acao">Acompanhamento quinzenal assíncrono: entregou o quê, o que falta, segue ou encerra. Decisão registrada com data. Vira reunião só se a Diretoria pedir.</p><p class="quem">Diretoria + COO + BackOffice + Manutenção</p></div>
+      <div class="ti gate"><p class="acao">Dia 60: decisão de continuidade da franquia. A UTI não se renova.</p><p class="quem">Diretoria de Franquias</p></div>
+      <div class="ti alta"><p class="acao">Alta: zero cards críticos e 60 dias sem reincidência → desce para Recuperação, nunca direto para fora.</p><p class="quem">Comitê</p></div>
+    </div>
+  </div>
+
+  <div class="fase f5">
+    <div class="fase-h">
+      <h3>5 · Observação</h3><span class="cad">90 dias após a alta</span>
+      <p class="entra">Sair da faixa não é sair do radar.</p>
+    </div>
+    <div class="tl">
+      <div class="ti"><p class="acao">Manter a franquia na leitura semanal por 90 dias.</p><p class="quem">BackOffice · Franquias</p></div>
+      <div class="ti gate"><p class="acao">Voltar à faixa Crítica dentro dos 90 dias → vai direto para UTI, sem passar pelas intermediárias.</p><p class="quem">Automático</p></div>
+    </div>
+  </div>
+
+  <div class="regras">
+    <h3>Três regras que valem em toda a linha</h3>
+    <ul>
+      <li><b>Um rosto por franquia, por etapa.</b> Consultor na Recuperação, Gerência na Crítica,
+      Diretoria na UTI — e quem sai de cena não volta a cobrar em paralelo.</li>
+      <li><b>Sobe rápido, desce devagar.</b> Um gatilho basta para subir; para descer, o critério
+      precisa se sustentar no tempo.</li>
+      <li><b>Ninguém sai por tempo decorrido.</b> Prazo de etapa vencido sem alta faz o caso subir,
+      não renovar.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>Toda semana: Plano · Ação · Resultado</h2>
+  <p class="lede">A triagem não é uma foto da semana. Ela confere o que foi prometido na semana
+  anterior e devolve o que prometer na próxima. As três colunas saem no relatório, uma franquia por bloco.</p>
+  <div class="tablebox">
+    <table>
+      <tbody>
+        <tr><td class="b">Plano</td><td class="w">Sai da call: <b>card, responsável e dia</b>, um por linha. Promessa sem dia não entra. O relatório já leva a ordem de ataque pronta, com responsável e dia em branco para preencher ao vivo.</td></tr>
+        <tr><td class="b">Ação</td><td class="w">Na triagem seguinte, cada linha do plano é conferida no Sapron: concluído, evidência entregue, no prazo ou <b>não cumpriu o dia</b>. Vale o que o sistema mostra, não o que a franquia declarou.</td></tr>
+        <tr><td class="b">Resultado</td><td class="w">Os cinco sinais antes e agora, e a faixa antes e agora. É o resultado que decide se o caso sobe, fica ou desce — e dele sai o plano da próxima call.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="antes"><b>O que entra no start e não está no Sapron:</b> o plano combinado em cada call,
+  ocorrência formal com prazo, prazo de ocorrência descumprido, reincidência e multa aplicada.
+  Fica registrado de uma semana para a outra; sem ele não existe "semana anterior".</p>
+</section>
+
+<section>
+  <h2>Como rodar a triagem</h2>
+  <p class="lede">A triagem semanal <b>tem que ser rodada pela skill <code>/recuperacao-franquias</code></b> no Claude Code.
+  É ela que puxa os cinco sinais do Sapron, aplica as faixas e as passagens automáticas desta página
+  e guarda o plano de uma semana para a outra. Sem a skill não há "semana anterior" para conferir.</p>
+  <ol class="passos">
+    <li><b>Start:</b> digite <code>/recuperacao-franquias</code>. Ela pede o input da semana — data de corte, o combinado de cada call, ocorrência, reincidência, multa e escopo.</li>
+    <li><b>Sinais:</b> ela consulta o Sapron (precisa do MCP do Sapron conectado). Se o Sapron estiver fora, a triagem não roda — não se estima sinal.</li>
+    <li><b>Relatório:</b> sai um HTML com as faixas da rede e um bloco Plano · Ação · Resultado por franquia, com a ordem de ataque da próxima call.</li>
+    <li><b>Gravar:</b> ela mostra quem subiu, quem desceu e o que está pendente, e só grava a semana depois do seu "pode".</li>
+    <li><b>Depois de cada call:</b> diga à skill o que foi combinado (card, responsável, dia). É isso que a próxima triagem vai conferir.</li>
+  </ol>
+  <p class="antes"><b>Um dono por semana.</b> O registro fica na máquina de quem roda. A triagem é da Central
+  de Manutenção; quem só prepara uma call usa o pedido "prepara a call da franquia X", que não mexe no registro.
+  Os prompts para instalar e usar estão no fim desta página.</p>
+</section>
+
+<section>
+  <h2>Quando uma franquia entra</h2>
+  <p class="lede">Cinco sinais, lidos na triagem semanal. Fila grande sozinha não classifica
+  ninguém — o que conta é quantos sinais estão ruins ao mesmo tempo.</p>
+
+  <div class="sinais">
+    <div class="sinal"><h4>Alcance</h4><p class="q">Imóveis com card aberto sobre imóveis ativos</p><p class="lim">ruim ≥ 40%</p></div>
+    <div class="sinal"><h4>Idade</h4><p class="q">Atraso médio dos cards vencidos</p><p class="lim">ruim ≥ 45 dias</p></div>
+    <div class="sinal"><h4>Teimosia</h4><p class="q">Quanto da fila passou de 90 dias</p><p class="lim">ruim ≥ 25%</p></div>
+    <div class="sinal"><h4>Silêncio</h4><p class="q">Cards abertos com evidência entregue</p><p class="lim">ruim &lt; 20%</p></div>
+    <div class="sinal"><h4>Parada</h4><p class="q">Despesas de manutenção nos últimos 90 dias</p><p class="lim">ruim se zero</p></div>
+  </div>
+
+  <div class="tablebox">
+    <table>
+      <thead><tr><th>Faixa</th><th>Entra com</th><th>Conduz</th></tr></thead>
+      <tbody>
+        <tr><td class="b">Atenção</td><td class="w">Um sinal ruim — segue só na régua automática</td><td class="w">BackOffice · Franquias</td></tr>
+        <tr><td class="b">Recuperação</td><td class="w">Dois sinais, ou card vencido há mais de 60 dias</td><td class="w">Coordenação de Consultoria</td></tr>
+        <tr><td class="b">Crítica</td><td class="w">Três sinais, ou alcance acima de 50%, ou card de avaliação aberto há mais de 30 dias</td><td class="w">Gerência de BackOffice</td></tr>
+        <tr><td class="b">UTI</td><td class="w">Quatro ou cinco sinais, prazo de ocorrência descumprido, ou reincidência</td><td class="w">Diretoria de Franquias</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="antes"><b>Checagem obrigatória antes de Crítica ou UTI:</b> confere se a franquia já está
+  em Pré-UTI/UTI de Franquias (processo do time de Franquias). Se já está, este processo não abre
+  caso novo — só referencia o status existente lá. Inclui o corte de UTI das franquias críticas e os
+  6 casos em pré-UTI do ScorePulse pedidos pela Iara em 12/10 (triagem desses 6 ainda pendente com
+  a Iara/BackOffice — ver Resumo no topo).</p>
+</section>
+
+<section>
+  <h2>Por que ela travou</h2>
+  <p class="lede">Classificado junto com a faixa. A faixa diz quanta energia investir; isto diz o
+  que fazer — e o mesmo remédio aplicado aos quatro casos só funciona em um.</p>
+
+  <div class="tablebox">
+    <table>
+      <thead><tr><th>Quando parece</th><th>O que fazer</th></tr></thead>
+      <tbody>
+        <tr><td class="w"><b>Parada</b> — fila cresce em tudo, silêncio quase total, nenhuma despesa de manutenção</td>
+            <td class="w">Único caso que justifica escalada contratual desde o início</td></tr>
+        <tr><td class="w"><b>Seletiva</b> — fecha o que é novo e fácil, o passivo antigo não anda</td>
+            <td class="w">Mutirão do passivo: congelar cards novos por duas semanas e dar data aos antigos. <b>Sem multa</b> — ela está produzindo</td></tr>
+        <tr><td class="w"><b>Executa e não comprova</b> — gasta em manutenção mas quase não fecha card</td>
+            <td class="w">Treino de evidência e conferência de despesa × card; o que bater, fecha em lote. <b>Sem multa</b> — o serviço foi feito</td></tr>
+        <tr><td class="w"><b>Abandono de fila pequena</b> — poucos cards, todos muito velhos</td>
+            <td class="w">Uma call de 30 minutos com a lista na tela. <b>Não abrir programa</b> para isso</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Por onde começar dentro da franquia</h2>
+  <p class="lede">Três cortes, nesta ordem, para montar a planilha e a ordem de ataque.</p>
+  <div class="tablebox">
+    <table>
+      <tbody>
+        <tr><td class="b">1 · Janela</td><td class="w">Card em imóvel que recebe hóspede nos próximos 7 dias vem primeiro, sempre. O serviço se encaixa entre o check-out e o check-in seguinte.</td></tr>
+        <tr><td class="b">2 · Urgência</td><td class="w">Risco e habitabilidade antes de experiência do hóspede; experiência antes de reposição de item.</td></tr>
+        <tr><td class="b">3 · Responsabilidade</td><td class="w">Separar o que é da franquia do que é do proprietário antes de cobrar. Card misto não fecha, porque quem recebe a cobrança não controla metade do conteúdo.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>As reuniões</h2>
+  <p class="lede"><b>v1.4:</b> só a Triagem é reunião própria deste processo. Recuperação, Crítica
+  e UTI viram acompanhamento assíncrono (mensagem no card/chamado + relatório da triagem) — elas só
+  viram reunião quando a UTI ou a Pré-UTI de Franquias (processo já existente do time de Franquias,
+  com as próprias calls) colocar o caso na pauta delas. Isso evita que uma mesma franquia tenha
+  duas agendas de reunião rodando em paralelo para o mesmo problema.</p>
+  <div class="tablebox">
+    <table>
+      <thead><tr><th>Ritual</th><th>Etapa</th><th>Quando</th><th>Quem</th></tr></thead>
+      <tbody>
+        <tr><td class="b">Triagem</td><td class="c">1</td><td class="c">Semanal · 20 min · reunião própria</td><td class="w">Manutenção + BackOffice</td></tr>
+        <tr><td class="b">Recuperação</td><td class="c">2</td><td class="c">Assíncrono · sem reunião própria</td><td class="w">Coordenação de Consultoria + consultor regional</td></tr>
+        <tr><td class="b">Crítica</td><td class="c">3</td><td class="c">Assíncrono · reunião só se UTI/Pré-UTI pedir</td><td class="w">Gerência de BackOffice + Coordenação + Manutenção</td></tr>
+        <tr><td class="b">UTI</td><td class="c">4</td><td class="c">Assíncrono quinzenal · reunião só se a Diretoria pedir</td><td class="w">Diretoria + COO + BackOffice + Manutenção</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Comunicação com o franqueado</h2>
+  <p class="lede">Três templates, um por momento. Sem diminutivo, sem emoji, sempre com o próximo
+  passo explícito.</p>
+  <div class="tablebox">
+    <table>
+      <tbody>
+        <tr><td class="b">Entrada em Crítica</td><td class="w">"Sua franquia entrou na faixa Crítica do processo de Recuperação de Franquias em [data], por [motivo: nº de sinais / alcance / card de avaliação]. A partir de hoje: stop de crescimento para novos imóveis (exceto no mesmo prédio onde você já opera) e acompanhamento direto da Gerência de BackOffice. Próximo passo: responda com a data que assume para cada card listado em anexo até [prazo]."</td></tr>
+        <tr><td class="b">Aplicação de multa</td><td class="w">"A ocorrência formal registrada em [data], com prazo até [data], não foi cumprida. Financeiro e Jurídico validaram a aplicação de multa em [data], conforme contrato. Valor: [R$]. Próximo passo: o boleto/desconto sai em [prazo]; dúvidas sobre o cálculo vão para [contato]."</td></tr>
+        <tr><td class="b">Saída para Observação</td><td class="w">"Sua franquia saiu da faixa [Recuperação/Crítica/UTI] e entrou em Observação a partir de [data]. Você segue na leitura semanal por 90 dias; sem novo problema, não há mais nenhuma ação necessária da sua parte. Se um sinal piorar nesse período, o caso volta direto para [faixa], sem passar pelas intermediárias."</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Prompts para usar a skill</h2>
+  <p class="lede">Para qualquer pessoa rodar a triagem na própria máquina. Precisa de Claude Code e do MCP do Sapron conectado. Instale uma vez; depois use os prompts de uso.</p>
+<div class="prompt"><div class="prompt-h"><div><b>1 · Instalar a skill</b> <span>uma vez por máquina · cola no Claude Code</span></div><button class="copy" data-alvo="pr1">Copiar</button></div><pre id="pr1">Instale a skill &quot;recuperacao-franquias&quot; no meu Claude Code. Crie a pasta ~/.claude/skills/recuperacao-franquias/ e grave nela os três arquivos abaixo exatamente como estão, sem resumir nem reescrever nada. Depois:
+1. rode `python3 -m py_compile ~/.claude/skills/recuperacao-franquias/scripts/triagem.py` para conferir que o script está íntegro;
+2. crie a pasta do registro (sugestão: ~/recuperacao-franquias/) com um registro.json vazio: {&quot;versao&quot;: 1, &quot;triagens&quot;: [], &quot;franquias&quot;: {}};
+3. me diga para definir RECUPERACAO_PASTA com o caminho dessa pasta (ou use --registro em todo comando);
+4. confira se o MCP do Sapron (sapron, ferramenta consultar_banco) está conectado. Se não estiver, me avise que a triagem depende dele e que o acesso se pede à Tecnologia;
+5. no fim, me diga que para usar é só digitar /recuperacao-franquias.
+
+===== ARQUIVO: SKILL.md =====
+---
+name: recuperacao-franquias
+description: Roda a triagem semanal do processo de Recuperação de Franquias Críticas da Central de Manutenção — pede o input da semana (data de corte, o que foi combinado nas calls, ocorrências e reincidências), calcula os 5 sinais de cada franquia no Sapron, aplica as faixas (Atenção, Recuperação, Crítica, UTI, Observação) e gera o relatório Plano → Ação → Resultado com a ordem de ataque para a próxima call. Use quando pedirem &quot;roda a triagem&quot;, &quot;triagem das franquias&quot;, &quot;quais franquias estão críticas&quot;, &quot;recuperação de franquias&quot;, &quot;relatório da triagem da semana&quot;, &quot;prepara a call da franquia X&quot;, ou quando alguém disser o que foi combinado numa call (&quot;combinei com a franquia 902 o card 837 para sexta&quot;) — aí é só registrar o plano.
+---
+
+# Recuperação de Franquias Críticas · triagem semanal
+
+O processo (Recuperação de Franquias Críticas, v1.3) trata a
+**franquia**, não o card. A triagem semanal é a única porta de entrada, e esta skill é a
+triagem. Toda semana ela fecha o mesmo ciclo:
+
+- **Plano:** o que foi combinado na call, card a card, com responsável e dia.
+- **Ação:** o que aconteceu com cada item do plano, conferido no Sapron, não no que a franquia disse.
+- **Resultado:** o que mudou nos 5 sinais e na faixa. É daqui que sai o plano da semana seguinte.
+
+Tudo o que não está no Sapron (plano combinado, ocorrência, reincidência) fica em
+`$RECUPERACAO_PASTA/registro.json` (padrão: `/root/manutencao/recuperacao-franquias/`; em outra máquina,
+defina `RECUPERACAO_PASTA` ou passe `--registro`). Sem esse arquivo não existe
+&quot;semana anterior&quot;, e o Resultado vira só uma foto.
+
+Script: `scripts/triagem.py` (stdlib pura). SQL: `references/consultas.sql`.
+
+## 1. Pedir o input (o start)
+
+Antes de consultar qualquer coisa, pergunte a quem pediu a triagem, numa mensagem só. Não siga sem ele
+responder, porque é isso que diferencia a triagem de um relatório solto:
+
+1. **Data de corte.** O padrão é hoje.
+2. **Calls desde a última triagem.** Para cada franquia: card, responsável e dia combinados.
+   Mostre o que já está no registro (`plano` de cada franquia) e peça só para confirmar ou
+   completar. Call que não aconteceu também é resposta: o plano fica vazio.
+3. **Fatos de fora do sistema:**
+   - ocorrência formal registrada (data e prazo final);
+   - prazo de ocorrência descumprido;
+   - reincidência;
+   - multa aplicada;
+   - confirmação em campo que desmente a franquia.
+4. **Escopo.** O padrão é a rede toda. Pode ser só algumas franquias.
+
+Grave as respostas antes de calcular:
+
+```bash
+S=~/.claude/skills/recuperacao-franquias/scripts/triagem.py
+python3 $S plano --host 902 --card 837 --resp &quot;Débora&quot; --dia 2026-10-02 --combinado-em 2026-09-30
+python3 $S fato  --host 902 --ocorrencia-prazo 2026-10-10 --ocorrencia-em 2026-09-30
+python3 $S fato  --host 902 --ocorrencia-vencida        # ou --reincidente sim · --nota &quot;multa R$ 250 em 16/09&quot;
+```
+
+## 2. Puxar os sinais do Sapron
+
+Trabalhe numa pasta do dia: `$RECUPERACAO_PASTA/triagens/AAAA-MM-DD/`.
+
+1. Rode a **consulta 1** de `references/consultas.sql` pelo MCP sapron (`consultar_banco`),
+   trocando `:corte` por `DATE &#x27;AAAA-MM-DD&#x27;`. Salve o resultado como `sinais.json` (lista de objetos).
+2. Rode `python3 $S faixas --sinais sinais.json --corte AAAA-MM-DD`. O script imprime as faixas
+   e os dois `IN (...)` da consulta 2.
+3. Rode a **consulta 2** com esses IDs e salve como `cards.json`.
+
+**Se o MCP sapron estiver fora, pare e diga isso.** Não estime sinal, não reaproveite número de
+semana passada. Triagem sem dado do dia não vale como triagem.
+
+## 3. Gerar o relatório
+
+```bash
+python3 $S relatorio --sinais sinais.json --cards cards.json --corte AAAA-MM-DD \
+  --out $RECUPERACAO_PASTA/triagens/AAAA-MM-DD/triagem.html
+```
+
+Entregue o HTML onde a pessoa consiga abrir. No WSL, caminho do `/root` não abre no Windows:
+copie para os Downloads dela (`/mnt/c/Users/&lt;usuário&gt;/Downloads/`; o usuário sai de
+`cmd.exe /c &quot;echo %USERPROFILE%&quot;`). O Vinicius usa `/mnt/c/Users/compu/Downloads/`.
+
+O relatório traz:
+
+- as faixas da rede, com antes, agora e o porquê;
+- um bloco por franquia no programa, com as três colunas Resultado · Ação · Plano;
+- a ordem de ataque da próxima call. Ela segue janela de hóspede em 7 dias → urgência →
+  responsabilidade → atraso, e deixa as colunas &quot;Responsável&quot; e &quot;Dia&quot; em branco para sair
+  preenchidas da call.
+
+## 4. Mostrar e só então gravar
+
+O script **não** grava o registro sozinho. Ele escreve `registro-proposto.json`. Mostre a
+quem pediu, em poucas linhas:
+
+- quem subiu e quem desceu, com o motivo;
+- quem ficou sem plano registrado;
+- decisão pendente de gente, como o dia 60 da UTI ou um card misto sem responsabilidade.
+
+Só depois de um &quot;pode&quot;, rode `python3 $S aplicar`. Esse comando guarda backup do registro anterior.
+
+## Regras que o script aplica (processo v1.3)
+
+- **Sinais ruins:**
+  - alcance ≥ 40% dos imóveis ativos;
+  - atraso médio dos vencidos ≥ 45 dias;
+  - ≥ 25% da fila aberta há mais de 90 dias;
+  - menos de 20% dos cards abertos com evidência entregue;
+  - zero despesa de manutenção em 90 dias.
+- **Faixas:**
+  - 1 sinal → Atenção;
+  - 2 sinais, ou card vencido há mais de 60 dias → Recuperação;
+  - 3 sinais, alcance acima de 50% ou card de avaliação aberto há mais de 30 dias → Crítica;
+  - 4 ou 5 sinais, ocorrência descumprida ou reincidência → UTI.
+- **Sobe rápido:** basta um gatilho. **Desce devagar:** o critério de alta precisa se sustentar
+  (Recuperação: zero card vencido há mais de 30 dias e evidência acima de 50%; Crítica: plano
+  cumprido por 30 dias; UTI: 60 dias sem crítico, e desce para Recuperação, nunca direto para fora).
+- **Duas calls seguidas sem nenhuma entrega na Recuperação → Crítica.** &quot;Entrega&quot; é card do
+  plano concluído ou com evidência enviada. Semana sem plano registrado não conta, nem a favor
+  nem contra.
+- Depois de qualquer alta vêm 90 dias de **Observação**. Voltar à Crítica nesse período leva direto à UTI.
+- O **tipo de trava** (Parada, Seletiva, Executa e não comprova, Abandono de fila pequena) é uma
+  sugestão tirada dos números. Diga isso: quem confirma é a call.
+
+## Um dono por semana
+
+O registro fica na máquina de quem roda. Se duas pessoas rodarem a triagem em máquinas diferentes,
+cada uma terá um &quot;semana anterior&quot; diferente. Combine um dono da triagem (o processo diz: Central de
+Manutenção). Quem só prepara uma call usa o pedido menor (&quot;prepara a call da franquia X&quot;), que não
+mexe no registro.
+
+## Pegadinhas
+
+- O MCP bloqueia as palavras `update`, `delete` e `drop`, inclusive em nome de coluna. Nunca use `updated_at`.
+- Aberto é `status NOT IN (&#x27;concluido&#x27;,&#x27;cancelada&#x27;)`. Não existe `&#x27;open&#x27;`.
+- `financial_expenses.expense_date` tem anos absurdos, então a faixa de data é obrigatória. A
+  despesa é ligada à franquia pelo **dono atual** do imóvel: imóvel que trocou de franquia leva
+  o histórico junto.
+- `urgentes` junta `urgent` com `ai_is_urgent`. Enquanto o agente de urgência estiver inerte,
+  quase tudo sai `false`, e o critério de alta da UTI (&quot;zero crítico&quot;) fica frouxo. Avise quando for o caso.
+- A régua D+14 (BackOffice) e D+21 (Coordenação) **ainda não é automática** (conferido no código
+  em 25/09/2026): o Sapron só manda o lembrete no chat do card. Não escreva no relatório que
+  &quot;a régua já acionou o gestor&quot;.
+
+## Quando o pedido for menor
+
+- **&quot;Combinei X com a franquia Y&quot;** → só `plano` ou `fato`. Confirme o que gravou.
+- **&quot;Prepara a call da franquia 902&quot;** → consulta 2 só com esse host, mais `relatorio`, e
+  mande o bloco dela. Não mexa no registro.
+- **&quot;Quais estão críticas?&quot;** → passos 2.1 e 2.2 e pare. É consulta, não triagem.
+===== FIM: SKILL.md =====
+
+===== ARQUIVO: scripts/triagem.py =====
+#!/usr/bin/env python3
+&quot;&quot;&quot;Triagem semanal de Recuperação de Franquias Críticas (processo v1.3).
+
+Método Plano → Ação → Resultado, uma vez por semana:
+  Resultado  o que mudou nos 5 sinais e na faixa desde a triagem anterior
+  Ação       o que aconteceu com cada item do plano combinado na última call
+  Plano      a ordem de ataque para a próxima call (card, responsável, dia em branco)
+
+Subcomandos (stdlib pura):
+  faixas     lê sinais.json + registro, imprime faixas e os IN (...) da consulta 2
+  relatorio  lê sinais.json + cards.json + registro, grava o HTML e registro-proposto.json
+  plano      grava no registro o que foi combinado na call (card, responsável, dia)
+  fato       grava no registro fatos de fora do sistema (ocorrência, reincidência)
+  aplicar    promove registro-proposto.json para registro.json (só depois do &quot;pode&quot;)
+&quot;&quot;&quot;
+import argparse
+import datetime as dt
+import html
+import json
+import os
+import shutil
+import sys
+from pathlib import Path
+
+# Pasta do registro. Padrão do dono do processo; quem instalar em outra máquina define RECUPERACAO_PASTA.
+PASTA = Path(os.environ.get(&quot;RECUPERACAO_PASTA&quot;, &quot;/root/manutencao/recuperacao-franquias&quot;))
+REGISTRO = PASTA / &quot;registro.json&quot;
+
+ORDEM = [&quot;fora&quot;, &quot;atencao&quot;, &quot;recuperacao&quot;, &quot;critica&quot;, &quot;uti&quot;]
+NOME = {&quot;fora&quot;: &quot;Fora&quot;, &quot;atencao&quot;: &quot;Atenção&quot;, &quot;recuperacao&quot;: &quot;Recuperação&quot;,
+        &quot;critica&quot;: &quot;Crítica&quot;, &quot;uti&quot;: &quot;UTI&quot;, &quot;observacao&quot;: &quot;Observação&quot;}
+CONDUZ = {&quot;atencao&quot;: &quot;BackOffice · Franquias&quot;, &quot;recuperacao&quot;: &quot;Coordenação de Consultoria&quot;,
+          &quot;critica&quot;: &quot;Gerência de BackOffice&quot;, &quot;uti&quot;: &quot;Diretoria de Franquias&quot;,
+          &quot;observacao&quot;: &quot;BackOffice · Franquias&quot;}
+ACOES_ETAPA = {
+    &quot;recuperacao&quot;: [
+        (&quot;Montar a planilha e quebrar os cards mistos em franquia × proprietário&quot;, &quot;Central de Manutenção&quot;),
+        (&quot;Contato assíncrono (mensagem no card), card a card, pedindo data assumida pela franquia — sem reunião própria&quot;, &quot;Coordenação + consultor regional&quot;),
+        (&quot;Confirmar em campo o que a franquia declarou&quot;, &quot;Consultoria Regional&quot;),
+        (&quot;Encaminhar ao proprietário o que depende de orçamento dele&quot;, &quot;Relacionamento&quot;),
+    ],
+    &quot;critica&quot;: [
+        (&quot;Checar se a franquia já está em Pré-UTI/UTI de Franquias; se já está, só referenciar, não abrir caso novo&quot;, &quot;Central de Manutenção&quot;),
+        (&quot;Publicar a ordem de ataque e enviar o relatório — sem reunião própria&quot;, &quot;Central de Manutenção&quot;),
+        (&quot;Fechar a posição da Seazone antes de qualquer contato&quot;, &quot;Gerência + Coordenação + Manutenção&quot;),
+        (&quot;Contato assíncrono com a franquia, terminando com card, responsável e dia&quot;, &quot;Gerência de BackOffice&quot;),
+        (&quot;Registrar ocorrência formal com o prazo final por escrito&quot;, &quot;Gerência de BackOffice&quot;),
+        (&quot;Entrar em stop de crescimento (exceto imóveis no mesmo prédio)&quot;, &quot;Automático&quot;),
+    ],
+    &quot;uti&quot;: [
+        (&quot;Manter stop de crescimento e comunicar por escrito, com prazo e consequência&quot;, &quot;Diretoria de Franquias&quot;),
+        (&quot;Acionar multa e caminho contratual só com validação conjunta de Financeiro + Jurídico, registrando quem validou e quando&quot;, &quot;Financeiro + Jurídico&quot;),
+        (&quot;Onde houver risco ao hóspede, executar direto e cobrar depois&quot;, &quot;Diretoria + Financeiro&quot;),
+        (&quot;Acompanhamento quinzenal assíncrono: entregou o quê, segue ou encerra (decisão com data; reunião só se a Diretoria pedir)&quot;, &quot;Diretoria + COO + BackOffice + Manutenção&quot;),
+    ],
+}
+
+
+# --------------------------------------------------------------------------- dados
+
+def carregar(caminho, padrao):
+    p = Path(caminho)
+    if not p.exists():
+        return padrao
+    return json.loads(p.read_text(encoding=&quot;utf-8&quot;))
+
+
+def registro_vazio():
+    return {&quot;versao&quot;: 1, &quot;triagens&quot;: [], &quot;franquias&quot;: {}}
+
+
+def data(s):
+    return dt.date.fromisoformat(str(s)[:10]) if s else None
+
+
+def num(v, padrao=0):
+    try:
+        return float(v) if v is not None else padrao
+    except (TypeError, ValueError):
+        return padrao
+
+
+def sinais_da_linha(l):
+    ativos = num(l.get(&quot;imoveis_ativos&quot;))
+    abertos = num(l.get(&quot;abertos&quot;))
+    s = {
+        &quot;alcance&quot;: (num(l.get(&quot;imoveis_com_card&quot;)) / ativos) if ativos else None,
+        &quot;idade&quot;: num(l.get(&quot;atraso_medio&quot;)) if l.get(&quot;atraso_medio&quot;) is not None else 0.0,
+        &quot;teimosia&quot;: (num(l.get(&quot;acima_90&quot;)) / abertos) if abertos else 0.0,
+        &quot;silencio&quot;: (num(l.get(&quot;com_evidencia&quot;)) / abertos) if abertos else 1.0,
+        &quot;parada&quot;: num(l.get(&quot;despesas_90d&quot;)),
+    }
+    ruim = {
+        &quot;alcance&quot;: s[&quot;alcance&quot;] is not None and s[&quot;alcance&quot;] &gt;= 0.40,
+        &quot;idade&quot;: s[&quot;idade&quot;] &gt;= 45,
+        &quot;teimosia&quot;: s[&quot;teimosia&quot;] &gt;= 0.25,
+        &quot;silencio&quot;: s[&quot;silencio&quot;] &lt; 0.20,
+        &quot;parada&quot;: s[&quot;parada&quot;] == 0,
+    }
+    return s, ruim
+
+
+def faixa_bruta(l, s, ruim, fr):
+    &quot;&quot;&quot;Faixa só pelos números da semana + fatos registrados. Devolve (faixa, motivos).&quot;&quot;&quot;
+    n = sum(ruim.values())
+    motivos = [f&quot;{n} sinal(is) ruim(ns)&quot;] if n else []
+    ocorr = (fr or {}).get(&quot;ocorrencia&quot;) or {}
+    prazo_ocorr = data(ocorr.get(&quot;prazo&quot;))
+    if (fr or {}).get(&quot;reincidente&quot;):
+        return &quot;uti&quot;, motivos + [&quot;reincidência registrada&quot;]
+    if ocorr.get(&quot;vencida&quot;):
+        return &quot;uti&quot;, motivos + [&quot;prazo da ocorrência descumprido&quot;]
+    if n &gt;= 4:
+        return &quot;uti&quot;, motivos
+    if n &gt;= 3:
+        return &quot;critica&quot;, motivos
+    if s[&quot;alcance&quot;] is not None and s[&quot;alcance&quot;] &gt; 0.50:
+        return &quot;critica&quot;, motivos + [&quot;alcance acima de 50%&quot;]
+    if num(l.get(&quot;review_30&quot;)) &gt; 0:
+        return &quot;critica&quot;, motivos + [f&quot;{int(num(l.get(&#x27;review_30&#x27;)))} card(s) de avaliação aberto(s) há mais de 30 dias&quot;]
+    if n &gt;= 2:
+        return &quot;recuperacao&quot;, motivos
+    if num(l.get(&quot;pior_atraso&quot;)) &gt; 60:
+        return &quot;recuperacao&quot;, motivos + [f&quot;card vencido há {int(num(l.get(&#x27;pior_atraso&#x27;)))} dias&quot;]
+    if n == 1:
+        return &quot;atencao&quot;, motivos
+    return &quot;fora&quot;, motivos
+
+
+def tipo_de_trava(l, s, ruim):
+    abertos = num(l.get(&quot;abertos&quot;))
+    if ruim[&quot;parada&quot;] and ruim[&quot;silencio&quot;]:
+        return (&quot;Parada&quot;, &quot;Único caso que justifica escalada contratual desde o início.&quot;)
+    if abertos &lt;= 5 and ruim[&quot;idade&quot;]:
+        return (&quot;Abandono de fila pequena&quot;, &quot;Uma call de 30 minutos com a lista na tela. Não abrir programa.&quot;)
+    if not ruim[&quot;parada&quot;] and ruim[&quot;silencio&quot;]:
+        return (&quot;Executa e não comprova&quot;, &quot;Treino de evidência e conferência despesa × card; o que bater fecha em lote. Sem multa.&quot;)
+    if ruim[&quot;teimosia&quot;] and num(l.get(&quot;concluidos_30d&quot;)) &gt; 0:
+        return (&quot;Seletiva&quot;, &quot;Mutirão do passivo: congelar cards novos por duas semanas e dar data aos antigos. Sem multa.&quot;)
+    return (&quot;Sem padrão claro&quot;, &quot;Ler a planilha antes de escolher o remédio.&quot;)
+
+
+def acao_do_plano(fr, cards_por_id, corte):
+    &quot;&quot;&quot;Confere cada item do plano anterior. Devolve (linhas, houve_entrega, cumprido_total).&quot;&quot;&quot;
+    plano = (fr or {}).get(&quot;plano&quot;) or {}
+    linhas, entregues = [], 0
+    for it in plano.get(&quot;itens&quot;, []):
+        c = cards_por_id.get(int(it[&quot;card&quot;]))
+        dia = data(it.get(&quot;dia&quot;))
+        if c is None:
+            est = (&quot;sem dado&quot;, &quot;c-info&quot;)
+        elif c.get(&quot;status&quot;) == &quot;concluido&quot;:
+            est, entregues = (&quot;entregue · concluído&quot;, &quot;c-ok&quot;), entregues + 1
+        elif c.get(&quot;status&quot;) == &quot;cancelada&quot;:
+            est = (&quot;cancelado&quot;, &quot;c-info&quot;)
+        elif c.get(&quot;evidencia_em&quot;):
+            est, entregues = (&quot;entregou · falta nossa aprovação&quot;, &quot;c-ok&quot;), entregues + 1
+        elif dia and dia &lt; corte:
+            est = (&quot;não cumpriu o dia&quot;, &quot;c-bad&quot;)
+        else:
+            est = (&quot;no prazo&quot;, &quot;c-warn&quot;)
+        linhas.append({**it, &quot;estado&quot;: est, &quot;card_dado&quot;: c})
+    total = len(linhas)
+    return linhas, (entregues &gt; 0) if total else None, (total &gt; 0 and entregues == total)
+
+
+def decidir(fr, bruta, l, s, ruim, entrega, cumprido, corte):
+    &quot;&quot;&quot;Aplica as regras da linha do tempo. Devolve (faixa_nova, decisao, estado_atualizado).&quot;&quot;&quot;
+    fr = dict(fr or {})
+    atual = fr.get(&quot;faixa&quot;, &quot;fora&quot;)
+    obs_ate = data(fr.get(&quot;observacao_ate&quot;))
+    calls_sem = int(fr.get(&quot;calls_sem_entrega&quot;, 0))
+    if entrega is False:
+        calls_sem += 1
+    elif entrega is True:
+        calls_sem = 0
+    fr[&quot;calls_sem_entrega&quot;] = calls_sem
+
+    # Observação: voltou à Crítica dentro dos 90 dias → UTI direto.
+    if atual == &quot;observacao&quot;:
+        if obs_ate and corte &lt;= obs_ate and ORDEM.index(bruta) &gt;= ORDEM.index(&quot;critica&quot;):
+            return &quot;uti&quot;, &quot;Voltou à faixa Crítica dentro da Observação → UTI direto.&quot;, fr
+        if obs_ate and corte &gt; obs_ate and bruta in (&quot;fora&quot;, &quot;atencao&quot;):
+            return bruta, &quot;Fim dos 90 dias de Observação.&quot;, fr
+        if ORDEM.index(bruta) &gt;= ORDEM.index(&quot;recuperacao&quot;):
+            return bruta, &quot;Voltou a ter sinais durante a Observação.&quot;, fr
+        return &quot;observacao&quot;, f&quot;Segue em Observação até {obs_ate:%d/%m}.&quot; if obs_ate else &quot;Segue em Observação.&quot;, fr
+
+    idx_atual, idx_bruta = ORDEM.index(atual), ORDEM.index(bruta)
+
+    # Sobe rápido: um gatilho basta.
+    if idx_bruta &gt; idx_atual:
+        fr[&quot;alta_desde&quot;] = None
+        return bruta, f&quot;Sobe de {NOME[atual]} para {NOME[bruta]}.&quot;, fr
+
+    # Subidas automáticas por não entrega.
+    if atual == &quot;recuperacao&quot; and calls_sem &gt;= 2:
+        fr[&quot;alta_desde&quot;] = None
+        return &quot;critica&quot;, &quot;Duas calls seguidas sem entrega → sobe para Crítica.&quot;, fr
+    ocorr = fr.get(&quot;ocorrencia&quot;) or {}
+    if atual == &quot;critica&quot; and data(ocorr.get(&quot;prazo&quot;)) and data(ocorr[&quot;prazo&quot;]) &lt; corte and not cumprido:
+        return &quot;uti&quot;, &quot;Prazo da ocorrência vencido sem entrega → sobe para UTI.&quot;, fr
+    if atual == &quot;uti&quot;:
+        desde = data(fr.get(&quot;faixa_desde&quot;))
+        if desde and (corte - desde).days &gt;= 60:
+            return &quot;uti&quot;, &quot;Dia 60 da UTI: decisão de continuidade da franquia (a UTI não se renova).&quot;, fr
+
+    # Desce devagar: o critério de alta precisa se sustentar.
+    abertos = num(l.get(&quot;abertos&quot;))
+    evid = (num(l.get(&quot;com_evidencia&quot;)) / abertos) if abertos else 1.0
+    if atual == &quot;recuperacao&quot;:
+        if num(l.get(&quot;vencidos_30&quot;)) == 0 and evid &gt; 0.5:
+            fr[&quot;observacao_ate&quot;] = str(corte + dt.timedelta(days=90))
+            return &quot;observacao&quot;, &quot;Alta da Recuperação → 90 dias de Observação.&quot;, fr
+        return &quot;recuperacao&quot;, &quot;Mantém: alta pede zero card vencido há mais de 30 dias e evidência acima de 50%.&quot;, fr
+    if atual == &quot;critica&quot;:
+        ok_agora = cumprido and num(l.get(&quot;vencidos&quot;)) &lt;= num((fr.get(&quot;ultimo&quot;) or {}).get(&quot;vencidos&quot;, 0))
+        if ok_agora:
+            fr[&quot;alta_desde&quot;] = fr.get(&quot;alta_desde&quot;) or str(corte)
+        else:
+            fr[&quot;alta_desde&quot;] = None
+        if fr.get(&quot;alta_desde&quot;) and (corte - data(fr[&quot;alta_desde&quot;])).days &gt;= 30:
+            fr[&quot;observacao_ate&quot;] = str(corte + dt.timedelta(days=90))
+            return &quot;observacao&quot;, &quot;Plano cumprido por 30 dias seguidos → alta para Observação.&quot;, fr
+        return &quot;critica&quot;, (&quot;Plano cumprido; contando para a alta desde &quot; + fr[&quot;alta_desde&quot;]) if fr.get(&quot;alta_desde&quot;) else &quot;Mantém: plano não cumprido ou card novo vencendo.&quot;, fr
+    if atual == &quot;uti&quot;:
+        sem_critico = num(l.get(&quot;urgentes&quot;)) == 0
+        fr[&quot;alta_desde&quot;] = (fr.get(&quot;alta_desde&quot;) or str(corte)) if sem_critico and not fr.get(&quot;reincidente&quot;) else None
+        if fr.get(&quot;alta_desde&quot;) and (corte - data(fr[&quot;alta_desde&quot;])).days &gt;= 60:
+            return &quot;recuperacao&quot;, &quot;Zero críticos e 60 dias sem reincidência → desce para Recuperação.&quot;, fr
+        return &quot;uti&quot;, &quot;Mantém: alta pede zero card crítico por 60 dias.&quot;, fr
+    return bruta, (&quot;Entra em &quot; + NOME[bruta] + &quot;.&quot;) if bruta != atual else &quot;Sem mudança.&quot;, fr
+
+
+def ordem_de_ataque(cards, host_id, limite=12):
+    abertos = [c for c in cards if str(c.get(&quot;host_id&quot;)) == str(host_id)
+               and c.get(&quot;status&quot;) not in (&quot;concluido&quot;, &quot;cancelada&quot;)]
+
+    def chave(c):
+        return (0 if c.get(&quot;checkin_7d&quot;) else 1,
+                0 if c.get(&quot;urgente&quot;) else 1,
+                0 if c.get(&quot;responsabilidade&quot;) in (None, &quot;&quot;, &quot;franquia&quot;) else 1,
+                -num(c.get(&quot;atraso&quot;), -9999))
+    return sorted(abertos, key=chave)[:limite], len(abertos)
+
+
+# --------------------------------------------------------------------------- análise
+
+def analisar(sinais, registro, cards, corte):
+    cards_por_id = {int(c[&quot;id&quot;]): c for c in cards}
+    saida = []
+    for l in sinais:
+        hid = str(l[&quot;host_id&quot;])
+        fr = registro[&quot;franquias&quot;].get(hid, {})
+        s, ruim = sinais_da_linha(l)
+        bruta, motivos = faixa_bruta(l, s, ruim, fr)
+        linhas, entrega, cumprido = acao_do_plano(fr, cards_por_id, corte)
+        nova, decisao, fr_novo = decidir(fr, bruta, l, s, ruim, entrega, cumprido, corte)
+        saida.append({&quot;host_id&quot;: hid, &quot;nome&quot;: l.get(&quot;host_name&quot;) or fr.get(&quot;nome&quot;) or hid,
+                      &quot;linha&quot;: l, &quot;s&quot;: s, &quot;ruim&quot;: ruim, &quot;bruta&quot;: bruta, &quot;motivos&quot;: motivos,
+                      &quot;anterior&quot;: fr.get(&quot;faixa&quot;), &quot;nova&quot;: nova, &quot;decisao&quot;: decisao,
+                      &quot;acao&quot;: linhas, &quot;entrega&quot;: entrega, &quot;fr&quot;: fr_novo,
+                      &quot;ultimo&quot;: fr.get(&quot;ultimo&quot;), &quot;trava&quot;: tipo_de_trava(l, s, ruim)})
+    # Franquias no registro que sumiram dos sinais (zeraram a fila).
+    vistos = {x[&quot;host_id&quot;] for x in saida}
+    for hid, fr in registro[&quot;franquias&quot;].items():
+        if hid not in vistos and fr.get(&quot;faixa&quot;) not in (None, &quot;fora&quot;):
+            l = {&quot;host_id&quot;: hid, &quot;host_name&quot;: fr.get(&quot;nome&quot;), &quot;abertos&quot;: 0}
+            s, ruim = sinais_da_linha(l)
+            linhas, entrega, cumprido = acao_do_plano(fr, cards_por_id, corte)
+            nova, decisao, fr_novo = decidir(fr, &quot;fora&quot;, l, s, ruim, entrega, cumprido, corte)
+            saida.append({&quot;host_id&quot;: hid, &quot;nome&quot;: fr.get(&quot;nome&quot;, hid), &quot;linha&quot;: l, &quot;s&quot;: s, &quot;ruim&quot;: ruim,
+                          &quot;bruta&quot;: &quot;fora&quot;, &quot;motivos&quot;: [&quot;sem card aberto&quot;], &quot;anterior&quot;: fr.get(&quot;faixa&quot;),
+                          &quot;nova&quot;: nova, &quot;decisao&quot;: decisao, &quot;acao&quot;: linhas, &quot;entrega&quot;: entrega,
+                          &quot;fr&quot;: fr_novo, &quot;ultimo&quot;: fr.get(&quot;ultimo&quot;), &quot;trava&quot;: (&quot;—&quot;, &quot;&quot;)})
+    return saida
+
+
+def em_programa(x):
+    return x[&quot;nova&quot;] in (&quot;recuperacao&quot;, &quot;critica&quot;, &quot;uti&quot;, &quot;observacao&quot;) or \
+        (x[&quot;anterior&quot;] in (&quot;recuperacao&quot;, &quot;critica&quot;, &quot;uti&quot;, &quot;observacao&quot;))
+
+
+# --------------------------------------------------------------------------- HTML
+
+def pct(v):
+    return &quot;—&quot; if v is None else f&quot;{v * 100:.0f}%&quot;
+
+
+def e(v):
+    return html.escape(str(v if v is not None else &quot;—&quot;))
+
+
+def br(v):
+    d = data(v) if v else None
+    return d.strftime(&quot;%d/%m&quot;) if d else &quot;—&quot;
+
+
+def chip(txt, cls):
+    return f&#x27;&lt;span class=&quot;chip {cls}&quot;&gt;{e(txt)}&lt;/span&gt;&#x27;
+
+
+FAIXA_CLS = {&quot;fora&quot;: &quot;c-info&quot;, &quot;atencao&quot;: &quot;c-warn&quot;, &quot;recuperacao&quot;: &quot;c-warn&quot;,
+             &quot;critica&quot;: &quot;c-bad&quot;, &quot;uti&quot;: &quot;c-bad&quot;, &quot;observacao&quot;: &quot;c-info&quot;, None: &quot;c-info&quot;}
+
+CSS = &quot;&quot;&quot;
+:root{--ground:#F4F6F9;--surface:#FFF;--line:#DDE3EB;--soft:#E9EEF4;--ink:#101826;--ink2:#44546A;--ink3:#7A8799;
+--ok:#15803D;--okb:rgba(34,197,94,.12);--warn:#B45309;--warnb:rgba(245,158,11,.13);--bad:#DC2626;--badb:rgba(239,68,68,.11);
+--info:#1D4ED8;--infob:rgba(59,130,246,.11);--code:#EEF2F7}
+@media (prefers-color-scheme:dark){:root:not([data-theme=&quot;light&quot;]){--ground:#0C1017;--surface:#141A24;--line:#263141;--soft:#1E2733;
+--ink:#E8EDF4;--ink2:#A8B5C6;--ink3:#6F7E92;--ok:#4ADE80;--okb:rgba(34,197,94,.15);--warn:#FBBF24;--warnb:rgba(245,158,11,.15);
+--bad:#F87171;--badb:rgba(239,68,68,.15);--info:#93B4FF;--infob:rgba(59,130,246,.16);--code:#1B232F}}
+:root[data-theme=&quot;dark&quot;]{--ground:#0C1017;--surface:#141A24;--line:#263141;--soft:#1E2733;--ink:#E8EDF4;--ink2:#A8B5C6;--ink3:#6F7E92;
+--ok:#4ADE80;--okb:rgba(34,197,94,.15);--warn:#FBBF24;--warnb:rgba(245,158,11,.15);--bad:#F87171;--badb:rgba(239,68,68,.15);
+--info:#93B4FF;--infob:rgba(59,130,246,.16);--code:#1B232F}
+*{box-sizing:border-box}body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.55 &#x27;Source Sans 3&#x27;,system-ui,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:36px 16px 60px}h1,h2,h3,.chip,.eb,.n{font-family:Archivo,system-ui,sans-serif}
+.eb{font-size:11.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3)}
+h1{font-size:clamp(25px,5vw,34px);line-height:1.12;margin:6px 0 8px;letter-spacing:-.02em}h2{font-size:19px;margin:40px 0 6px}
+.dek,.sub{color:var(--ink2);max-width:70ch;margin:0 0 14px}code{font-family:&#x27;IBM Plex Mono&#x27;,monospace;background:var(--code);padding:1px 5px;border-radius:4px;font-size:.85em}
+.chip{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.c-ok{color:var(--ok);background:var(--okb)}.c-warn{color:var(--warn);background:var(--warnb)}.c-bad{color:var(--bad);background:var(--badb)}.c-info{color:var(--info);background:var(--infob)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:18px}
+.t{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}.t .n{font-size:26px;font-weight:700;line-height:1}.t .l{color:var(--ink2);font-size:13.5px;margin-top:4px}
+.tbl{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:14px}
+.tbl th,.tbl td{padding:8px 10px;border-top:1px solid var(--soft);text-align:left;vertical-align:top}.tbl th{color:var(--ink3);font-weight:600;font-size:12.5px;border-top:0}
+.tbl td.r{text-align:right;font-variant-numeric:tabular-nums}.scroll{overflow-x:auto}
+.bad{color:var(--bad);font-weight:600}
+.fr{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin:16px 0;overflow:hidden}
+.fr-h{padding:14px 18px;border-bottom:1px solid var(--soft);display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}
+.fr-h h3{margin:0;font-size:17px}.fr-h .m{color:var(--ink3);font-size:13.5px}
+.par{display:grid;grid-template-columns:repeat(3,1fr);gap:0}.par&gt;div{padding:14px 18px;border-left:1px solid var(--soft)}.par&gt;div:first-child{border-left:0}
+.par h4{margin:0 0 6px;font:600 12px Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+.par ul{margin:0;padding-left:18px;color:var(--ink2);font-size:14px}.par p{margin:0 0 6px;color:var(--ink2);font-size:14px}
+@media (max-width:760px){.par{grid-template-columns:1fr}.par&gt;div{border-left:0;border-top:1px solid var(--soft)}}
+.foot{margin-top:40px;color:var(--ink3);font-size:13px;border-top:1px solid var(--line);padding-top:14px}
+&quot;&quot;&quot;
+
+
+def html_franquia(x, cards):
+    l, s, ruim = x[&quot;linha&quot;], x[&quot;s&quot;], x[&quot;ruim&quot;]
+    ult = x.get(&quot;ultimo&quot;) or {}
+    # Resultado
+    res = [f&quot;&lt;p&gt;{chip(NOME.get(x[&#x27;anterior&#x27;] or &#x27;fora&#x27;), FAIXA_CLS[x[&#x27;anterior&#x27;]])} → &quot;
+           f&quot;{chip(NOME[x[&#x27;nova&#x27;]], FAIXA_CLS[x[&#x27;nova&#x27;]])}&lt;/p&gt;&quot;, f&quot;&lt;p&gt;{e(x[&#x27;decisao&#x27;])}&lt;/p&gt;&quot;, &quot;&lt;ul&gt;&quot;]
+    for k, rot, fmt in ((&quot;alcance&quot;, &quot;Alcance&quot;, pct), (&quot;idade&quot;, &quot;Idade&quot;, lambda v: f&quot;{v:.0f} d&quot;),
+                        (&quot;teimosia&quot;, &quot;Teimosia&quot;, pct), (&quot;silencio&quot;, &quot;Com evidência&quot;, pct),
+                        (&quot;parada&quot;, &quot;Despesas 90 d&quot;, lambda v: f&quot;{v:.0f}&quot;)):
+        antes = ult.get(&quot;s&quot;, {}).get(k)
+        ant_txt = f&quot; &lt;span style=&#x27;color:var(--ink3)&#x27;&gt;(antes {fmt(antes)})&lt;/span&gt;&quot; if antes is not None else &quot;&quot;
+        cls = &#x27; class=&quot;bad&quot;&#x27; if ruim[k] else &quot;&quot;
+        res.append(f&quot;&lt;li&gt;&lt;span{cls}&gt;{rot}: {fmt(s[k]) if s[k] is not None else &#x27;—&#x27;}&lt;/span&gt;{ant_txt}&lt;/li&gt;&quot;)
+    res.append(&quot;&lt;/ul&gt;&quot;)
+    # Ação
+    if x[&quot;acao&quot;]:
+        ac = [&quot;&lt;ul&gt;&quot;] + [f&quot;&lt;li&gt;card {e(i[&#x27;card&#x27;])} · {e(i.get(&#x27;responsavel&#x27;) or &#x27;sem responsável&#x27;)} · dia {br(i.get(&#x27;dia&#x27;))} &quot;
+                         f&quot;{chip(i[&#x27;estado&#x27;][0], i[&#x27;estado&#x27;][1])}&lt;/li&gt;&quot; for i in x[&quot;acao&quot;]] + [&quot;&lt;/ul&gt;&quot;]
+    else:
+        ac = [&quot;&lt;p&gt;Sem plano registrado desde a última triagem. Primeira vez aqui, ou a call não aconteceu.&lt;/p&gt;&quot;]
+    # Plano
+    lista, total = ordem_de_ataque(cards, x[&quot;host_id&quot;])
+    pl = [f&quot;&lt;p&gt;&lt;b&gt;{e(x[&#x27;trava&#x27;][0])}&lt;/b&gt; — {e(x[&#x27;trava&#x27;][1])}&lt;/p&gt;&quot;]
+    if x[&quot;nova&quot;] in ACOES_ETAPA:
+        pl.append(&quot;&lt;ul&gt;&quot; + &quot;&quot;.join(f&quot;&lt;li&gt;{e(a)} &lt;span style=&#x27;color:var(--ink3)&#x27;&gt;· {e(q)}&lt;/span&gt;&lt;/li&gt;&quot;
+                                   for a, q in ACOES_ETAPA[x[&quot;nova&quot;]]) + &quot;&lt;/ul&gt;&quot;)
+    corpo = &quot;&quot;.join(res), &quot;&quot;.join(ac), &quot;&quot;.join(pl)
+    tabela = &quot;&quot;
+    if lista:
+        linhas = &quot;&quot;.join(
+            f&quot;&lt;tr&gt;&lt;td&gt;{e(c.get(&#x27;imovel&#x27;))}&lt;/td&gt;&lt;td&gt;{e(c[&#x27;id&#x27;])}&lt;/td&gt;&lt;td&gt;{e((c.get(&#x27;title&#x27;) or &#x27;&#x27;)[:80])}&lt;/td&gt;&quot;
+            f&quot;&lt;td&gt;{&#x27;hóspede &#x27; + br(c[&#x27;checkin_7d&#x27;]) if c.get(&#x27;checkin_7d&#x27;) else &#x27;&#x27;}&lt;/td&gt;&quot;
+            f&quot;&lt;td&gt;{&#x27;urgente&#x27; if c.get(&#x27;urgente&#x27;) else &#x27;&#x27;}&lt;/td&gt;&quot;
+            f&quot;&lt;td&gt;{e(c.get(&#x27;responsabilidade&#x27;) or &#x27;separar&#x27;)}&lt;/td&gt;&lt;td class=&#x27;r&#x27;&gt;{e(c.get(&#x27;atraso&#x27;))}&lt;/td&gt;&quot;
+            f&quot;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;&quot; for c in lista)
+        tabela = (f&quot;&lt;div class=&#x27;scroll&#x27; style=&#x27;padding:0 18px 16px&#x27;&gt;&lt;p class=&#x27;sub&#x27; style=&#x27;margin:6px 0&#x27;&gt;Ordem de ataque para a call &quot;
+                  f&quot;({len(lista)} de {total} abertos): janela de hóspede → urgência → responsabilidade → atraso. &quot;
+                  f&quot;Responsável e dia saem preenchidos da call.&lt;/p&gt;&lt;table class=&#x27;tbl&#x27;&gt;&lt;tr&gt;&lt;th&gt;Imóvel&lt;/th&gt;&lt;th&gt;Card&lt;/th&gt;&quot;
+                  f&quot;&lt;th&gt;O quê&lt;/th&gt;&lt;th&gt;Janela 7 d&lt;/th&gt;&lt;th&gt;Urgência&lt;/th&gt;&lt;th&gt;Resp.&lt;/th&gt;&lt;th&gt;Atraso&lt;/th&gt;&lt;th&gt;Responsável&lt;/th&gt;&quot;
+                  f&quot;&lt;th&gt;Dia&lt;/th&gt;&lt;/tr&gt;{linhas}&lt;/table&gt;&lt;/div&gt;&quot;)
+    conduz = CONDUZ.get(x[&quot;nova&quot;], &quot;&quot;)
+    return (f&quot;&lt;div class=&#x27;fr&#x27;&gt;&lt;div class=&#x27;fr-h&#x27;&gt;&lt;h3&gt;{e(x[&#x27;nome&#x27;])}&lt;/h3&gt;&lt;span class=&#x27;m&#x27;&gt;host {e(x[&#x27;host_id&#x27;])} · &quot;
+            f&quot;{int(num(l.get(&#x27;abertos&#x27;)))} abertos · {int(num(l.get(&#x27;imoveis_ativos&#x27;)))} imóveis ativos · conduz: {e(conduz)}&lt;/span&gt;&lt;/div&gt;&quot;
+            f&quot;&lt;div class=&#x27;par&#x27;&gt;&lt;div&gt;&lt;h4&gt;Resultado&lt;/h4&gt;{corpo[0]}&lt;/div&gt;&lt;div&gt;&lt;h4&gt;Ação&lt;/h4&gt;{corpo[1]}&lt;/div&gt;&quot;
+            f&quot;&lt;div&gt;&lt;h4&gt;Plano&lt;/h4&gt;{corpo[2]}&lt;/div&gt;&lt;/div&gt;{tabela}&lt;/div&gt;&quot;)
+
+
+def gerar_html(analise, cards, corte, anterior):
+    prog = sorted([x for x in analise if em_programa(x)],
+                  key=lambda x: (-ORDEM.index(x[&quot;nova&quot;]) if x[&quot;nova&quot;] in ORDEM else -1.5, x[&quot;nome&quot;]))
+    cont = {k: sum(1 for x in analise if x[&quot;nova&quot;] == k) for k in (&quot;atencao&quot;, &quot;recuperacao&quot;, &quot;critica&quot;, &quot;uti&quot;, &quot;observacao&quot;)}
+    subiram = [x for x in analise if x[&quot;anterior&quot;] and x[&quot;nova&quot;] in ORDEM and x[&quot;anterior&quot;] in ORDEM
+               and ORDEM.index(x[&quot;nova&quot;]) &gt; ORDEM.index(x[&quot;anterior&quot;])]
+    tiles = &quot;&quot;.join(f&quot;&lt;div class=&#x27;t&#x27;&gt;&lt;div class=&#x27;n&#x27;&gt;{v}&lt;/div&gt;&lt;div class=&#x27;l&#x27;&gt;{NOME[k]}&lt;/div&gt;&lt;/div&gt;&quot; for k, v in cont.items())
+    tiles += f&quot;&lt;div class=&#x27;t&#x27;&gt;&lt;div class=&#x27;n&#x27;&gt;{len(subiram)}&lt;/div&gt;&lt;div class=&#x27;l&#x27;&gt;subiram de faixa&lt;/div&gt;&lt;/div&gt;&quot;
+    linhas = &quot;&quot;.join(
+        f&quot;&lt;tr&gt;&lt;td&gt;{e(x[&#x27;nome&#x27;])}&lt;/td&gt;&lt;td&gt;{chip(NOME.get(x[&#x27;anterior&#x27;] or &#x27;fora&#x27;), FAIXA_CLS[x[&#x27;anterior&#x27;]])}&lt;/td&gt;&quot;
+        f&quot;&lt;td&gt;{chip(NOME[x[&#x27;nova&#x27;]], FAIXA_CLS[x[&#x27;nova&#x27;]])}&lt;/td&gt;&lt;td class=&#x27;r&#x27;&gt;{sum(x[&#x27;ruim&#x27;].values())}&lt;/td&gt;&quot;
+        f&quot;&lt;td&gt;{e(&#x27;; &#x27;.join(x[&#x27;motivos&#x27;]) or &#x27;—&#x27;)}&lt;/td&gt;&lt;/tr&gt;&quot;
+        for x in sorted(analise, key=lambda x: (-(ORDEM.index(x[&#x27;nova&#x27;]) if x[&#x27;nova&#x27;] in ORDEM else 1.5),
+                                                 -sum(x[&#x27;ruim&#x27;].values())))
+        if x[&quot;nova&quot;] != &quot;fora&quot; or x[&quot;anterior&quot;] not in (None, &quot;fora&quot;))
+    blocos = &quot;&quot;.join(html_franquia(x, cards) for x in prog) or &quot;&lt;p class=&#x27;sub&#x27;&gt;Nenhuma franquia em Recuperação, Crítica, UTI ou Observação.&lt;/p&gt;&quot;
+    return f&quot;&quot;&quot;&lt;!doctype html&gt;&lt;html lang=&quot;pt-BR&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1&quot;&gt;
+&lt;title&gt;Triagem de Franquias {corte:%d/%m}&lt;/title&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&amp;family=IBM+Plex+Mono&amp;family=Source+Sans+3:wght@400;600&amp;display=swap&quot;&gt;
+&lt;style&gt;{CSS}&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;wrap&quot;&gt;
+&lt;div class=&quot;eb&quot;&gt;Central de Manutenção · Recuperação de franquias críticas · triagem&lt;/div&gt;
+&lt;h1&gt;Triagem de {corte:%d/%m/%Y}&lt;/h1&gt;
+&lt;p class=&quot;dek&quot;&gt;Plano → Ação → Resultado de cada franquia no programa. Resultado: o que mudou nos sinais e na faixa.
+Ação: o que aconteceu com o que foi combinado na última call. Plano: a ordem de ataque para a próxima.
+Triagem anterior: {br(anterior) if anterior else &#x27;nenhuma — primeira rodada&#x27;}.&lt;/p&gt;
+&lt;div class=&quot;tiles&quot;&gt;{tiles}&lt;/div&gt;
+&lt;h2&gt;Faixas da rede&lt;/h2&gt;&lt;p class=&quot;sub&quot;&gt;Toda franquia com pelo menos um sinal ruim ou que já estava no programa. Sobe rápido, desce devagar.&lt;/p&gt;
+&lt;div class=&quot;scroll&quot;&gt;&lt;table class=&quot;tbl&quot;&gt;&lt;tr&gt;&lt;th&gt;Franquia&lt;/th&gt;&lt;th&gt;Antes&lt;/th&gt;&lt;th&gt;Agora&lt;/th&gt;&lt;th&gt;Sinais ruins&lt;/th&gt;&lt;th&gt;Por quê&lt;/th&gt;&lt;/tr&gt;{linhas}&lt;/table&gt;&lt;/div&gt;
+&lt;h2&gt;Franquias no programa&lt;/h2&gt;{blocos}
+&lt;div class=&quot;foot&quot;&gt;Fonte: Sapron (maintenance_maintenancecard, property_property, financial_expenses com reason MAINTENANCE_%,
+reservation_reservation), consultado em {corte:%d/%m/%Y}. Fatos de fora do sistema (ocorrência, reincidência, plano combinado) vêm do
+registro da triagem (registro.json). Processo: Recuperação de Franquias Críticas v1.3.&lt;/div&gt;
+&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;&quot;&quot;&quot;
+
+
+# --------------------------------------------------------------------------- comandos
+
+def cmd_faixas(a):
+    corte = data(a.corte)
+    reg = carregar(a.registro, registro_vazio())
+    sinais = carregar(a.sinais, [])
+    an = analisar(sinais, reg, [], corte)
+    hosts = sorted({x[&quot;host_id&quot;] for x in an if em_programa(x)}, key=int)
+    plano_ids = sorted({int(i[&quot;card&quot;]) for fr in reg[&quot;franquias&quot;].values()
+                        for i in (fr.get(&quot;plano&quot;) or {}).get(&quot;itens&quot;, [])})
+    for x in sorted(an, key=lambda x: -sum(x[&quot;ruim&quot;].values())):
+        if x[&quot;nova&quot;] != &quot;fora&quot; or x[&quot;anterior&quot;] not in (None, &quot;fora&quot;):
+            print(f&quot;{x[&#x27;host_id&#x27;]:&gt;6}  {x[&#x27;nome&#x27;][:34]:&lt;34} {NOME.get(x[&#x27;anterior&#x27;] or &#x27;fora&#x27;):&lt;12} → {NOME[x[&#x27;nova&#x27;]]:&lt;12} &quot;
+                  f&quot;{sum(x[&#x27;ruim&#x27;].values())} ruins · {&#x27;; &#x27;.join(x[&#x27;motivos&#x27;])}&quot;)
+    print(&quot;\nPara a consulta 2 (cards):&quot;)
+    print(&quot;  hosts:&quot;, &quot;, &quot;.join(hosts) or &quot;(nenhum)&quot;)
+    print(&quot;  cards do plano:&quot;, &quot;, &quot;.join(map(str, plano_ids)) or &quot;(nenhum; use -1)&quot;)
+
+
+def cmd_relatorio(a):
+    corte = data(a.corte)
+    reg = carregar(a.registro, registro_vazio())
+    sinais = carregar(a.sinais, [])
+    cards = carregar(a.cards, [])
+    if not sinais:
+        sys.exit(&quot;sinais.json vazio: sem dado do Sapron não há triagem. Não invente número.&quot;)
+    an = analisar(sinais, reg, cards, corte)
+    anterior = reg[&quot;triagens&quot;][-1] if reg[&quot;triagens&quot;] else None
+    Path(a.out).write_text(gerar_html(an, cards, corte, anterior), encoding=&quot;utf-8&quot;)
+    novo = json.loads(json.dumps(reg))
+    for x in an:
+        fr = x[&quot;fr&quot;]
+        if x[&quot;nova&quot;] == &quot;fora&quot; and x[&quot;anterior&quot;] in (None, &quot;fora&quot;):
+            continue
+        if x[&quot;nova&quot;] != (x[&quot;anterior&quot;] or &quot;fora&quot;):
+            fr[&quot;faixa_desde&quot;] = str(corte)
+        fr.update({&quot;nome&quot;: x[&quot;nome&quot;], &quot;faixa&quot;: x[&quot;nova&quot;],
+                   &quot;ultimo&quot;: {&quot;corte&quot;: str(corte), &quot;s&quot;: x[&quot;s&quot;], &quot;vencidos&quot;: num(x[&quot;linha&quot;].get(&quot;vencidos&quot;))}})
+        fr.setdefault(&quot;historico&quot;, []).append({&quot;corte&quot;: str(corte), &quot;faixa&quot;: x[&quot;nova&quot;],
+                                               &quot;ruins&quot;: sum(x[&quot;ruim&quot;].values()), &quot;entrega&quot;: x[&quot;entrega&quot;],
+                                               &quot;decisao&quot;: x[&quot;decisao&quot;]})
+        if fr.get(&quot;plano&quot;):
+            fr.setdefault(&quot;planos_anteriores&quot;, []).append({**fr[&quot;plano&quot;], &quot;conferido_em&quot;: str(corte),
+                                                           &quot;resultado&quot;: [{&quot;card&quot;: i[&quot;card&quot;], &quot;estado&quot;: i[&quot;estado&quot;][0]} for i in x[&quot;acao&quot;]]})
+            fr[&quot;plano&quot;] = None
+        novo[&quot;franquias&quot;][x[&quot;host_id&quot;]] = fr
+    novo[&quot;triagens&quot;] = reg[&quot;triagens&quot;] + [str(corte)]
+    prop = Path(a.registro).with_name(&quot;registro-proposto.json&quot;)
+    prop.write_text(json.dumps(novo, ensure_ascii=False, indent=2), encoding=&quot;utf-8&quot;)
+    print(f&quot;HTML: {a.out}\nRegistro proposto: {prop}  (rode `aplicar` depois do ok)&quot;)
+
+
+def cmd_plano(a):
+    reg = carregar(a.registro, registro_vazio())
+    fr = reg[&quot;franquias&quot;].setdefault(str(a.host), {&quot;faixa&quot;: &quot;fora&quot;})
+    plano = fr.get(&quot;plano&quot;) or {&quot;combinado_em&quot;: a.combinado_em, &quot;itens&quot;: []}
+    plano[&quot;combinado_em&quot;] = a.combinado_em
+    plano[&quot;itens&quot;] = [i for i in plano[&quot;itens&quot;] if int(i[&quot;card&quot;]) != a.card]
+    plano[&quot;itens&quot;].append({&quot;card&quot;: a.card, &quot;responsavel&quot;: a.resp, &quot;dia&quot;: a.dia})
+    fr[&quot;plano&quot;] = plano
+    Path(a.registro).write_text(json.dumps(reg, ensure_ascii=False, indent=2), encoding=&quot;utf-8&quot;)
+    print(f&quot;host {a.host}: {len(plano[&#x27;itens&#x27;])} item(ns) no plano de {a.combinado_em}&quot;)
+
+
+def cmd_fato(a):
+    reg = carregar(a.registro, registro_vazio())
+    fr = reg[&quot;franquias&quot;].setdefault(str(a.host), {&quot;faixa&quot;: &quot;fora&quot;})
+    if a.ocorrencia_prazo:
+        fr[&quot;ocorrencia&quot;] = {&quot;registrada_em&quot;: a.ocorrencia_em or str(dt.date.today()), &quot;prazo&quot;: a.ocorrencia_prazo}
+    if a.ocorrencia_vencida:
+        fr.setdefault(&quot;ocorrencia&quot;, {})[&quot;vencida&quot;] = True
+    if a.reincidente is not None:
+        fr[&quot;reincidente&quot;] = a.reincidente == &quot;sim&quot;
+    if a.nota:
+        fr.setdefault(&quot;notas&quot;, []).append({&quot;em&quot;: str(dt.date.today()), &quot;nota&quot;: a.nota})
+    Path(a.registro).write_text(json.dumps(reg, ensure_ascii=False, indent=2), encoding=&quot;utf-8&quot;)
+    print(f&quot;host {a.host}: fato gravado&quot;)
+
+
+def cmd_aplicar(a):
+    prop = Path(a.registro).with_name(&quot;registro-proposto.json&quot;)
+    if not prop.exists():
+        sys.exit(&quot;não há registro-proposto.json&quot;)
+    if Path(a.registro).exists():
+        shutil.copy(a.registro, Path(a.registro).with_suffix(f&quot;.{dt.date.today()}.bak.json&quot;))
+    shutil.move(prop, a.registro)
+    print(f&quot;registro atualizado: {a.registro}&quot;)
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument(&quot;--registro&quot;, default=str(REGISTRO))
+    sp = p.add_subparsers(dest=&quot;cmd&quot;, required=True)
+    f = sp.add_parser(&quot;faixas&quot;); f.add_argument(&quot;--sinais&quot;, required=True); f.add_argument(&quot;--corte&quot;, default=str(dt.date.today()))
+    r = sp.add_parser(&quot;relatorio&quot;); r.add_argument(&quot;--sinais&quot;, required=True); r.add_argument(&quot;--cards&quot;, default=&quot;&quot;)
+    r.add_argument(&quot;--corte&quot;, default=str(dt.date.today())); r.add_argument(&quot;--out&quot;, required=True)
+    pl = sp.add_parser(&quot;plano&quot;); pl.add_argument(&quot;--host&quot;, required=True); pl.add_argument(&quot;--card&quot;, type=int, required=True)
+    pl.add_argument(&quot;--resp&quot;, required=True); pl.add_argument(&quot;--dia&quot;, required=True)
+    pl.add_argument(&quot;--combinado-em&quot;, default=str(dt.date.today()))
+    fa = sp.add_parser(&quot;fato&quot;); fa.add_argument(&quot;--host&quot;, required=True); fa.add_argument(&quot;--ocorrencia-prazo&quot;)
+    fa.add_argument(&quot;--ocorrencia-em&quot;); fa.add_argument(&quot;--ocorrencia-vencida&quot;, action=&quot;store_true&quot;)
+    fa.add_argument(&quot;--reincidente&quot;, choices=[&quot;sim&quot;, &quot;nao&quot;]); fa.add_argument(&quot;--nota&quot;)
+    sp.add_parser(&quot;aplicar&quot;)
+    a = p.parse_args()
+    {&quot;faixas&quot;: cmd_faixas, &quot;relatorio&quot;: cmd_relatorio, &quot;plano&quot;: cmd_plano, &quot;fato&quot;: cmd_fato, &quot;aplicar&quot;: cmd_aplicar}[a.cmd](a)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+===== FIM: scripts/triagem.py =====
+
+===== ARQUIVO: references/consultas.sql =====
+-- Consultas da triagem de Recuperação de Franquias Críticas.
+-- Rodar pelo MCP sapron (`consultar_banco`). Trocar :corte pela data de corte (ex.: DATE &#x27;2026-09-28&#x27;).
+-- O MCP bloqueia as palavras update/delete/drop, inclusive em nome de coluna: não use updated_at.
+-- Vocabulário: aberto = status NOT IN (&#x27;concluido&#x27;,&#x27;cancelada&#x27;). Não existe &#x27;open&#x27; nem &#x27;completed&#x27;.
+
+-- ============================================================================
+-- 1. SINAIS — uma linha por franquia com card aberto. Salvar como sinais.json.
+-- ============================================================================
+WITH ativos AS (
+    SELECT host_id, count(*) AS imoveis_ativos
+    FROM property_property
+    WHERE status = &#x27;Active&#x27;
+    GROUP BY host_id
+),
+abertos AS (
+    SELECT c.*
+    FROM maintenance_maintenancecard c
+    WHERE c.status NOT IN (&#x27;concluido&#x27;, &#x27;cancelada&#x27;)
+),
+cards AS (
+    SELECT
+        a.host_id,
+        count(*)                                                        AS abertos,
+        count(DISTINCT a.property_id) FILTER (WHERE p.status = &#x27;Active&#x27;) AS imoveis_com_card,
+        count(*) FILTER (WHERE a.due_at &lt; :corte)                       AS vencidos,
+        round(avg(:corte - a.due_at) FILTER (WHERE a.due_at &lt; :corte), 1) AS atraso_medio,
+        max(:corte - a.due_at) FILTER (WHERE a.due_at &lt; :corte)          AS pior_atraso,
+        count(*) FILTER (WHERE a.due_at &lt; :corte - 30)                  AS vencidos_30,
+        count(*) FILTER (WHERE :corte - a.created_at::date &gt; 90)         AS acima_90,
+        count(*) FILTER (WHERE a.evidence_received_at IS NOT NULL)      AS com_evidencia,
+        count(*) FILTER (WHERE a.origin = &#x27;review&#x27;
+                           AND :corte - a.created_at::date &gt; 30)         AS review_30,
+        count(*) FILTER (WHERE a.urgent OR a.ai_is_urgent)              AS urgentes,
+        count(*) FILTER (WHERE a.due_at IS NULL)                        AS sem_prazo
+    FROM abertos a
+    LEFT JOIN property_property p ON p.id = a.property_id
+    GROUP BY a.host_id
+),
+fechados AS (
+    SELECT host_id, count(*) AS concluidos_30d
+    FROM maintenance_maintenancecard
+    WHERE status = &#x27;concluido&#x27;
+      AND completed_at::date BETWEEN :corte - 30 AND :corte
+    GROUP BY host_id
+),
+despesas AS (
+    -- expense_date tem datas absurdas (ano 0021, 5025): a faixa explícita é obrigatória.
+    SELECT p.host_id, count(*) AS despesas_90d
+    FROM financial_expenses e
+    JOIN property_property p ON p.id = e.property_id
+    WHERE e.reason LIKE &#x27;MAINTENANCE_%&#x27;
+      AND e.expense_date BETWEEN :corte - 90 AND :corte
+    GROUP BY p.host_id
+)
+SELECT
+    c.host_id,
+    trim(coalesce(u.first_name, &#x27;&#x27;) || &#x27; &#x27; || coalesce(u.last_name, &#x27;&#x27;)) AS host_name,
+    coalesce(at.imoveis_ativos, 0)  AS imoveis_ativos,
+    c.abertos, c.imoveis_com_card, c.vencidos, c.atraso_medio, c.pior_atraso, c.vencidos_30,
+    c.acima_90, c.com_evidencia, c.review_30, c.urgentes, c.sem_prazo,
+    coalesce(f.concluidos_30d, 0)   AS concluidos_30d,
+    coalesce(d.despesas_90d, 0)     AS despesas_90d
+FROM cards c
+LEFT JOIN ativos   at ON at.host_id = c.host_id
+LEFT JOIN fechados f  ON f.host_id  = c.host_id
+LEFT JOIN despesas d  ON d.host_id  = c.host_id
+LEFT JOIN account_host h ON h.id = c.host_id
+LEFT JOIN account_user u ON u.id = h.user_id
+ORDER BY c.abertos DESC;
+
+-- ============================================================================
+-- 2. CARDS — dos hosts que o script listar (faixa Recuperação ou acima) + os cards do
+--    plano anterior (mesmo fechados). O script imprime os dois IN (...). Salvar como cards.json.
+-- ============================================================================
+SELECT
+    c.id, c.host_id, p.code AS imovel, c.title, c.status, c.origin,
+    (c.urgent OR coalesce(c.ai_is_urgent, false))            AS urgente,
+    c.due_at, :corte - c.due_at                              AS atraso,
+    c.created_at::date                                       AS aberto_em,
+    c.evidence_received_at::date                             AS evidencia_em,
+    c.completed_at::date                                     AS concluido_em,
+    c.scheduled_responsibility                               AS responsabilidade,
+    (SELECT min(r.check_in_date)
+       FROM reservation_reservation r
+      WHERE r.property_id = c.property_id
+        AND r.status &lt;&gt; &#x27;Canceled&#x27;
+        AND r.check_in_date BETWEEN :corte AND :corte + 7)   AS checkin_7d
+FROM maintenance_maintenancecard c
+LEFT JOIN property_property p ON p.id = c.property_id
+WHERE (c.host_id IN (/* hosts */) AND c.status NOT IN (&#x27;concluido&#x27;, &#x27;cancelada&#x27;))
+   OR c.id IN (/* cards do plano */)
+ORDER BY c.host_id, c.id;
+===== FIM: references/consultas.sql =====
+
+</pre></div><div class="prompt"><div class="prompt-h"><div><b>2 · Rodar a triagem da semana</b> <span>preencha os colchetes</span></div><button class="copy" data-alvo="pr2">Copiar</button></div><pre id="pr2">/recuperacao-franquias
+
+Quero rodar a triagem semanal de Recuperação de Franquias Críticas.
+Data de corte: [hoje ou AAAA-MM-DD]
+Calls desde a última triagem: [franquia · card · responsável · dia — um por linha, ou &quot;nenhuma&quot;]
+Fatos de fora do sistema: [ocorrência com prazo, prazo vencido, reincidência, multa, confirmação em campo — ou &quot;nenhum&quot;]
+Escopo: [rede toda ou lista de franquias]
+Me mostre quem subiu, quem desceu e o que está pendente antes de gravar o registro.</pre></div><div class="prompt"><div class="prompt-h"><div><b>3 · Registrar o combinado de uma call</b> <span>logo depois da call</span></div><button class="copy" data-alvo="pr3">Copiar</button></div><pre id="pr3">/recuperacao-franquias
+
+Registra o combinado da call de [data] com a franquia [nome ou host]:
+- card [id] · [responsável] · até [dia]
+- card [id] · [responsável] · até [dia]</pre></div><div class="prompt"><div class="prompt-h"><div><b>4 · Preparar uma call</b> <span>não mexe no registro</span></div><button class="copy" data-alvo="pr4">Copiar</button></div><pre id="pr4">/recuperacao-franquias
+
+Prepara a call da franquia [nome ou host]: quero só o bloco Plano · Ação · Resultado dela e a ordem de ataque, sem mexer no registro.</pre></div>
+</section>
+
+<div class="foot">
+  <p>Proposta, aguardando validação. Os cinco sinais são calculados com campos que já existem no
+  Sapron; as faixas, os gatilhos, as cadências e os critérios de alta precisam do aval da Diretoria
+  de Franquias, do Financeiro e do Jurídico antes de valer como norma. Revisar a cada 6 meses.</p>
+  <p>v1.3 (28/09/2026): start com input da semana, ciclo Plano · Ação · Resultado e triagem rodada
+  pela skill <b>recuperacao-franquias</b> (obrigatória, com prompts de instalação e uso no fim); corrigido que D+14 e D+21 ainda não são automáticos.</p>
+  <p>v1.4 (26/10/2026) — ajustes da revisão de 23/10 (Ray, devolvido): resumo e decisões pendentes
+  no topo; Recuperação, Crítica e UTI deixam de ter reunião própria e viram acompanhamento
+  assíncrono (só a Triagem continua com reunião fixa; UTI/Pré-UTI de Franquias seguem com as calls
+  delas, sem duplicação); multa na UTI passa a exigir validação conjunta de Financeiro + Jurídico
+  com registro de quem validou e quando (nunca automática); entrada em Crítica liga com stop de
+  crescimento, exceto imóveis no mesmo prédio; checagem obrigatória de Pré-UTI/UTI de Franquias
+  antes de classificar Crítica ou UTI, cobrindo o pedido da Iara (12/10) sobre os 6 casos do
+  ScorePulse; 3 templates de comunicação ao franqueado (entrada em Crítica, multa, saída para
+  Observação). Os ajustes de Score de Manutenção (valores reais, fórmula, fonte dos dados,
+  antes×depois) da mesma revisão estão em <code>manutencao/score/</code>, documento separado.</p>
+</div>
+
+</div>
+<script>
+document.querySelectorAll('.copy').forEach(function(b){
+  b.addEventListener('click',function(){
+    var t=document.getElementById(b.dataset.alvo).textContent;
+    function ok(){var o=b.textContent;b.textContent='Copiado';setTimeout(function(){b.textContent=o},1600);}
+    function velho(){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();
+      try{document.execCommand('copy');ok();}catch(e){b.textContent='Selecione e copie';}document.body.removeChild(a);}
+    if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(ok,velho);}else{velho();}
+  });
+});
+</script>
+</body>
+</html>
