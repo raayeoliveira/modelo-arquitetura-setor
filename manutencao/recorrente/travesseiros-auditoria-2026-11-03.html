@@ -1,0 +1,26 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Auditoria travesseiros</title>
+<style>:root{--bg:#fafaf8;--fg:#1d1d1b;--mut:#666}@media (prefers-color-scheme:dark){:root{--bg:#161615;--fg:#eee;--mut:#aaa}}
+body{background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,sans-serif;max-width:760px;margin:32px auto;padding:0 16px;white-space:pre-wrap}h1,h2{white-space:normal;margin:.6em 0 .2em}</style></head><body><h1>Auditoria · recorrente de travesseiros (regra 21) · 03/11/2026</h1>
+Fonte: banco de produção do Sapron (MCP sapron), consultas de 03/11/2026, com corte de 12 meses a partir de 05/11/2026.
+Código conferido: sapron-backend origin/main 9f793ae9f (02/11): recurrence_dedup.py, recurrence_cycle.py, recurrence_dimensioning.py.
+
+<h2>Bate</h2>
+- Regra 21 em rascunho. Itens 88/149/209 são os três &quot;Travesseiros&quot; do financeiro (reposição, dano de hóspede, implantação). Nenhum ficou de fora.
+- Prazo: o código soma 15 dias úteis e já tem 02/11 e 20/11 como feriados. Com disparo em 05/11 → 27/11, igual à mensagem.
+- Roteiro do card: &quot;Trocar os travesseiros.&quot; + foto com etiqueta OU nota/recibo. Igual à mensagem.
+- Todos os imóveis têm franquia ativa. Só 4 imóveis não têm cama cadastrada.
+
+<h2>Números</h2>
+- Contagem gravada pelo sistema hoje às 11h58: 1.676 recebem card (179 dispensados por despesa, 20 por card concluído).
+- Refeita com corte em 05/11: 1.689 (mais 13 imóveis completam 12 meses até lá).
+
+<h2>Riscos</h2>
+1. Despesa no item genérico &quot;-&quot;: 131 despesas aprovadas falam de travesseiro, mas foram lançadas no item &quot;-&quot;. O sistema só manda para a IA a despesa SEM item nenhum, então essas não dispensam o card. 89 dos imóveis que vão receber card têm despesa assim, misturando compra de verdade (&quot;Reposto 2 travesseiros&quot;) com capa ou lavagem.
+2. Dispensa com compra parcial: qualquer despesa de travesseiro dispensa o imóvel, até de 1 unidade. A quantidade no financeiro não ajuda (quase sempre 1). Pelo valor, de 183 imóveis dispensados só 32 gastaram o bastante para todas as camas (R$ 30 por unidade); 65 gastaram menos da metade (média de R$ 52).
+3. Card duplicado: 29 imóveis que vão receber card já têm um card aberto de travesseiro, a maioria da migração (fev a ago/26).
+4. Seazone: 89 imóveis da Seazone estão na lista e nada exclui esses imóveis.
+5. A mensagem diz &quot;lançaram a despesa → o card nem abre&quot;. Isso só vale para quem lançou no item &quot;Travesseiros&quot; (risco 1).
+
+<h2>Decisão do Vinicius (03/11)</h2>
+Não precisa pegar 100%: resolver ~90% já é ganho. Furos 1 a 3 ficam como estão; quem já trocou responde com a nota no card. Mensagem ajustada (item &quot;Travesseiros&quot; x &quot;Outros&quot;).
+</body></html>

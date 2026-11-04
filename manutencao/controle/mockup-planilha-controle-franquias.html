@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Controle de Manutenção — Franquias · mockup v3 (planilha)</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font:13px/1.4 Roboto,Arial,sans-serif;color:#1f1f1f;background:#f9fbfd;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+/* barra do topo, como no Sheets */
+.top{display:flex;align-items:center;gap:12px;padding:8px 14px 0;background:#f9fbfd}
+.logo{width:28px;height:38px;border-radius:3px;background:#0f9d58;position:relative;flex-shrink:0}
+.logo::after{content:"";position:absolute;inset:12px 6px 8px;border:2px solid #fff;border-radius:1px;background:linear-gradient(#fff,#fff) 50% 0/2px 100% no-repeat,linear-gradient(#fff,#fff) 0 50%/100% 2px no-repeat}
+.title{font-size:18px;color:#1f1f1f}
+.title small{display:inline-block;margin-left:10px;padding:2px 8px;border-radius:4px;background:#fde4e1;color:#a50e0e;font-size:11px;vertical-align:middle}
+.menu{display:flex;gap:16px;font-size:14px;color:#444;padding:2px 0 6px}
+.share{margin-left:auto;background:#c2e7ff;border-radius:18px;padding:9px 18px;font-weight:500}
+.toolbar{margin:4px 12px;background:#edf2fa;border-radius:20px;padding:6px 16px;display:flex;gap:18px;color:#444;font-size:13px;align-items:center}
+.toolbar span{opacity:.85}
+.toolbar .sep{width:1px;height:18px;background:#c7c7c7}
+.fbar{display:flex;align-items:center;border-top:1px solid #e1e3e1;border-bottom:1px solid #e1e3e1;background:#fff;height:30px}
+.fbar .ref{width:90px;border-right:1px solid #e1e3e1;height:100%;display:flex;align-items:center;padding:0 10px;font-weight:500}
+.fbar .fx{padding:0 10px;color:#5f6368;font-style:italic;font-family:serif;border-right:1px solid #e1e3e1;height:100%;display:flex;align-items:center}
+.fbar .val{padding:0 12px;font-family:"Roboto Mono",monospace;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fbar .val.f{color:#188038}
+/* grade */
+.gridwrap{flex:1;overflow:auto;background:#fff;position:relative}
+table{border-collapse:separate;border-spacing:0;table-layout:fixed}
+td,th{border-right:1px solid #e1e3e1;border-bottom:1px solid #e1e3e1;height:30px;padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+thead th{position:sticky;top:0;z-index:3;background:#f8f9fa;color:#444;font-weight:400;font-size:12px;height:22px;text-align:center}
+th.rn{position:sticky;left:0;z-index:2;background:#f8f9fa;color:#444;font-weight:400;font-size:12px;width:46px;text-align:center}
+thead th.rn{z-index:4}
+th.sel,th.rn.sel{background:#d3e3fd;color:#0b57d0;font-weight:500}
+td.cell{cursor:cell}
+td.cur{outline:2px solid #1a73e8;outline-offset:-2px}
+/* linha de cabeçalho congelada */
+tr.hdr td{position:sticky;top:22px;z-index:2;font-weight:700;font-size:12px;color:#fff;border-bottom:2px solid #9aa0a6}
+tr.grp td{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;height:22px}
+.hF{background:#1a56c4}.hC{background:#188038}.hZ{background:#b3261e}
+.gF{background:#e8f0fe;color:#1a56c4}.gC{background:#e6f4ea;color:#188038}.gZ{background:#fce8e6;color:#b3261e}
+td.calc{background:#f4faf6}
+td.r{text-align:right;font-variant-numeric:tabular-nums}
+td.c{text-align:center}
+td.mono{font-family:"Roboto Mono",monospace;font-size:12px}
+td.muted{color:#9aa0a6}
+tr.late td.first{box-shadow:inset 3px 0 0 #d93025}
+/* chips de lista suspensa, como o Sheets faz */
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:12px;padding:2px 8px 2px 10px;font-size:12px;line-height:18px;max-width:100%}
+.chip::after{content:"▾";font-size:10px;opacity:.6}
+.c-red{background:#fbd5d1;color:#8c1d18}
+.c-amber{background:#fde7b0;color:#7a4b00}
+.c-green{background:#c8ebd2;color:#0d5226}
+.c-blue{background:#d3e3fd;color:#0842a0}
+.c-violet{background:#eaddff;color:#4a2a8a}
+.c-grey{background:#e8eaed;color:#3c4043}
+.c-teal{background:#c4eed0;color:#0b4f4a}
+.flag{display:inline-block;border-radius:3px;padding:1px 8px;font-weight:500;font-size:12px}
+.f-red{background:#f4c7c3;color:#8c1d18}.f-amber{background:#fce8b2;color:#7a4b00}.f-green{background:#b7e1cd;color:#0d5226}
+a.lnk{color:#1a73e8;text-decoration:underline}
+.big{font-size:22px;font-weight:700}
+.note{position:absolute;width:0;height:0;border-top:6px solid #f29900;border-left:6px solid transparent;right:0;top:0}
+td.hasnote{position:relative}
+.bar{display:inline-block;height:8px;border-radius:4px;background:#e8eaed;width:100%;vertical-align:middle;overflow:hidden}
+.bar b{display:block;height:100%}
+/* abas do rodapé */
+.tabs{display:flex;align-items:stretch;background:#f9fbfd;border-top:1px solid #e1e3e1;height:40px;padding-left:12px;gap:2px}
+.tabs .plus{width:40px;display:grid;place-items:center;color:#444;font-size:20px}
+.tab{display:flex;align-items:center;gap:8px;padding:0 16px;cursor:pointer;color:#444;font-size:13.5px;border-radius:0 0 8px 8px}
+.tab .dot{width:10px;height:10px;border-radius:2px}
+.tab.on{background:#e1e9f7;color:#0b57d0;font-weight:500;box-shadow:inset 0 3px 0 #0b57d0}
+.help{position:fixed;right:16px;bottom:52px;background:#202124;color:#fff;border-radius:8px;padding:10px 14px;font-size:12.5px;max-width:330px;box-shadow:0 4px 16px rgba(0,0,0,.25);line-height:1.5}
+.help b{color:#8ab4f8}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="logo"></div>
+  <div style="flex:1">
+    <div class="title">Controle de Manutenção — Franquia (modelo) <small>MOCKUP v3 · dados fictícios · 29/10/2026</small></div>
+    <div class="menu"><span>Arquivo</span><span>Editar</span><span>Ver</span><span>Inserir</span><span>Formatar</span><span>Dados</span><span>Ferramentas</span><span>Extensões</span><span>Ajuda</span></div>
+  </div>
+  <div class="share">🔒 Compartilhar</div>
+</div>
+<div class="toolbar"><span>↶ ↷ 🖨</span><span class="sep"></span><span>100% ▾</span><span class="sep"></span><span>R$ % .0 .00 123</span><span class="sep"></span><span>Roboto ▾</span><span>— 10 +</span><span class="sep"></span><b>B</b><i>I</i><s>S</s><u>A</u><span class="sep"></span><span>⊞ ⇲ ≡</span><span class="sep"></span><span>⛃ Filtro</span></div>
+<div class="fbar"><div class="ref" id="ref">A3</div><div class="fx">fx</div><div class="val" id="val"></div></div>
+
+<div class="gridwrap" id="grid"></div>
+
+<div class="tabs" id="tabs"><div class="plus">+</div><div class="plus">≡</div></div>
+
+<div class="help">Clique numa célula para ver o que está nela. As <b>verdes</b> mostram a fórmula: ninguém digita nelas. As <b>azuis</b> são as que a franquia preenche, quase tudo em lista suspensa.</div>
+
+<script>
+const CHIP = {
+  'Urgente':'c-red','Normal':'c-blue','Programada':'c-violet',
+  'Aberto':'c-grey','Agendado':'c-blue','Em execução':'c-amber','Aguardando aprovação':'c-violet','Concluído':'c-green','Cancelado':'c-grey',
+  'Hóspede':'c-grey','Limpeza':'c-grey','Vistoria':'c-grey','Proprietário':'c-grey','Preventiva':'c-teal',
+  'Ar-condicionado':'c-blue','Hidráulica':'c-blue','Elétrica':'c-blue','Marcenaria':'c-blue','Dedetização':'c-blue','Enxoval':'c-blue',
+  'Corretiva':'c-amber','Reposição':'c-grey','Melhoria':'c-violet','Franquia Floripa':'c-grey','Franquia Balneário':'c-grey','OK':'c-green','Foto velha':'c-red','Refazer':'c-red'
+};
+const FLAG = {'Atrasado':'f-red','Vence hoje':'f-amber','No prazo':'f-green','2ª vez':'f-amber','Vencida':'f-red','Em dia':'f-green'};
+const chip = v => v ? `<span class="chip ${CHIP[v]||'c-grey'}">${v}</span>` : '';
+const flag = v => FLAG[v] ? `<span class="flag ${FLAG[v]}">${v}</span>` : (v||'');
+
+/* ---------- ABA CHAMADOS ---------- */
+const chamCols = [
+ ['Data de abertura',96,'F','d'],['Franquia',150,'F','dd'],['Cód. imóvel',92,'F','dd'],['Categoria',134,'F','dd'],['Tipo',100,'F','dd'],
+ ['O que aconteceu',190,'F','t'],['Quem viu',98,'F','dd'],['Prioridade',104,'F','dd'],['Status',170,'F','dd'],['Data de conclusão',100,'F','d'],
+ ['Serviço realizado',200,'F','t'],['Valor (R$)',86,'F','n'],['Foto do depois',108,'F','l'],
+ ['Prazo',90,'C','d'],['Dias',50,'C','n'],['Farol',100,'C','fl'],['Voltou? (30d)',96,'C','fl'],
+ ['Conferido',100,'Z','dd'],['Card Sapron',90,'Z','t']
+];
+const fRow = r => [
+ null,null,null,null,null,null,null,null,null,null,null,null,null,
+ `=SE(H${r}="Urgente";DIATRABALHO(A${r};1);SE(H${r}="Normal";A${r}+7;""))`,
+ `=SE(A${r}="";"";SE(J${r}="";HOJE();J${r})-A${r})`,
+ `=SE(I${r}="Concluído";SE(J${r}<=N${r};"No prazo";"Atrasado");SE(HOJE()>N${r};"Atrasado";SE(HOJE()=N${r};"Vence hoje";"No prazo")))`,
+ `=SE(CONT.SES(C:C;C${r};D:D;D${r};A:A;">="&(A${r}-30);A:A;"<"&A${r})>0;"2ª vez";"")`,
+ null,null];
+const cham = [
+ ['27/10/2026','Franquia Floripa','FLN0102','Ar-condicionado','Corretiva','Split do quarto não gela','Hóspede','Urgente','Em execução','','','','', '28/10/2026','2','Atrasado','2ª vez','','#18231'],
+ ['28/10/2026','Franquia Floripa','FLN0215','Hidráulica','Corretiva','Vazamento sob a pia','Limpeza','Urgente','Agendado','','','','', '29/10/2026','1','Vence hoje','','','#18240'],
+ ['22/10/2026','Franquia Floripa','FLN0102','Elétrica','Corretiva','Tomada da sala sem energia','Vistoria','Normal','Concluído','24/10/2026','Troca da tomada e do disjuntor','120,00','foto_1022.jpg', '29/10/2026','2','No prazo','','OK','#18190'],
+ ['15/10/2026','Franquia Balneário','BC0031','Marcenaria','Corretiva','Porta do armário solta','Hóspede','Normal','Aguardando aprovação','','','','', '22/10/2026','14','Atrasado','','','#18102'],
+ ['20/10/2026','Franquia Balneário','BC0047','Dedetização','Preventiva','Dedetização semestral','Preventiva','Programada','Concluído','23/10/2026','Dedetização geral do apartamento','180,00','foto_1023.jpg', '25/10/2026','3','No prazo','','Foto velha','#18155'],
+ ['29/10/2026','Franquia Floripa','FLN0330','Enxoval','Reposição','Toalhas manchadas (4)','Limpeza','Normal','Aberto','','','','', '05/11/2026','0','No prazo','','',''],
+ ['25/09/2026','Franquia Floripa','FLN0102','Ar-condicionado','Corretiva','Ar pingando na parede','Hóspede','Normal','Concluído','29/09/2026','Desentupimento do dreno','250,00','foto_0929.jpg', '02/10/2026','4','No prazo','','OK','#17702'],
+];
+
+/* ---------- ABA PREVENTIVA ---------- */
+const prevCols = [['Franquia',150,'F','dd'],['Cód. imóvel',92,'F','dd'],['Item',220,'Z','dd'],['A cada (dias)',100,'Z','n'],['Última vez',100,'F','d'],['Próxima',100,'C','d'],['Situação',110,'C','fl'],['Faltam (dias)',100,'C','n']];
+const prevF = r => [null,null,null,null,null,`=E${r}+D${r}`,`=SE(F${r}<HOJE();"Vencida";SE(F${r}-HOJE()<=7;"Vence hoje";"Em dia"))`,`=F${r}-HOJE()`];
+const prev = [
+ ['Franquia Floripa','FLN0102','Limpeza do ar-condicionado','90','10/07/2026','08/10/2026','Vencida','-21'],
+ ['Franquia Floripa','FLN0102','Dedetização','180','02/05/2026','29/10/2026','Vence hoje','0'],
+ ['Franquia Floripa','FLN0215','Limpeza do ar-condicionado','90','05/09/2026','04/12/2026','Em dia','36'],
+ ['Franquia Balneário','BC0031','Troca do filtro de água','180','20/06/2026','17/12/2026','Em dia','49'],
+ ['Franquia Balneário','BC0047','Dedetização','180','23/10/2026','21/04/2027','Em dia','174'],
+];
+
+/* ---------- ABA PAINEL ---------- */
+const painel = () => {
+ const k = (lab,val,f,cls='',extra='') => `<tr><th class="rn">ROW</th><td class="cell" style="font-weight:500">${lab}</td><td class="cell r big ${cls}" data-f='${f}'>${val}</td><td class="cell muted">${extra}</td><td></td><td></td><td></td><td></td><td></td></tr>`;
+ let h = `<tr><th class="rn">ROW</th><td colspan="9" style="font-size:16px;font-weight:700;height:40px">Resumo do mês · outubro/2026</td></tr>`;
+ h += `<tr class="hdr"><th class="rn">ROW</th><td class="hC">Indicador</td><td class="hC" style="text-align:right">Valor</td><td class="hC">Leitura</td><td class="hC" colspan="6"></td></tr>`;
+ h += k('Abertos agora','4','=CONT.SES(Chamados!I:I;"<>Concluído";Chamados!I:I;"<>Cancelado";Chamados!A:A;"<>")','','2 urgentes');
+ h += k('Atrasados','2','=CONT.SE(Chamados!P:P;"Atrasado")','','<span class="flag f-red">olhar primeiro</span>');
+ h += k('No prazo no mês','67%','=CONT.SES(Chamados!P:P;"No prazo";Chamados!A:A;">="&DATA(2026;10;1))/CONT.SES(Chamados!A:A;">="&DATA(2026;10;1))','','<span class="bar" style="width:140px"><b style="width:67%;background:#f29900"></b></span> meta a definir');
+ h += k('Voltou em 30 dias','1','=CONT.SE(Chamados!Q:Q;"2ª vez")','','FLN0102 · ar-condicionado');
+ h += k('Preventiva em dia','60%','=CONT.SE(Preventiva!G:G;"Em dia")/CONT.A(Preventiva!A3:A)','','<span class="bar" style="width:140px"><b style="width:60%;background:#f29900"></b></span> 3 de 5');
+ h += k('Concluído sem foto','0','=CONT.SES(Chamados!I:I;"Concluído";Chamados!M:M;"")','','');
+ h += k('Valor gasto no mês (R$)','300,00','=SOMA.SES(Chamados!L:L;Chamados!J:J;">="&DATA(2026;10;1))','','');
+ h += `<tr><th class="rn">ROW</th><td colspan="9"></td></tr>`;
+ h += `<tr><th class="rn">ROW</th><td colspan="9" style="font-size:16px;font-weight:700;height:40px">Por franquia</td></tr>`;
+ h += `<tr class="hdr"><th class="rn">ROW</th>${['Franquia','Abertos','Atrasados','Mais antigo (dias)','Voltou 30d','Preventiva vencida','Valor gasto no mês','',''].map(x=>`<td class="hC">${x}</td>`).join('')}</tr>`;
+ const im = [['Franquia Floripa','3','1','2','1','1','120,00'],['Franquia Balneário','1','1','14','0','0','180,00']];
+ im.forEach(r=>{ h += `<tr><th class="rn">ROW</th><td class="cell" style="font-weight:500">${r[0]}</td>${r.slice(1).map((v,i)=>{let c='';if((i==1||i==4)&&v!='0')c='f-red';if(i==3&&v!='0')c='f-amber';if(i==2&&+v>7)c='f-red';return `<td class="cell r calc">${c?`<span class="flag ${c}">${v}</span>`:v}</td>`}).join('')}<td></td><td></td><td></td></tr>`;});
+ for(let i=0;i<8;i++) h += `<tr><th class="rn">ROW</th>${'<td></td>'.repeat(10)}</tr>`;
+ let n=0; h = h.replace(/ROW/g,()=>++n);
+ const widths=[180,110,280,110,110,130,110,60,60,60];
+ return {html:`<table><colgroup><col style="width:46px">${widths.map(w=>`<col style="width:${w}px">`).join('')}</colgroup><thead><tr><th class="rn"></th>${widths.map((_,i)=>`<th>${String.fromCharCode(65+i)}</th>`).join('')}</tr></thead><tbody>${h}</tbody></table>`};
+};
+
+/* ---------- ABA LISTAS ---------- */
+const listas = () => {
+ const L = [
+  ['Franquia',['Franquia Floripa','Franquia Balneário']],
+  ['Tipo',['Corretiva','Preventiva','Reposição','Melhoria']],
+  ['Prioridade',['Urgente','Normal','Programada']],
+  ['Prazo',['1 dia útil','7 dias (a decidir)','data combinada']],
+  ['Status',['Aberto','Agendado','Em execução','Aguardando aprovação','Concluído','Cancelado']],
+  ['Quem viu',['Hóspede','Limpeza','Vistoria','Proprietário','Preventiva']],
+  ['Categoria (Sapron)',['Ar-condicionado','Eletrodomésticos','Elétrica','Hidráulica','Marcenaria','Pintura','Alvenaria','Vidraçaria','Enxoval','Limpeza e conservação','Dedetização','Jardinagem','Wi-fi','Automação','Outros']],
+  ['Conferido',['OK','Foto velha','Refazer']],
+  ['Item preventiva',['Limpeza do ar-condicionado','Dedetização','Troca do filtro de água','Revisão elétrica','Caixa d’água']],
+ ];
+ let h = `<tr class="hdr"><th class="rn">1</th>${L.map(l=>`<td class="hZ">${l[0]}</td>`).join('')}</tr>`;
+ for(let i=0;i<16;i++){ h += `<tr><th class="rn">${i+2}</th>${L.map(l=>{const v=l[1][i]||'';return `<td class="cell">${v?(l[0].startsWith('Prazo')?v:`<span class="chip ${CHIP[v]||'c-grey'}" style="padding-right:10px">${v}</span>`.replace('::after','')):''}</td>`}).join('')}</tr>`; }
+ const widths=[150,110,120,140,180,120,180,110,210];
+ return {html:`<table><colgroup><col style="width:46px">${widths.map(w=>`<col style="width:${w}px">`).join('')}</colgroup><thead><tr><th class="rn"></th>${widths.map((_,i)=>`<th>${String.fromCharCode(65+i)}</th>`).join('')}</tr></thead><tbody>${h}</tbody></table>`};
+};
+
+/* ---------- ABA COMO PREENCHER ---------- */
+const guia = () => {
+ const rows = [
+  ['Como preencher (leva 1 minuto por problema)',''],
+  ['1','Viu um problema no imóvel? Abra uma linha nova na aba Chamados.'],
+  ['2','Preencha só as colunas azuis (A até M): data, franquia, código do imóvel, categoria, tipo, o que aconteceu, quem viu, prioridade, status e, ao concluir, data, serviço realizado, valor e foto. Quase todas são de escolher na lista.'],
+  ['3','Prioridade Urgente = o hóspede não consegue usar o imóvel. Prazo: 1 dia útil.'],
+  ['4','Atualize o Status sempre que mudar. As colunas verdes se atualizam sozinhas.'],
+  ['5','Só marque Concluído com o serviço realizado (K), o valor (L) e a foto do depois (M).'],
+  ['6','Preventiva: quando a aba Preventiva ficar vermelha, faça e lance em Chamados como Programada.'],
+  ['',''],
+  ['Por que ela é assim (o que a pesquisa em outras empresas mostrou)',''],
+  ['•','Poucas colunas: modelos de aluguel por temporada usam ~10 campos. Mais que isso, ninguém preenche.'],
+  ['•','Lista em tudo que dá: é o que permite somar e comparar.'],
+  ['•','Prazo sai da prioridade, ninguém digita prazo.'],
+  ['•','Preventiva separada: calendário ≠ prazo.'],
+  ['•','Sem foto não conclui.'],
+  ['•','Voltar em 30 dias pesa mais que ser rápido.'],
+  ['•','Aberto há mais de 30 dias vai para o topo da conversa.'],
+ ];
+ let h = rows.map((r,i)=>`<tr><th class="rn">${i+1}</th><td class="cell" style="${r[1]===''&&r[0]?'font-weight:700;font-size:14px;height:36px':''}${r[0]==='•'||/^\d$/.test(r[0])?';text-align:center;color:#0b57d0;font-weight:700':''}">${r[0]}</td><td class="cell">${r[1]}</td></tr>`).join('');
+ return {html:`<table><colgroup><col style="width:46px"><col style="width:60px"><col style="width:760px"></colgroup><thead><tr><th class="rn"></th><th>A</th><th>B</th></tr></thead><tbody>${h.replace('<td class="cell" style="font-weight:700;font-size:14px;height:36px">Como','<td class="cell" colspan="2" style="font-weight:700;font-size:14px;height:36px">Como').replace('<td class="cell" style="font-weight:700;font-size:14px;height:36px">Por','<td class="cell" colspan="2" style="font-weight:700;font-size:14px;height:36px">Por')}</tbody></table>`};
+};
+
+/* ---------- montagem de tabela de dados ---------- */
+function dataSheet(cols, rows, fx, groups, empty=10){
+ const letters = cols.map((_,i)=>String.fromCharCode(65+i));
+ let h = `<colgroup><col style="width:46px">${cols.map(c=>`<col style="width:${c[1]}px">`).join('')}</colgroup>`;
+ h += `<thead><tr><th class="rn"></th>${letters.map(l=>`<th data-col="${l}">${l}</th>`).join('')}</tr></thead><tbody>`;
+ h += `<tr class="grp"><th class="rn">1</th>${groups}</tr>`;
+ h += `<tr class="hdr"><th class="rn">2</th>${cols.map(c=>`<td class="h${c[2]}">${c[0]}</td>`).join('')}</tr>`;
+ rows.forEach((r,ri)=>{
+  const rn=ri+3, f=fx(rn), late = r.includes('Atrasado')||r.includes('Vencida');
+  h += `<tr class="${late?'late':''}"><th class="rn">${rn}</th>`;
+  cols.forEach((c,ci)=>{
+   const v=r[ci]; let cls='cell', inner=v;
+   if(c[2]==='C') cls+=' calc';
+   if(c[3]==='dd') inner = chip(v);
+   else if(c[3]==='fl') inner = flag(v);
+   else if(c[3]==='n'){cls+=' r'; if(+v<0) inner=`<span style="color:#d93025">${v}</span>`;}
+   else if(c[3]==='d'){cls+=' mono';}
+   else if(c[3]==='l' && v) inner = `<a class="lnk">${v}</a>`;
+   if(ci===0) cls+=' first';
+   if(v==='' ) cls+='';
+   h += `<td class="${cls}" data-f="${(f[ci]||'').replace(/"/g,'&quot;')}" data-v="${(v||'').replace(/"/g,'&quot;')}">${inner||''}</td>`;
+  });
+  h += `</tr>`;
+ });
+ for(let i=0;i<empty;i++){ const rn=rows.length+3+i, f=fx(rn); h += `<tr><th class="rn">${rn}</th>${cols.map((c,ci)=>`<td class="cell ${c[2]==='C'?'calc':''}" data-f="${(f[ci]||'').replace(/"/g,'&quot;')}"></td>`).join('')}</tr>`; }
+ return {html:`<table>${h}</tbody></table>`};
+}
+
+const SHEETS = [
+ ['Chamados','#1a56c4',()=>dataSheet(chamCols,cham,fRow,`<td class="gF" colspan="13">Franquia preenche</td><td class="gC" colspan="4">Calculado — não digitar</td><td class="gZ" colspan="2">Central confere</td>`,14)],
+ ['Preventiva','#0b4f4a',()=>dataSheet(prevCols,prev,prevF,`<td class="gF" colspan="2">Franquia</td><td class="gZ" colspan="2">Central define</td><td class="gF">Franquia</td><td class="gC" colspan="3">Calculado — não digitar</td>`,14)],
+ ['Painel','#188038',painel],
+ ['Listas','#b3261e',listas],
+ ['Como preencher','#f29900',guia],
+];
+
+const grid=document.getElementById('grid'), tabs=document.getElementById('tabs'), ref=document.getElementById('ref'), val=document.getElementById('val');
+SHEETS.forEach((s,i)=>{const t=document.createElement('div');t.className='tab';t.innerHTML=`<span class="dot" style="background:${s[1]}"></span>${s[0]} ▾`;t.onclick=()=>show(i);tabs.appendChild(t);});
+function show(i){
+ [...tabs.querySelectorAll('.tab')].forEach((t,j)=>t.classList.toggle('on',i===j));
+ grid.innerHTML = SHEETS[i][2]().html; grid.scrollTop=0; grid.scrollLeft=0;
+ ref.textContent='A3'; val.textContent=''; val.className='val';
+}
+grid.addEventListener('click',e=>{
+ const td=e.target.closest('td'); if(!td) return;
+ grid.querySelectorAll('.cur').forEach(x=>x.classList.remove('cur'));
+ grid.querySelectorAll('th.sel').forEach(x=>x.classList.remove('sel'));
+ td.classList.add('cur');
+ const tr=td.parentElement, rn=tr.querySelector('th.rn'); if(rn) rn.classList.add('sel');
+ let col=0, c=td.previousElementSibling; while(c && c.tagName==='TD'){col+=c.colSpan||1;c=c.previousElementSibling;}
+ const L=String.fromCharCode(65+col); ref.textContent=L+(rn?rn.textContent:'');
+ const hdr=grid.querySelectorAll('thead th')[col+1]; if(hdr) hdr.classList.add('sel');
+ const f=td.dataset.f; if(f){val.textContent=f;val.className='val f';} else {val.textContent=td.dataset.v ?? td.textContent;val.className='val';}
+});
+show(0);
+</script>
+</body>
+</html>

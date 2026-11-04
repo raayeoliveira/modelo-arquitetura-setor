@@ -1,0 +1,354 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Revisão dos Agentes da Manutenção</title>
+<style>
+  /*
+    Design plan
+    Color: --bg/--surface/--surface-2 em oliva-papel (mesma família do relatório anterior desta
+      área, pra continuar o mesmo "caderno de auditoria"); --accent verde-mato; --ok/--warn/--risk
+      semânticos, independentes do accent.
+    Type: Fraunces (display, só nos números grandes do placar) + IBM Plex Sans (corpo) + IBM Plex
+      Mono (código, datas, contadores tabulares).
+    Layout: topo é um placar ao vivo (direto do banco, 28/10, hora da consulta) — depois os riscos
+      em ordem de urgência real, depois os agentes agrupados por onde atuam no ciclo do card
+      (entrada → fechamento → consequência), fechando com o que ainda não tem código.
+  */
+  :root{
+    --bg:#f3f1ec; --surface:#ffffff; --surface-2:#ebe8e0; --border:#d9d5ca;
+    --fg:#1c1f1a; --fg-dim:#5b5a4f; --fg-faint:#8c8a7c;
+    --accent:#2f5d4f; --accent-fg:#eaf3ee;
+    --ok:#2f6b3f; --ok-bg:#e3efe0;
+    --warn:#8a5a10; --warn-bg:#f6ecd6;
+    --risk:#9c2b1f; --risk-bg:#f7e2dd;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --sans: 'IBM Plex Sans', system-ui, sans-serif;
+    --display: 'Fraunces', Georgia, serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#14171a; --surface:#1b1f22; --surface-2:#20262a; --border:#323a3e;
+      --fg:#e9e9e3; --fg-dim:#a9ab9e; --fg-faint:#767a70;
+      --accent:#7fb6a0; --accent-fg:#0f1e19;
+      --ok:#7fc98d; --ok-bg:#16261b;
+      --warn:#e3b45c; --warn-bg:#2b2010;
+      --risk:#e8786b; --risk-bg:#2e1714;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14171a; --surface:#1b1f22; --surface-2:#20262a; --border:#323a3e;
+    --fg:#e9e9e3; --fg-dim:#a9ab9e; --fg-faint:#767a70;
+    --accent:#7fb6a0; --accent-fg:#0f1e19;
+    --ok:#7fc98d; --ok-bg:#16261b;
+    --warn:#e3b45c; --warn-bg:#2b2010;
+    --risk:#e8786b; --risk-bg:#2e1714;
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg); color:var(--fg); font-family:var(--sans); line-height:1.5;
+    padding-left:max(16px, env(safe-area-inset-left,0px));
+    padding-right:max(16px, env(safe-area-inset-right,0px));
+  }
+  .wrap{max-width:960px; margin:0 auto; padding-block:36px 90px}
+  h1{font-family:var(--display); font-weight:600; font-size:clamp(1.7rem,4.4vw,2.4rem); line-height:1.1; margin:0 0 6px; text-wrap:balance; letter-spacing:-.01em}
+  .meta{color:var(--fg-dim); font-size:.84rem; display:flex; flex-wrap:wrap; gap:4px 14px; margin-bottom:26px}
+  .meta code{font-family:var(--mono); background:var(--surface-2); padding:1px 6px; border-radius:4px; font-size:.78rem}
+
+  .verdict{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:22px 24px; margin-bottom:28px}
+  .verdict h2{margin:0 0 12px; font-size:1.02rem; letter-spacing:.02em; text-transform:uppercase; color:var(--fg-dim); font-weight:600}
+  .verdict p{margin:0; line-height:1.6; max-width:70ch}
+
+  /* placar ao vivo */
+  .board{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px 22px 22px; margin-bottom:28px}
+  .board-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:14px}
+  .board-head h2{margin:0; font-size:1.02rem; letter-spacing:.02em; text-transform:uppercase; color:var(--fg-dim); font-weight:600}
+  .board-head span{font-family:var(--mono); font-size:.78rem; color:var(--fg-faint)}
+  .board-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:10px; overflow:hidden}
+  .stat{background:var(--surface); padding:12px 14px}
+  .stat .n{font-family:var(--display); font-variant-numeric:tabular-nums; font-size:1.5rem; font-weight:600; line-height:1.1}
+  .stat.ok .n{color:var(--ok)} .stat.warn .n{color:var(--warn)} .stat.risk .n{color:var(--risk)}
+  .stat .l{font-size:.74rem; color:var(--fg-dim); margin-top:3px; line-height:1.35}
+
+  .callout{border-radius:14px; padding:20px 22px; margin-bottom:18px; border:1px solid}
+  .callout.risk{background:var(--risk-bg); border-color:color-mix(in srgb, var(--risk) 35%, transparent)}
+  .callout.gap{background:var(--warn-bg); border-color:color-mix(in srgb, var(--warn) 35%, transparent)}
+  .callout .tag{font-family:var(--mono); font-size:.72rem; letter-spacing:.05em; text-transform:uppercase; font-weight:600}
+  .callout.risk .tag{color:var(--risk)} .callout.gap .tag{color:var(--warn)}
+  .callout h3{margin:6px 0 8px; font-size:1.12rem; font-family:var(--display); font-weight:600}
+  .callout p{margin:0 0 8px; line-height:1.56; max-width:74ch; color:var(--fg)}
+  .callout p:last-child{margin-bottom:0}
+  .callout .src{font-size:.78rem; color:var(--fg-dim)}
+
+  .section-title{display:flex; align-items:baseline; gap:10px; margin:44px 0 6px; padding-bottom:10px; border-bottom:2px solid var(--border)}
+  .section-title .num{font-family:var(--mono); color:var(--accent); font-size:.85rem}
+  .section-title h2{font-size:1.28rem; margin:0; font-family:var(--display); font-weight:600}
+  .section-sub{color:var(--fg-dim); font-size:.9rem; margin:0 0 18px; max-width:70ch; line-height:1.5}
+
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:14px}
+  .card-head{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px 12px; margin-bottom:10px}
+  .card-head h3{margin:0; font-size:1.02rem}
+  .badge{font-family:var(--mono); font-size:.7rem; letter-spacing:.03em; text-transform:uppercase; padding:3px 9px; border-radius:99px; white-space:nowrap; font-weight:600}
+  .badge.prod{background:var(--ok-bg); color:var(--ok)}
+  .badge.aberto{background:var(--warn-bg); color:var(--warn)}
+  .badge.parado{background:var(--risk-bg); color:var(--risk)}
+  .badge.sombra{background:var(--surface-2); color:var(--fg-dim)}
+
+  .card .file{font-family:var(--mono); font-size:.78rem; color:var(--fg-faint); margin-bottom:12px; word-break:break-word}
+  .rows{display:grid; gap:10px}
+  .row{display:grid; grid-template-columns:92px 1fr; gap:10px; font-size:.89rem; line-height:1.52}
+  .row .k{font-size:.71rem; text-transform:uppercase; letter-spacing:.04em; font-weight:600; padding-top:2px}
+  .row.ok .k{color:var(--ok)}
+  .row.risk .k{color:var(--risk)}
+  .row.fix .k{color:var(--accent)}
+  .row .v{color:var(--fg)}
+  .row .v code{font-family:var(--mono); font-size:.81rem; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+  @media (max-width:480px){ .row{grid-template-columns:1fr} .row .k{padding-top:0} }
+
+  .priority{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px 22px; margin-top:16px}
+  .priority h2{margin:0 0 14px; font-size:1.1rem; font-family:var(--display); font-weight:600}
+  .priority ol{margin:0; padding-left:22px; display:grid; gap:10px}
+  .priority li{line-height:1.5}
+  .priority li b{color:var(--accent)}
+
+  footer{margin-top:50px; padding-top:20px; border-top:1px solid var(--border); font-size:.78rem; color:var(--fg-faint); line-height:1.7}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<div class="wrap">
+  <h1>Revisão dos agentes da Central de Manutenção</h1>
+  <div class="meta">
+    <span>28/10/2026 · código em <code>sapron-backend/src/maintenance</code> (develop + branches locais), PRs no GitHub, e consulta direta ao banco de produção do Sapron</span>
+  </div>
+
+  <div class="verdict">
+    <h2>Em uma linha</h2>
+    <p>Os agentes estão mais avançados do que o roadmap de 08/09 previa — 8 agentes de IA já escrevem em produção, com rollout em degraus e histórico humano medido antes de qualquer um ganhar autonomia. Mas um deles está <b>parado há 8 dias sem ninguém notar</b>, e o item que o próprio roadmap pedia para nascer primeiro — auditoria amostral — nunca foi feito.</p>
+  </div>
+
+  <div class="board">
+    <div class="board-head"><h2>Placar ao vivo</h2><span>consultado agora, direto no banco</span></div>
+    <div class="board-grid">
+      <div class="stat ok"><div class="n">221/221</div><div class="l">cards novos classificados nos últimos 7 dias</div></div>
+      <div class="stat ok"><div class="n">1345</div><div class="l">pareceres de evidência auditados, 7 pendentes</div></div>
+      <div class="stat risk"><div class="n">8 dias</div><div class="l">antifraude sem checar uma foto (parou 20/10)</div></div>
+      <div class="stat risk"><div class="n">114</div><div class="l">sinais fortes/suspeitos do antifraude sem revisão humana</div></div>
+      <div class="stat warn"><div class="n">1 vez</div><div class="l">score de franquia gravado (devia ser toda segunda)</div></div>
+      <div class="stat warn"><div class="n">17</div><div class="l">suspeitas de duplicata retidas, uma há 12 dias</div></div>
+      <div class="stat ok"><div class="n">0</div><div class="l">cards fechados automaticamente por duplicata (autoclose nunca usado)</div></div>
+      <div class="stat">
+        <div class="n">1102</div><div class="l">cards abertos hoje · 540 em "não urgente"</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout risk">
+    <span class="tag">Risco #1 — ativo agora</span>
+    <h3>O antifraude de evidência parou de rodar há 8 dias</h3>
+    <p><b>O que achei no banco:</b> a última checagem de fraude (<code>ai_fraud_checked_at</code>) é de <b>20/10, 11h42</b>. Hoje é 28/10. A task está corretamente agendada no Beat (<code>:12/:27/:42/:57</code>, fila <code>maintenance</code>) e o validador e o auditor de evidência rodaram hoje mesmo na mesma fila (12h50 e 12h55) — então não é fila sem worker. Sobra como causa mais provável a flag <code>ENABLE_MAINTENANCE_EVIDENCE_FRAUD</code> desligada no PostHog: o agente é fail-closed por desenho (qualquer erro de leitura da flag = desligado).</p>
+    <p><b>Consequência:</b> o auditor segue fechando cards sozinho sem o freio do antifraude rodando de novo — a trava (<code>segura_baixa</code>) só continua valendo para os cards já marcados antes de 20/10. E a fila de revisão humana, que já estava grande (114 cards com sinal forte ou suspeito), parou de crescer só porque o agente parou — não porque alguém revisou: em toda a história do agente, <b>uma única revisão humana foi feita</b>.</p>
+    <p><b>O que fazer:</b> confirmar a flag no PostHog hoje. Se estiver desligada, religar; se estiver ligada, é um bug diferente e mais sério (a task roda e não grava nada).</p>
+    <p class="src">Fonte: <code>select max(ai_fraud_checked_at) from maintenance_maintenancecard</code>, Sapron, 28/10/2026, 13h · <code>fraud_evidence.py:43-54</code> (fail-closed) · <code>CELERY_BEAT_SCHEDULE</code> em <code>config/settings.py:1413</code>.</p>
+  </div>
+
+  <div class="callout risk">
+    <span class="tag">Risco #2 — esta semana</span>
+    <h3>PR #5238 vai quebrar migration se mergear como está</h3>
+    <p><code>feat/manutencao-card-herdado-na-migracao</code> (card segue o imóvel na troca de franquia) carrega sua própria <code>0045_card_herdado_na_migracao.py</code>. <code>develop</code> já tem uma cadeia <code>0045→0048</code> de três outras features (SLA urgente, ocorrência urgente, envio à Qualidade), mergeadas e em produção desde 22/10. <code>gh pr view 5238</code> confirma <code>mergeable: CONFLICTING</code>, parado desde 14/10.</p>
+    <p><b>O que fazer:</b> rebasear em <code>develop</code> e renumerar a migration para <code>0049</code> antes de reabrir para review.</p>
+    <p class="src">Fonte: <code>git diff develop...feat/manutencao-card-herdado-na-migracao -- src/maintenance/migrations/</code> + <code>gh pr view 5238</code>, 28/10/2026.</p>
+  </div>
+
+  <div class="callout gap">
+    <span class="tag">Risco #3 — silencioso</span>
+    <h3>O score de franquia não roda desde 19/10</h3>
+    <p>O código grava um retrato por franquia toda segunda às 7h (<code>franchise_score.py</code>). No banco existe <b>uma única data de corte: 19/10</b>, com 116 franquias. A segunda seguinte (26/10) já passou e não gerou nada. E diferente dos outros 7 agentes de IA, o score de franquia <b>não está no painel de saúde</b> (<code>agents_monitor.py</code> não o importa) — é o único agente "que vira dinheiro" sem alarme se a flag cair ou o beat morrer, o mesmo tipo de falha silenciosa que já causou o incidente de 22/09 que motivou o painel nascer.</p>
+    <p class="src">Fonte: <code>select reference_date, count(*) from maintenance_franchisescore group by 1</code>, Sapron, 28/10/2026 (uma linha só: 2026-10-19, 116) · grep em <code>agents_monitor.py</code> sem ocorrência de <code>franchise_score</code>.</p>
+  </div>
+
+  <div class="callout gap">
+    <span class="tag">Lacuna estrutural</span>
+    <h3>Ninguém mede se os agentes acertam — só se estão rodando</h3>
+    <p>O roadmap de 08/09 (<code>onze-agentes.html</code>) pedia explicitamente: "auditoria amostral junto do primeiro agente que escreve, não no fim da fila — ela é barata quando nasce com um agente e caríssima de retroagir sobre oito." Hoje existem 8 agentes escrevendo e nenhuma auditoria amostral publicando taxa de acerto por categoria. O que existe em vez disso são dois substitutos parciais: o painel de saúde (sabe dizer <i>se está rodando</i>, não <i>se acerta</i>) e, só em "despesa prova o card", um portão de confiança por histórico — a baixa automática só libera depois de 30 conferências humanas com no máximo 1 discordância. É o padrão certo; falta estender aos outros 7.</p>
+  </div>
+
+  <!-- ENTRADA -->
+  <div class="section-title"><span class="num">01</span><h2>Entrada — fazer o card nascer certo</h2></div>
+  <p class="section-sub">Os agentes que decidem o que o card é, se é urgente, e se já existe outro igual — antes de a franquia ser acionada.</p>
+
+  <div class="card">
+    <div class="card-head"><h3>Auto-classificação (categoria + urgência)</h3><span class="badge prod">produção · saudável</span></div>
+    <div class="file">actions/classify_card.py · services/card_classifier_ai.py</div>
+    <div class="rows">
+      <div class="row ok"><div class="k">Acerto</div><div class="v">Escrita condicional e restrita: só grava <code>category</code> se estiver vazia (ou veio de fallback), nunca sobrescreve escolha humana. A nota 0-100 é só sugestão — nunca move <code>status</code>, <code>urgent</code> nem <code>due_at</code>. Fail-open deliberado: erro de IA deixa o campo vazio, que já é o estado de hoje.</div></div>
+      <div class="row ok"><div class="k">Acerto</div><div class="v">Guarda determinística contra <code>'outros'</code> espúrio, calibrada com medição real (amostra de "cheiro de gás" errando para outros em 14/09).</div></div>
+      <div class="row risk"><div class="k">Risco</div><div class="v">O próprio código documenta que o modelo erra severidade/categoria em ~1 de 5 casos no cenário de gás — o gatilho duro cobre parte, não tudo.</div></div>
+      <div class="row fix"><div class="k">Melhoria</div><div class="v">É o agente mais maduro do lote. Dado ao vivo: 221 de 221 cards dos últimos 7 dias classificados, zero presos. Falta só a auditoria amostral medindo acerto perto do limiar de urgência.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Triagem automática (urgente × programada)</h3><span class="badge prod">produção · saudável</span></div>
+    <div class="file">actions/auto_triage.py · actions/triage.py</div>
+    <div class="rows">
+      <div class="row ok"><div class="k">Acerto</div><div class="v">Fail-closed, ao contrário do classificador — correto aqui, porque o erro abre chamado irreversível com a franquia. Nunca tria card com suspeita de duplicata viva nem card que uma pessoa já moveu à mão. <code>select_for_update</code> + relê status antes de escrever.</div></div>
+      <div class="row ok"><div class="k">Acerto</div><div class="v"><code>triage.py</code> (aceitar/recusar pedido da franquia) é uma máquina de estado pequena e correta; <code>restore_card</code> dispensa suspeita de duplicata ao restaurar, evitando o card voltar travado em silêncio.</div></div>
+      <div class="row ok"><div class="k">Sem falhas</div><div class="v">É o agente mais defensivo do lote — nenhum risco de desenho encontrado.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Verificação de card duplicado</h3><span class="badge prod">produção · fila travando</span></div>
+    <div class="file">actions/duplicate_check.py · actions/duplicate_pairs.py · services/duplicate_ai.py</div>
+    <div class="rows">
+      <div class="row ok"><div class="k">Acerto</div><div class="v">Peneira em 3 camadas antes de gastar IA (imóvel/status vivo/janela 90d → categoria → texto), teto de 4 candidatos/card. "Original" nunca depende da ordem do lote (<code>created_at__lt</code>) — evita fechar o card errado. Trava de corrida + rastro nos dois cards. 65 testes cobrindo recorrência, janela, teto e corrida.</div></div>
+      <div class="row risk"><div class="k">Risco</div><div class="v">Desde 23/09: 37 suspeitas levantadas, <b>20 dispensadas por gente (54%)</b> — mais da metade das vezes o humano discorda do agente. <code>duplicate_autoclose_enabled()</code> existe no código mas <b>0 fechamentos automáticos</b> até hoje; ligá-lo agora seria prematuro.</div></div>
+      <div class="row risk"><div class="k">Risco</div><div class="v">A suspeita do card #8096 está parada há <b>12 dias</b> sem decisão, e o card não anda enquanto isso. Não há alarme de "suspeita velha" em lugar nenhum.</div></div>
+      <div class="row fix"><div class="k">Melhoria</div><div class="v">Dar SLA à fila de suspeitas (alerta após N dias). Puxar amostra dos 20 casos dispensados antes de cogitar o autoclose. Apagar a branch local obsoleta <code>feat/duplicata-fecha-o-card</code>, que diverge do que já foi mergeado em <code>develop</code>.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Origem (integração UTI) + tags</h3><span class="badge prod">produção</span></div>
+    <div class="file">actions/uti_ingest.py · actions/card_tags.py</div>
+    <div class="rows">
+      <div class="row ok"><div class="k">Acerto</div><div class="v">Idempotência por <code>action_id</code> — reenvio de rede não duplica. <code>card_tags.add_tags</code> resolve um problema real (PATCH de tags substitui a lista inteira): trava o card e soma, em vez de uma integração apagar a tag da outra. Confirmado ao vivo: já existem cards com 3 e 4 tags somadas.</div></div>
+      <div class="row risk"><div class="k">Risco</div><div class="v"><code>uti_ingest.py</code> não tem flag de liga/desliga como os outros agentes — é chamado por webhook externo (Score Pulse); um comportamento ruim do lado deles não tem como ser pausado sem deploy.</div></div>
+      <div class="row fix"><div class="k">Melhoria</div><div class="v">Dar a <code>ingest_uti_actions</code> o mesmo padrão <code>*_enabled()</code> fail-closed dos demais agentes de escrita.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Card a partir de dano de hóspede</h3><span class="badge prod">produção</span></div>
+    <div class="file">actions/card_from_damages.py</div>
+    <div class="rows">
+      <div class="row ok"><div class="k">Acerto</div><div class="v">Cria o card só no fim da negociação, já precificado. Antidupe para dois regimes (regra nova por reserva + janela legada de 1h), desenhado depois de um incidente real (R$ 43 mil em danos quase sem card, por tratar card cancelado como "já existe").</div></div>
+      <div class="row risk"><div class="k">Risco</div><div class="v">A janela legada é descrita no próprio código como transitória ("sai quando os cards antigos concluírem, ~1 mês") — a regra nova é de 28/08, já se passaram 2 meses. Confirmado ao vivo: ainda existem <b>12 cards abertos</b> no regime antigo (<code>origin='danos'</code> sem reserva vinculada).</div></div>
+      <div class="row fix"><div class="k">Melhoria</div><div class="v">Com 12 ainda abertos, não dá para remover a janela legada hoje — mas vale um prazo explícito de revisão em vez de "~1 mês" indefinido.</div></div>
+    </div>
+  </div>
+
+  <!-- FECHAMENTO -->
+  <div class="section-title"><span class="num">02</span><h2>Fechamento — fazer o card morrer certo</h2></div>
+  <p class="section-sub">Três camadas de evidência (valida → audita → checa fraude) mais o agente que fecha por despesa já paga. É onde o erro custa dinheiro nos dois sentidos — fechar o que não foi feito, ou cobrar quem já fez.</p>
+
+  <div class="card">
+    <div class="card-head"><h3>Encerramento por evidência</h3><span class="badge prod">produção</span></div>
+    <div class="file">actions/evidence_from_message.py</div>
+    <div class="rows">
+      <div class="row ok"><div class="k">Acerto</div><div class="v">UPDATE condicional evita corrida entre duas mensagens com anexo. Exclui de propósito o canal permanente do imóvel (evitaria marcar evidência em vários cards de uma vez). Só move para "aguardando aprovação" nos status certos — não em "programada", onde o anexo é autorização do proprietário, não evidência.</div></div>
+      <div class="row ok"><div class="k">Sem falhas</div><div class="v">Pequeno, correto, baixo risco — dispensa kill-switch.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Validador de evidência</h3><span class="badge prod">produção · fila em dia</span></div>
+    <div class="file">actions/validate_evidence.py · services/evidence_ai.py · evidence_rules.py</div>
+    <div class="rows">
+      <div class="row ok"><div class="k">Acerto</div><div class="v">Fail-open explícito (card sem parecer é melhor que parecer inventado). Trava <code>incompleta</code> virando <code>inconclusiva</code> quando faltou anexo, para não devolver card por engano — o cenário mais caro (zera nota de 35 dias). Testes organizados por comportamento, não só caminho feliz.</div></div>
+      <div class="row risk"><div class="k">Risco baixo</div><div class="v"><code>MAX_MENSAGENS = 30</code> e <code>MAX_CHARS_POR_MENSAGEM = 600</code> são hardcoded sem telemetria — vale medir quantos casos de conversa longa estão sendo truncados em silêncio.</div></div>
+      <div class="row fix"><div class="k">Dado ao vivo</div><div class="v">1.386 pareceres emitidos, o mais recente hoje às 12h55 — fila em dia, 173 cards aguardando aprovação no total.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Auditor do parecer</h3><span class="badge prod">produção · fila em dia</span></div>
+    <div class="file">actions/audit_evidence.py</div>
+    <div class="rows">
+      <div class="row ok"><div class="k">Acerto</div><div class="v">Três flags independentes (ler / fechar / pedir faltante) com rollout em degraus. É o único dos quatro de evidência que de fato finaliza card sozinho — 1.122 cards fechados pelo auditor até hoje. <b>A dependência com o antifraude está implementada</b> (<code>segura_baixa(card)</code> antes de finalizar) — o risco que o roadmap de setembro apontava como "os dois andam desacoplados" está resolvido no código.</div></div>
+      <div class="row risk"><div class="k">Risco</div><div class="v">Como a trava do antifraude depende de <code>ai_fraud_checked_at</code> estar em dia, e o antifraude está parado há 8 dias (risco #1), card com <code>ai_fraud_checks</code> no teto fica "preso para sempre" sem contar como atrasado, por admissão do próprio comentário do código — ou seja, assim que isso acontecer o auditor passa a fechar sem veredito de fraude nenhum.</div></div>
+      <div class="row fix"><div class="k">Melhoria</div><div class="v">Medir quantos dos 1.122 cards fechados pelo auditor nunca tiveram checagem de fraude — para dimensionar o risco acumulado dos 8 dias parados.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Antifraude na evidência</h3><span class="badge parado">parado desde 20/10</span></div>
+    <div class="file">actions/fraud_evidence.py · actions/fraud_fingerprint.py</div>
+    <div class="rows">
+      <div class="row ok"><div class="k">Acerto</div><div class="v">pHash (não SHA-256) resiste à recompressão do WhatsApp. Dedup de foto reenviada no mesmo card antes de contar sinais. Regra evita que uma coincidência isolada vire "forte" sozinha. EXIF ausente nunca gera sinal (fail-safe). Branch em andamento (<code>fix/antifraude-fila-mostra-fotos</code>) corrige um bug real de mutação (URL presignada que expira sendo regravada no card) e recalcula dados históricos.</div></div>
+      <div class="row ok"><div class="k">Acerto</div><div class="v">Classe de teste dedicada a "o que o agente NÃO faz" — prática rara, boa.</div></div>
+      <div class="row risk"><div class="k">Risco grave</div><div class="v">Parado desde 20/10 (ver Risco #1). 114 cards com sinal forte/suspeito aguardando revisão humana; só 1 revisão feita em toda a história do agente.</div></div>
+      <div class="row fix"><div class="k">Melhoria</div><div class="v">Hoje: religar a flag. Depois: alerta ativo (Slack) quando <code>ai_fraud_checked_at</code> parar de avançar, em vez de depender de alguém abrir a aba de monitoramento.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Despesa prova o card</h3><span class="badge prod">produção</span></div>
+    <div class="file">actions/expense_match.py · services/expense_match_ai.py</div>
+    <div class="rows">
+      <div class="row ok"><div class="k">Acerto</div><div class="v">O melhor desenho de rollout do grupo: três fases por flag (sombra → anexar → baixa), e a baixa automática só libera depois de 30 conferências humanas com no máximo 1 discordância. Evita IA em pares óbvios (dano com mesmo valor, item de recorrente), só manda à IA o resto.</div></div>
+      <div class="row ok"><div class="k">Dado ao vivo</div><div class="v">Nos vereditos "todos" (match completo): 121 concordo × 3 discordo — <b>97,6% de concordância</b>, sinal forte de que o juiz já pode merecer baixa sozinha aqui. Nos vereditos "parte" (match parcial): 11 concordo × 11 discordo — <b>50%</b>, bem menos confiável.</div></div>
+      <div class="row fix"><div class="k">Correção de memória</div><div class="v">PR #4986 está mergeado — o bloqueio por testes de outro time (#4987/#4988) não tem relação real. Pode ser considerado destravado, mas vale confirmar em qual fase (sombra/anexar/baixa) está hoje, porque isso só se vê no PostHog/SSM, não no código.</div></div>
+      <div class="row fix"><div class="k">Melhoria</div><div class="v">Se a baixa automática ainda depende de "concordo" geral, separar o portão de confiança por tipo de veredito: "todos" já tem histórico para andar sozinho, "parte" ainda não.</div></div>
+    </div>
+  </div>
+
+  <!-- CONSEQUÊNCIA -->
+  <div class="section-title"><span class="num">03</span><h2>Consequência e controle</h2></div>
+  <p class="section-sub">O que sai do sistema e chega no número da daily ou no bolso de uma franquia — e o painel que deveria avisar quando algo para.</p>
+
+  <div class="card">
+    <div class="card-head"><h3>Score da franquia</h3><span class="badge aberto">sem rodar desde 19/10</span></div>
+    <div class="file">actions/franchise_score.py</div>
+    <div class="rows">
+      <div class="row ok"><div class="k">Acerto</div><div class="v">Redistribui peso entre pilares quando falta dado, em vez de zerar ou dar 100 por ausência. Exclui corretamente dano de hóspede da reincidência e cards cancelados do cômputo — as duas armadilhas que o próprio roadmap de setembro alertava. Diferencia os dois lead times (franquia × ciclo total) sem confundir.</div></div>
+      <div class="row risk"><div class="k">Risco</div><div class="v">Ver Risco #3: só uma gravação (19/10), falta a de 26/10, e não está no painel de saúde — ninguém é avisado se parar.</div></div>
+      <div class="row fix"><div class="k">Melhoria</div><div class="v">Adicionar <code>franchise_score</code> como 8º agente em <code>agents_monitor.py</code>, reaproveitando o <code>_bloqueio()</code> que já existe para os outros casos de falha.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Ocorrência do urgente (regra 6.2)</h3><span class="badge sombra">produção, em sombra</span></div>
+    <div class="file">actions/urgent_occurrence.py</div>
+    <div class="rows">
+      <div class="row ok"><div class="k">Acerto</div><div class="v">Roda em sombra por decisão explícita (20/10) — propõe, nunca lança sozinho. Kill-switch fail-closed (certo aqui: o erro geraria multa). Heartbeat em Redis separa "rodou e não achou nada" de "parou de rodar".</div></div>
+      <div class="row fix"><div class="k">Correção de memória</div><div class="v">A pendência "falta a Victória: função, chave, subcategoria" estava desatualizada — o envio à Central de Ocorrências e Multas já foi promovido a produção em 22/10, com ajuste de prazo para 24h em 26/10.</div></div>
+      <div class="row risk"><div class="k">A confirmar</div><div class="v"><code>MAINTENANCE_OCCURRENCE_QUALITY_URL/KEY/SUBCATEGORY</code> têm default vazio no settings — se não estiverem na SSM de produção, o envio cai em "sem destino" de forma silenciosa.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Painel de saúde dos agentes</h3><span class="badge prod">produção · cobre 7 de 8</span></div>
+    <div class="file">actions/agents_monitor.py</div>
+    <div class="rows">
+      <div class="row ok"><div class="k">Acerto</div><div class="v">Nasceu de um incidente real (22/09: classificador "parado" meses, 410 na fila, zero notas em 5.949 cards, sem conseguir distinguir entre flag fechada, fila sem worker ou chave ausente). Hoje resolve 2 das 3 causas sem chamada externa. <code>_linha_ou_erro()</code> isola falha de um agente para não derrubar o painel inteiro.</div></div>
+      <div class="row risk"><div class="k">Risco</div><div class="v">Cobre 7 dos 8 agentes de IA — falta o score de franquia (ver acima). A 3ª causa ("fila sem worker") segue sem solução própria, por admissão do próprio código — depende de prova indireta.</div></div>
+      <div class="row fix"><div class="k">Melhoria</div><div class="v">O alerta hoje é <i>pull</i> (só aparece se alguém abrir a aba). Levar o estado "atenção/parado" para um post automático no Slack, no mesmo padrão que já existe para falha técnica de task.</div></div>
+    </div>
+  </div>
+
+  <!-- FORA DO ROADMAP -->
+  <div class="section-title"><span class="num">04</span><h2>Fora do roadmap original — iniciativas de outubro</h2></div>
+  <p class="section-sub">Entraram depois do documento de 08/09.</p>
+
+  <div class="card">
+    <div class="card-head"><h3>Gatilhos de bloqueio (imóvel sem condição de uso)</h3><span class="badge aberto">PR aberto, parado desde 21/10</span></div>
+    <div class="file">actions/classify_card.py — PR #5342</div>
+    <div class="rows">
+      <div class="row ok"><div class="k">Acerto</div><div class="v">Mudança pequena e cirúrgica: 3 arquivos, 164 linhas, reaproveita a infraestrutura de regex do gatilho duro em vez de duplicar. 77 linhas de teste.</div></div>
+      <div class="row risk"><div class="k">Risco</div><div class="v">Parado sem bloqueio técnico aparente — parece só falta de revisão.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Abas por agente (fila de decisões)</h3><span class="badge parado">PR aberto há 33 dias</span></div>
+    <div class="file">PR #4956 — aberto 25/09, última atividade 30/09</div>
+    <div class="rows">
+      <div class="row risk"><div class="k">Risco</div><div class="v">É a tela que junta a fila de decisão de todos os agentes (duplicata, antifraude, despesa) num só lugar, e é o item mais parado desta revisão inteira. Sem ela, as filas de revisão ficam mais difíceis de achar — agrava o risco do antifraude acima (alerta que só aparece se alguém for procurar).</div></div>
+    </div>
+  </div>
+
+  <div class="priority">
+    <h2>Prioridade para esta semana</h2>
+    <ol>
+      <li><b>Hoje:</b> confirmar e religar a flag do antifraude de evidência (<code>ENABLE_MAINTENANCE_EVIDENCE_FRAUD</code>) — 8 dias parado, 114 sinais sem revisão.</li>
+      <li><b>Esta semana:</b> rebasear o PR #5238 (card herdado na migração) antes que alguém tente forçar o merge e derrube a migration em produção.</li>
+      <li><b>Esta semana:</b> investigar por que o score de franquia não rodou em 26/10, e adicioná-lo ao painel de saúde dos agentes.</li>
+      <li><b>Próximas duas semanas:</b> esvaziar a fila de 114 revisões do antifraude — régua sem revisão não valida nada.</li>
+      <li><b>Depois:</b> primeira auditoria amostral, começando pelo classificador ou pelo antifraude (os dois agentes com mais volume e mais sinal de risco), e só depois estendida aos demais.</li>
+    </ol>
+  </div>
+
+  <footer>
+    Fontes e datas: código em <code>sapron-backend/src/maintenance/</code> (branch <code>develop</code> e branches locais), lido em 28/10/2026 · consultas diretas ao banco de produção do Sapron via MCP, 28/10/2026 (todos os números do placar e das caixas de risco) · status de PR via <code>gh pr list/view</code> (seazone-tech/sapron-backend), 28/10/2026 · roadmap original: <code>onze-agentes.html</code> (08/09/2026) · folha de contexto: <code>folha-de-contexto.md</code> (última revisão 08/09/2026). Não cobre infraestrutura além do citado como "a confirmar" — acesso ao EKS desta sessão não inclui o app do Sapron.
+  </footer>
+</div>

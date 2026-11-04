@@ -1,0 +1,587 @@
+<title>Passo a passo do Backoffice</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<style>
+/* Layout: paleta e fontes do template de arquitetura de processos do Backoffice (só tema claro, como as páginas de processo); cada subárea tem a sua cor */
+:root{
+  color-scheme:light;
+  --bg:oklch(96.5% .012 260); --surface:oklch(99.4% .003 250);
+  --fg:oklch(24% .02 255); --muted:oklch(46% .018 255); --line:oklch(89% .01 255);
+  --navy:oklch(19% .05 260); --hero-fg:oklch(94% .01 260); --hero-muted:oklch(72% .02 260);
+  --blue:oklch(48% .21 258); --bluebg:oklch(95% .03 258);
+  --teal:oklch(47% .1 200); --tealbg:oklch(95.5% .03 200);
+  --violet:oklch(48% .16 300); --violetbg:oklch(95.5% .03 300);
+  --amber:oklch(50% .12 70); --amberbg:oklch(95.5% .04 80);
+  --accent:var(--blue); --accent-soft:var(--bluebg);
+  --ok:oklch(50% .11 155); --warn:oklch(52% .12 70); --bad:oklch(52% .17 27); --plan:oklch(48% .16 300);
+  --f-display:"Bricolage Grotesque",system-ui,sans-serif; --f-body:Literata,Georgia,serif; --f-mono:ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+#despesas,[data-t="despesas"],a.sum[href="#despesas"]{--accent:var(--blue);--accent-soft:var(--bluebg)}
+#distrato,[data-t="distrato"],a.sum[href="#distrato"]{--accent:var(--violet);--accent-soft:var(--violetbg)}
+#score,[data-t="score"],a.sum[href="#score"]{--accent:var(--teal);--accent-soft:var(--tealbg)}
+#outros,[data-t="outros"]{--accent:oklch(45% .02 255);--accent-soft:oklch(93% .012 255)}
+#taxa,[data-t="taxa"],a.sum[href="#taxa"]{--accent:var(--amber);--accent-soft:var(--amberbg)}
+[data-t="geral"]{--accent:var(--navy);--accent-soft:oklch(93% .02 260)}
+.head{background:var(--navy);color:var(--hero-fg);border-radius:12px;padding:26px 24px}
+.head h1{color:var(--hero-fg)} .head .lead{color:var(--hero-muted)} .head .eyebrow{color:oklch(78% .1 240)}
+.head .sources{color:var(--hero-muted);border-top-color:oklch(35% .04 260)}
+section.tab{border-top:4px solid var(--accent)}
+a.sum{border-top:4px solid var(--accent)}
+.sum b{color:var(--accent)}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 var(--f-body)}
+.wrap{max-width:980px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+h1{font-size:30px;font-weight:800;letter-spacing:-.01em}
+h2{font-size:21px;font-weight:700}
+h3{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+p{margin:0}
+.eyebrow{font:500 12px var(--f-mono);color:var(--accent);letter-spacing:.04em}
+.lead{color:var(--muted);max-width:68ch}
+.head{display:grid;gap:10px}
+.sources{font:12px/1.6 var(--f-mono);color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.sum{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;display:grid;gap:4px;min-width:0}
+.sum b{font:700 15px var(--f-display)}
+.sum span{font-size:13px;color:var(--muted)}
+.n{font:500 13px var(--f-mono);font-variant-numeric:tabular-nums;color:var(--accent)}
+section.area{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;display:grid;gap:18px;min-width:0}
+.area-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
+th{text-align:left;font:600 11px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--line);padding:6px 8px}
+td{border-bottom:1px solid var(--line);padding:8px;vertical-align:top}
+td code,li code{font:12.5px var(--f-mono);background:var(--accent-soft);padding:1px 5px;border-radius:4px;word-break:break-word}
+.pill{display:inline-block;font:500 11px var(--f-mono);padding:2px 7px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)} .plan{color:var(--plan)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.cols>div{display:grid;gap:8px;align-content:start;min-width:0}
+ul{margin:0;padding-left:18px;display:grid;gap:5px}
+.agent{border:1px dashed var(--accent);border-radius:8px;padding:14px 16px;background:var(--accent-soft);display:grid;gap:8px}
+.agent h3{color:var(--accent)}
+.sub{font:600 14px var(--f-display);margin-top:4px}
+.decisions{display:grid;gap:10px}
+.decisions ol{margin:0;padding-left:20px;display:grid;gap:8px}
+.muted{color:var(--muted)}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);padding-block:8px}
+.tabs a{font:600 14px var(--f-display);color:var(--muted);text-decoration:none;padding:8px 14px;border-radius:6px;white-space:nowrap}
+.tabs a:hover{color:var(--fg);background:var(--accent-soft)}
+.tabs a[aria-current="page"]{color:var(--accent);background:var(--accent-soft)}
+.tabs a:focus-visible,.sum:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a.sum{color:inherit;text-decoration:none;cursor:pointer}
+a.sum:hover{border-color:var(--accent)}
+.go{font:500 12px var(--f-mono);color:var(--accent)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+@media (max-width:700px){.cols{grid-template-columns:1fr}h1{font-size:25px}}
+
+.chip{display:inline-block;font:600 10.5px var(--f-mono);text-transform:uppercase;letter-spacing:.05em;padding:3px 7px;border-radius:4px;white-space:nowrap;background:var(--line);color:var(--fg)}
+.chip.skill{background:var(--accent-soft);color:var(--accent)}
+.chip.auto{background:oklch(95.5% .035 155);color:var(--ok)}
+.chip.pes{background:oklch(95.5% .04 80);color:oklch(42% .12 70)}
+ol.steps{list-style:none;counter-reset:s;margin:0;padding:0;display:grid;gap:0;border-left:2px solid var(--line)}
+ol.steps>li{counter-increment:s;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:start;padding:10px 0 10px 16px;position:relative}
+ol.steps>li::before{content:counter(s);position:absolute;left:-13px;top:10px;width:24px;height:24px;border-radius:50%;background:var(--surface);border:2px solid var(--accent);color:var(--accent);font:700 12px/20px var(--f-mono);text-align:center;font-variant-numeric:tabular-nums}
+ol.steps>li>.chip{margin-left:18px;margin-top:2px;min-width:5.2em;text-align:center}
+ol.steps>li>div{min-width:0}
+ol.steps small{display:block;margin-top:4px;color:var(--muted);font-size:13px;line-height:1.45}
+.tab h3{margin-top:6px}
+.tab p.lead{margin:0}
+details.ferr{border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+details.ferr summary{cursor:pointer;font:600 14px var(--f-display)}
+details.ferr ul{margin-top:8px}
+.tab a{color:var(--accent)}
+@media (max-width:700px){ol.steps>li{grid-template-columns:1fr}ol.steps>li>.chip{margin-left:0;justify-self:start}}
+.flow{overflow-x:auto;border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--surface)}
+.flow pre{margin:0;text-align:center;font:13px var(--f-body);white-space:pre}
+.flow{margin-bottom:12px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:0}
+.open{border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:8px;padding:12px 16px;display:grid;gap:6px}
+.open ol{margin:0;padding-left:20px;display:grid;gap:6px}
+ul.pre{margin:0}
+details.cat{border:1px solid var(--line);border-radius:8px;padding:0 14px}
+details.cat>summary{cursor:pointer;padding:12px 0;font:600 15px var(--f-display);display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
+details.cat[open]>summary{border-bottom:1px solid var(--line);margin-bottom:8px}
+details.cat .tbl{padding-bottom:10px}
+details.cat table{min-width:760px}
+[hidden]{display:none!important}
+</style>
+
+<div class="wrap">
+
+<header class="head">
+  <p class="eyebrow">HANDOVER DO DAVID · D2 · RASCUNHO v1 · 30/10/2026</p>
+  <h1>Passo a passo do Backoffice de Franquias</h1>
+  <p class="lead">Como executar cada rotina das quatro subáreas, na ordem, com quem faz, o comando e onde parar para um ok. No fim de cada aba, o que já daria para virar agente. A Isa opera, não constrói.</p>
+  <p class="sources">Fontes (lidas em 30/10/2026): SKILL.md de cada skill no seazone-skills · repositório inventario-automacoes-backoffice · README e docs/PROCESSO.md (v2, 23/09/2026) do stop-crescimento · RESUMO.md, pendencias-abertas.md e subprocessos do distrato-franquias (29/10/2026). Nada foi rodado nem conferido no Sapron.</p>
+</header>
+
+<nav class="tabs" aria-label="Seções">
+  <a href="#geral" data-t="geral">Visão geral</a>
+  <a href="#despesas" data-t="despesas">Despesas</a>
+  <a href="#distrato" data-t="distrato">Distrato</a>
+  <a href="#score" data-t="score">Score e Stop</a>
+  <a href="#taxa" data-t="taxa">Taxa de limpeza</a>
+  <a href="#outros" data-t="outros">Outros processos</a>
+</nav>
+
+<!-- ═════════════ VISÃO GERAL ═════════════ -->
+<section class="area tab" id="geral-cal" data-group="geral">
+  <h2>O mês do Backoffice</h2>
+  <p class="muted">Quando cada coisa acontece. Clique no assunto para abrir o passo a passo.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Quando</th><th>O que roda</th><th>Quem</th><th>Passo a passo</th></tr></thead>
+    <tbody>
+      <tr><td>Todo dia útil, 09h</td><td>Radar de despesas duplicadas, publicado no #radar-de-despesas</td><td><span class="chip auto">automático</span> no PC da Isa</td><td><a href="#despesas">Despesas, rotina A</a></td></tr>
+      <tr><td>Todo dia útil, 15h</td><td>Auditoria das despesas triadas pela IA</td><td><span class="chip auto">automático</span> + <span class="chip pes">Isa aprova</span></td><td><a href="#despesas">Despesas, rotina B</a></td></tr>
+      <tr><td>Todo dia, 09h</td><td>Rodada do Stop de crescimento</td><td><span class="chip auto">automático</span> (GitHub Actions)</td><td><a href="#score">Score e Stop, parte 2</a></td></tr>
+      <tr><td>Segunda, 09h</td><td>Aviso de franquias aptas sem imóvel novo</td><td><span class="chip auto">automático</span></td><td><a href="#score">Score e Stop, parte 2</a></td></tr>
+      <tr><td>Quinta</td><td>Heartbeat semanal de Adm/Fin</td><td><span class="chip skill">skill</span></td><td>skill <code>franquias:heartbeat-adm-fin</code></td></tr>
+      <tr><td>Dia 10</td><td>Atualização do Dashboard Financeiro; começa o fechamento do Score</td><td><span class="chip auto">automático</span> / <span class="chip skill">skill</span></td><td><a href="#despesas">Despesas, rotina C</a> · <a href="#score">Score, parte 1</a></td></tr>
+      <tr><td>Dia 14</td><td>Avaliações por checkout (rodar o mais tarde possível: o Airbnb aceita avaliação até 14 dias depois)</td><td><span class="chip skill">skill</span></td><td><a href="#score">Score, passo 4</a></td></tr>
+      <tr><td>Dia 15</td><td>Score publicado (mês anterior)</td><td><span class="chip pes">responsável + Rayanne</span></td><td><a href="#score">Score, parte 1</a></td></tr>
+      <tr><td>Dia seguinte à publicação</td><td>Stop aplicado pela classificação do Score</td><td><span class="chip auto">automático</span></td><td><a href="#score">Score e Stop, parte 2</a></td></tr>
+      <tr><td>Dia 16</td><td>Lista de sugestão de stop por crescimento chega à Gerência de BackOffice</td><td><span class="chip auto">automático</span> + <span class="chip pes">Gerência decide</span></td><td><a href="#score">Score e Stop, parte 2</a></td></tr>
+      <tr><td>Dia útil depois do fechamento</td><td>Relatório de reciclagem de franquias</td><td><span class="chip skill">skill</span></td><td><a href="#score">Score e Stop, parte 3</a></td></tr>
+      <tr><td>Sob pedido</td><td>Pedido de mudança de taxa de limpeza; ajuste na Stays; avisos de cadastro da calculadora</td><td><span class="chip skill">skill</span> + <span class="chip pes">pessoa decide</span></td><td><a href="#taxa">Taxa de limpeza</a></td></tr>
+      <tr><td>Sob pedido</td><td>Distrato de franquia</td><td><span class="chip pes">Pipefy e planilhas</span> (app ainda em desenho)</td><td><a href="#distrato">Distrato</a></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+
+
+
+
+<!-- ═════════════ DESPESAS ═════════════ -->
+<section class="area tab" id="despesas" hidden>
+  <div class="area-head"><h2>Despesas</h2><span class="muted">processos ADM 1.4 e ADM 1.5 · quem opera: Isabella Bino</span></div>
+  <p class="lead">Três rotinas. As duas primeiras são diárias e já têm skill; a terceira é mensal.</p>
+
+  <h3>Antes de rodar</h3>
+  <p class="muted">Cada pessoa usa o próprio acesso. Chave nunca vai no chat nem no repositório.</p>
+  <ul class="pre"><li><b>Sapron (só leitura)</b>: conexão <code>sapron</code> no Claude Code; não grava</li><li><b>Slack pelo Composio</b>: para postar no radar-de-despesas, no nome de quem roda</li><li><b>Chrome controlado logado no Sapron (<code>chrome-sapron</code>)</b>: perfil logado pela Isabella; a skill não usa a extensão Claude in Chrome</li></ul>
+
+  <h3>Fluxograma</h3>
+  <p class="legend"><span class="chip auto">automático</span> <span class="chip skill">skill</span> <span class="chip pes">pessoa</span> <span class="muted">Losango = ponto de decisão ou de ok. Tracejado vermelho = lacuna.</span></p>
+  <p class="sub">Rotina A · todo dia útil, 09h</p>
+  <div class="flow"><pre class="mermaid">
+flowchart TD
+A1["Radar roda sozinho (PC da Isa)"]:::auto --> A2["Busca despesas dos últimos 3 meses e agrupa as parecidas"]:::skill --> A3["Posta no canal radar-de-despesas"]:::auto --> A3b["Isa confere cada grupo no Sapron"]:::pes --> A4{"Duplicata?"}:::pes
+A4 -->|duplicata| A5["Cancela no Sapron"]:::pes
+A4 -->|não é duplicata| A6["Deixa quieta, não volta a aparecer"]:::pes
+classDef auto fill:#dff1e5,stroke:#2f7d4a,color:#1b2127
+classDef skill fill:#e3ecfb,stroke:#3a63c4,color:#1b2127
+classDef pes fill:#fbefd5,stroke:#b07a12,color:#1b2127
+classDef gap fill:#fbe4e1,stroke:#b3362c,color:#1b2127,stroke-dasharray:5 3
+
+</pre></div>
+  <p class="sub">Rotina B · todo dia útil, 15h</p>
+  <div class="flow"><pre class="mermaid">
+flowchart TD
+B1["Puxa aprovadas pela IA em D-1 e as abertas"]:::auto --> B2["Régua classifica e monta a fila"]:::skill --> B3["Alerta no radar-de-despesas"]:::auto --> B4["Isa abre o relatório do dia"]:::pes --> B5["Segundo agente confere a lista de aprovar"]:::skill --> B6{"Isa escolhe"}:::pes
+B6 -->|aprovar| B7["Chrome controlado: lê o anexo e resume"]:::skill --> B8{"ok da Isa no item?"}:::pes
+B8 -->|ok| B9["Pagador Proprietário, pré-aprovar, aprovar"]:::skill
+B8 -->|não| B6
+B6 -->|auditar amostra| B10["Registra ok ou erro"]:::pes
+B6 -->|só acompanhar| B11["Vê o placar"]:::pes
+classDef auto fill:#dff1e5,stroke:#2f7d4a,color:#1b2127
+classDef skill fill:#e3ecfb,stroke:#3a63c4,color:#1b2127
+classDef pes fill:#fbefd5,stroke:#b07a12,color:#1b2127
+classDef gap fill:#fbe4e1,stroke:#b3362c,color:#1b2127,stroke-dasharray:5 3
+
+</pre></div>
+  <p class="sub">Rotina C · dia 10</p>
+  <div class="flow"><pre class="mermaid">
+flowchart TD
+C1["Dashboard atualiza sozinho"]:::auto --> C2["Isa confere o mês fechado"]:::pes
+classDef auto fill:#dff1e5,stroke:#2f7d4a,color:#1b2127
+classDef skill fill:#e3ecfb,stroke:#3a63c4,color:#1b2127
+classDef pes fill:#fbefd5,stroke:#b07a12,color:#1b2127
+classDef gap fill:#fbe4e1,stroke:#b3362c,color:#1b2127,stroke-dasharray:5 3
+
+</pre></div>
+  <h3>Rotina A · Despesas duplicadas · todo dia útil, 09h</h3>
+  <ol class="steps">
+    <li><span class="chip auto">automático</span><div><b>O radar roda sozinho.</b> Agendador de Tarefas do PC da Isa, às 09h, seg a sex sem feriado nacional. Roda a skill <code>despesas-duplicadas</code>.<small>Se o PC estiver desligado, nada roda. Para rodar à mão: <code>/operacao:despesas-duplicadas</code>.</small></div></li>
+    <li><span class="chip skill">skill</span><div><b>A skill busca dado novo no Sapron.</b> Despesas lançadas nos últimos 3 meses, status Aprovada, Pré-aprovada ou Pendente. Fora: categoria 1 (Gestão de contas) e contas recorrentes (condomínio, luz, água, internet, IPTU, gás).</div></li>
+    <li><span class="chip skill">skill</span><div><b>Agrupa o que parece a mesma despesa.</b> Mesmo imóvel, categoria e valor, com descritivo igual ou 85% parecido. Números e palavras como "parcela", "quarto", "suíte" separam despesas diferentes. Mesmo motivo em até 7 dias entra como "Conferir".</div></li>
+    <li><span class="chip auto">automático</span><div><b>Publica no #radar-de-despesas</b> (C0BBX73BXLH) com um dashboard HTML. Cada despesa aparece <b>uma vez só</b>.</div></li>
+    <li><span class="chip pes">Isa</span><div><b>Confere cada grupo no Sapron.</b> Nível Alta é quase certeza; Média pode ser retrabalho; Conferir pede julgamento. Duplicata confirmada: cancela no Sapron. Não é duplicata: deixa quieta.<small>A skill nunca cancela nada. Despesa legítima não é cancelada, por isso a regra de aparecer uma vez evita repetir todo dia.</small></div></li>
+  </ol>
+
+  <h3>Rotina B · Auditoria das despesas triadas pela IA · todo dia útil, 15h</h3>
+  <ol class="steps">
+    <li><span class="chip auto">automático</span><div><b>O ciclo do dia roda às 15h</b> pelo comando <code>scripts/rodar.cmd diario</code> da skill <code>auditoria-despesas-ia</code>. Ele puxa do Sapron as aprovadas pela IA em D-1 e as abertas (Pendente, Em análise sem triagem há mais de 24 h, Pré-aprovada), classifica pela régua e monta a fila.<small>Passos soltos, se precisar: <code>auditar.py puxar → preparar → classificar → juntar-pred → fila → relatorio</code>.</small></div></li>
+    <li><span class="chip auto">automático</span><div><b>Posta o alerta no #radar-de-despesas.</b> Só id, imóvel, valor, categoria e motivo. Nunca descritivo nem fornecedor. Se não sair a linha <code>ALERTA-PUBLICADO-OK</code>, o ciclo termina com erro.</div></li>
+    <li><span class="chip pes">Isa</span><div><b>Abre o relatório do dia</b> (<code>relatorios/AAAA-MM-DD.md</code>). Três listas: (1) corretas, para aprovar; (2) só o anexo decide; (3) a pendência procede. Mais a amostra do dia, até 20 itens.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Verificação independente antes de aprovar.</b> Um segundo agente (<code>auditor-despesas</code>) confere a lista (1), em lotes de até 4. O que volta como CONFERIR, AGUARDA_FRANQUIA ou FORA sai da lista de aprovação.</div></li>
+    <li><span class="chip pes">Isa</span><div><b>Escolhe: (a) aprovar, (b) auditar a amostra ou (c) só acompanhar.</b></div></li>
+    <li><span class="chip skill">skill</span><div><b>Aprovar, item a item, no Chrome controlado.</b> Abre e lê os anexos, resume o que viu e <b>espera o ok da Isa para aquele item</b> (id, imóvel, valor). Depois: pagador Proprietário → pré-aprovar → aprovar → registra <code>veredito ID=aprovada</code>.<small>Regra do pagador (28/10/2026, zero exceções em 3 meses): lançada pela franquia, pagador é o Proprietário. Sem anexo aberto, não aprova.</small></div></li>
+    <li><span class="chip pes">Isa</span><div><b>Audita a amostra.</b> Registra <code>veredito ID=ok</code> ou <code>ID=erro:motivo</code>. Erro confirmado: ela decide se cancela ou reprova no Sapron. Cada faixa precisa de 10 vereditos reais para a régua deixar de usar o histórico.</div></li>
+  </ol>
+
+  <h3>Rotina C · Dashboard Financeiro · dia 10, 09h</h3>
+  <ol class="steps">
+    <li><span class="chip auto">automático</span><div><b>Atualização mensal</b> no PC da Isa (<code>scripts/atualizar-auto.ps1</code>): baixa do Metabase, consolida, fecha o mês anterior e analisa. Última execução registrada: 13/10, ok.</div></li>
+    <li><span class="chip pes">Isa</span><div><b>Conferir que o mês anterior fechou</b> em franquias-financeiro.seazone.dev. Só a seção Taxa de Franquia atualiza sozinha; a seção Despesas depende do acesso ao Sapron e não atualiza.</div></li>
+  </ol>
+
+  <details class="ferr"><summary>Se der errado</summary><ul>
+    <li><b>Endpoint do Sapron dá CONNECT_TIMEOUT ou 403:</b> rodar a consulta pelo acesso <code>sapron</code> da sessão, salvar em arquivo e usar <code>auditar.py importar --amostra f.json --abertas g.json</code>.</li>
+    <li><b>Em análise sem linha da IA há menos de 24 h</b> não é "a IA não triou": esperar.</li>
+    <li><b>Dano e limpeza de proprietário</b> aparecem como "conferir", não bloqueiam. A regra dos R$ 300 vem de treinamento de 21/10/2026 e está a confirmar no MGO.</li>
+  </ul></details>
+
+  <div class="open"><h3>Decisões em aberto</h3><ol><li>As rotinas das 09h e das 15h e o dashboard do dia 10 rodam no PC da Isa. Elas saem para um servidor como parte do handover?</li></ol></div>
+
+  <div class="agent">
+    <h3>Dá para virar agente</h3>
+    <p><b>Auditor de despesas.</b> Une A e B em uma rodada fora do PC da Isa e entrega a fila pronta. A Isa só aprova. Gravar no Sapron continua com pessoa. O "Despesa prova o card" da manutenção já usa a mesma ideia.</p>
+  </div>
+</section>
+
+<!-- ═════════════ DISTRATO ═════════════ -->
+<section class="area tab" id="distrato" hidden>
+  <div class="area-head"><h2>Distrato de franquia</h2><span class="muted">macro v8 · subprocessos v5 · rascunho, ainda não validado pela Vivianny</span></div>
+  <p class="lead">Hoje o distrato roda no Pipefy (fases 10 e 11, Vivianny) e em duas planilhas da Isa ("Controle Pendências Migrações" e "RedistribuiçãoEnxoval"). O app novo tem meta de ir ao ar no fim de novembro. As regras novas valem só para distratos abertos a partir de 29/10/2026; os que já estão andando terminam na régua antiga.</p>
+
+  <h3>Antes de rodar</h3>
+  <p class="muted">Cada pessoa usa o próprio acesso. Chave nunca vai no chat nem no repositório.</p>
+  <ul class="pre"><li><b>Sapron (só leitura)</b>: hub de migrações e dados da franquia</li><li><b>vistoria-pro e enxoval</b>: conexões usadas no desenho do processo (vistoria.seazone.dev e Jornada de Enxoval)</li><li><b>Windows com Excel</b>: o script da redistribuição de enxoval usa o Excel do computador</li></ul>
+
+  <h3>Fluxograma</h3>
+  <p class="legend"><span class="chip auto">automático</span> <span class="chip skill">skill</span> <span class="chip pes">pessoa</span> <span class="muted">Losango = ponto de decisão ou de ok. Tracejado vermelho = lacuna.</span></p>
+  <div class="flow"><pre class="mermaid">
+flowchart TD
+P1["1 Identificação · Vivianny"]:::pes
+P1 --> P2["2 Comunicação · Vivianny, até o contato 9"]:::pes
+P1 --> P4["4 Pendências financeiras · Isa"]:::pes
+P1 -->|há imóveis| P3["3 Migração dos imóveis · Larissa"]:::pes
+P1 -->|há imóveis| P5["5 Redistribuição de enxoval"]:::skill
+P3 --> P5
+P4 --> M["Marco: formalização · Vivianny e Jurídico"]:::pes
+M -->|host com perfil de parceiro| P7["7 Conta nova de parceiro · Isa"]:::pes
+M --> L["Último repasse liquidado"]:::pes
+P7 --> P6
+L --> P6["6 Desativação do host · Isa via BU, sem imóvel ativo"]:::pes
+P3 --> P6
+P5 --> P6
+P6 -->|sim| F["Concluído"]:::auto
+P2 -.corre o distrato inteiro.-> F
+classDef auto fill:#dff1e5,stroke:#2f7d4a,color:#1b2127
+classDef skill fill:#e3ecfb,stroke:#3a63c4,color:#1b2127
+classDef pes fill:#fbefd5,stroke:#b07a12,color:#1b2127
+classDef gap fill:#fbe4e1,stroke:#b3362c,color:#1b2127,stroke-dasharray:5 3
+</pre></div>
+
+  <h3>Ordem dos subprocessos</h3>
+  <ol class="steps">
+    <li><span class="chip pes">Vivianny</span><div><b>1 · Identificação.</b> Entra pelo formulário do menu Distrato (pedido da franquia ou decisão da Seazone). Termina quando está identificado ou cancelado. Abre o 2, o 4 e, se houver imóveis, o 3 e o 5.</div></li>
+    <li><span class="chip pes">Vivianny</span><div><b>2 · Comunicação.</b> Contatos ao franqueado até o nº 9 (encerramento). Os 7 templates ainda não existem.</div></li>
+    <li><span class="chip pes">Larissa</span><div><b>3 · Migração dos imóveis.</b> Do identificado até o último imóvel com contagem final. Ainda será remapeado com a Larissa.</div></li>
+    <li><span class="chip pes">Isa</span><div><b>4 · Pendências financeiras.</b> Chamado de bloqueio do repasse ao Fechamento; documento de pendências; depois da formalização, "último repasse liquidado".</div></li>
+    <li><span class="chip skill">skill</span><div><b>5 · Redistribuição de enxoval.</b> Começa na primeira migração. É o único passo que já tem skill; detalhe abaixo.</div></li>
+    <li><span class="chip pes">Vivianny + Jurídico</span><div><b>Marco · Formalização.</b> Aviso prévio cumprido e documento de pendências fechado → PDF assinado ou unilateral registrado.</div></li>
+    <li><span class="chip pes">Isa</span><div><b>7 · Conta nova de parceiro.</b> Se o host tem perfil de parceiro. A BU cria e migra; Parcerias contrata.</div></li>
+    <li><span class="chip pes">Isa, via BU</span><div><b>6 · Desativação do host.</b> Só com formalizado, último repasse liquidado, 7 concluído e nenhum imóvel ativo.</div></li>
+  </ol>
+  <p class="muted">Os passos 3, 4 e 5 correm juntos durante o aviso prévio. O 4 e o 7 correm juntos depois da formalização. O 6 espera os dois.</p>
+
+  <h3>Passo 5 na prática · skill de redistribuição de enxoval</h3>
+  <ol class="steps">
+    <li><span class="chip pes">Isa</span><div><b>Prepara a planilha.</b> Uma linha por imóvel, com código do imóvel, franquia nova e uma coluna por item de enxoval. Positivo é falta, negativo é sobra, zero é correto. Se vier exportada do Google Sheets, a skill trata o formato.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Roda o script</b> em PowerShell (precisa de Windows com Excel): <code>redistribuir.ps1 -Folder "&lt;pasta da planilha&gt;"</code>. Acha sozinha o arquivo e a aba.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Redistribui item por item:</b> primeiro dentro da mesma franquia, depois entre franquias, e só então calcula a recompra. Nunca manda mais do que a origem tem nem mais do que o destino precisa.</div></li>
+    <li><span class="chip pes">Isa</span><div><b>Confere o resultado</b> em <code>redistribuicao_enxoval_resultado.xlsx</code> (mesma pasta). Itens marcados "Validar manualmente" e a aba Inconsistências pedem olho humano.</div></li>
+    <li><span class="chip pes">Isa</span><div><b>Lança a recompra orçada no subprocesso 4</b> e confirma a movimentação.</div></li>
+  </ol>
+
+  <details class="ferr" open><summary>O que ainda trava (da lista do projeto, 29/10/2026)</summary><ul>
+    <li><b>Pessoas:</b> validação da Vivianny (a da Rayanne saiu em 29/10); régua grave × comum e remapeamento do 3 com a Larissa; ideal da Jornada de Enxoval com Operação e Fornecedores; comissão na migração com o Caio Panissi; multas com a Qualidade; unilateral com o Jurídico.</li>
+    <li><b>Técnico:</b> repositório-alvo do app (provável jornada-das-franquias, da Larissa) e um ponto de segurança dele, tratado à parte com o time. Isso trava a F1.</li>
+    <li><b>Conteúdo:</b> 7 templates de comunicação e o pacote jurídico (Jurídico, prazo fim de novembro).</li>
+    <li><b>Dados a conferir:</b> 21 migrações por distrato sem stop no imóvel SSA-005-BRR e 5 stops de distrato ativos, um com 96 dias (na data da conferência, 20/10).</li>
+  </ul></details>
+
+  <div class="open"><h3>Decisões em aberto</h3><ol><li>O distrato entra agora no mapa de agente ou espera a validação da Vivianny e a F1, prevista para o fim de novembro?</li></ol></div>
+
+  <div class="agent">
+    <h3>Dá para virar agente</h3>
+    <p>Ainda não. O processo não foi validado. Ponto de partida: o documento <code>revisao-agentes-v2</code> do repositório, que separa cada atividade em "agente executa", "agente prepara" e "não executa". Até lá, só a redistribuição de enxoval é automatizável sem decisão.</p>
+  </div>
+</section>
+
+<!-- ═════════════ SCORE E STOP ═════════════ -->
+<section class="area tab" id="score" hidden>
+  <div class="area-head"><h2>Score e Stop de crescimento</h2><span class="muted">processos OPS 1 a 7 · publicação do Score no dia 15</span></div>
+  <p class="lead">Três partes em sequência: fechar e publicar o Score, o Stop que reage a ele e a reciclagem. O responsável pelo fechamento hoje é a Isa; a Rayanne valida.</p>
+
+  <h3>Antes de rodar</h3>
+  <p class="muted">Cada pessoa usa o próprio acesso. Chave nunca vai no chat nem no repositório.</p>
+  <ul class="pre"><li><b>Sapron e Nekt</b>: cards, manutenção, avaliações; conexões no Claude Code</li><li><b>Ocorrências da Qualidade</b>: conexão <code>ocorrencias-qualidade</code> (chave na URL, em <code>~/.claude.json</code>)</li><li><b>Google Sheets e Slack pelo Composio</b>: gravar nas planilhas. Se o Enhanced Control bloquear, quem é dono da conta desliga em <code>dashboard.composio.dev/~/org/connect/settings</code> só durante a gravação</li><li><b>Login no hub da Consultoria</b>: para baixar o CSV de visitas, em <code>consultoriaregional.seazone.dev</code></li><li><b>ScorePulse (<code>SCOREPULSE_API_KEY</code>)</b>: reciclagem e upload do CSV. <span class="pill warn">só na máquina da Isa</span></li><li><b>Stop de crescimento</b>: chave própria na aba Configurações do app; herda o papel de quem gerou (leitura não aplica)</li></ul>
+
+  <h3>Fluxograma</h3>
+  <p class="legend"><span class="chip auto">automático</span> <span class="chip skill">skill</span> <span class="chip pes">pessoa</span> <span class="muted">Losango = ponto de decisão ou de ok. Tracejado vermelho = lacuna.</span></p>
+  <p class="sub">Parte 1 · Fechar o Score, dia 10 ao 15</p>
+  <div class="flow"><pre class="mermaid">
+flowchart TD
+S1["Troca o mês em Score novo A2"]:::pes --> S2["Confere as bases"]:::skill
+S2 --> S3["Calcula cards, avaliações e manutenção"]:::skill
+S2 --> S4["Ocorrências: penalidades e nota de Implantação"]:::skill
+S5["Baixa o CSV de visitas do hub"]:::pes --> S6["Monta as 5 notas da Consultoria"]:::skill --> S7["Responsável audita as notas"]:::pes
+S3 --> S8{"Conferência ok?"}:::pes
+S4 --> S8
+S7 --> S8
+S8 -->|ok| S9["Grava nas planilhas e verifica"]:::skill
+S9 --> S10["Gera o CSV de ocorrências"]:::skill --> S11["Sobe no ScorePulse"]:::pes
+S9 --> S12["Presença com a Rosi, coluna Y"]:::pes
+S11 --> S13{"Rayanne valida"}:::pes
+S12 --> S13
+S13 -->|ok| S14["Grava na BD Score 4.0"]:::skill --> S15["Publica no dia 15"]:::pes
+S15 --> S16["Comunicação às franquias: sem ferramenta, a confirmar com o David"]:::gap
+classDef auto fill:#dff1e5,stroke:#2f7d4a,color:#1b2127
+classDef skill fill:#e3ecfb,stroke:#3a63c4,color:#1b2127
+classDef pes fill:#fbefd5,stroke:#b07a12,color:#1b2127
+classDef gap fill:#fbe4e1,stroke:#b3362c,color:#1b2127,stroke-dasharray:5 3
+
+</pre></div>
+  <p class="sub">Parte 2 · Stop de crescimento</p>
+  <div class="flow"><pre class="mermaid">
+flowchart LR
+T1["Rodada das 9h"]:::auto --> T2["Aplica stop pela classificação do Score"]:::auto --> T3["Avisa e pergunta se continua"]:::auto
+T4["Dia 16: sugestão por crescimento"]:::auto --> T5["Gerência de BackOffice decide"]:::pes
+T6["Stop acima de 90 dias"]:::auto --> T7["Cobra até alguém decidir"]:::auto
+classDef auto fill:#dff1e5,stroke:#2f7d4a,color:#1b2127
+classDef skill fill:#e3ecfb,stroke:#3a63c4,color:#1b2127
+classDef pes fill:#fbefd5,stroke:#b07a12,color:#1b2127
+classDef gap fill:#fbe4e1,stroke:#b3362c,color:#1b2127,stroke-dasharray:5 3
+
+</pre></div>
+  <p class="sub">Parte 3 · Reciclagem</p>
+  <div class="flow"><pre class="mermaid">
+flowchart TD
+R1["Coleta do ScorePulse"]:::skill --> R2["Confere período e total de franquias"]:::pes --> R3["Narrativa e HTML"]:::skill
+classDef auto fill:#dff1e5,stroke:#2f7d4a,color:#1b2127
+classDef skill fill:#e3ecfb,stroke:#3a63c4,color:#1b2127
+classDef pes fill:#fbefd5,stroke:#b07a12,color:#1b2127
+classDef gap fill:#fbe4e1,stroke:#b3362c,color:#1b2127,stroke-dasharray:5 3
+
+</pre></div>
+  <h3>Parte 1 · Fechar o Score do mês anterior · do dia 10 ao dia 15</h3>
+  <p class="muted">Skill <code>operacao:fechar-score</code>. Antes de tudo ela lê <code>references/planilhas.md</code> (mapa das duas planilhas). Franquia é sempre achada pelo <b>nome</b> do Indicadores Score.</p>
+  <ol class="steps">
+    <li><span class="chip pes">responsável</span><div><b>Troca o mês de referência</b> em <code>Score novo!A2</code>. A skill não mexe nisso: ela confere, e para se A2 não for o 1º dia do mês a fechar.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Confere as bases</b> (só leitura): BD Avaliações das duas planilhas (mês fechado e os 2 anteriores inteiros), Histórico de avaliações, penalidades, danos fora do prazo, despesas e indicações. Entrega uma tabela e diz <b>o que impede de fechar</b>.<small>"Danos fora do prazo" é sobrescrita pela Nekt à tarde: conferir de manhã. Se vier 0 para todos à tarde, é a sobrescrita, não a fórmula.</small></div></li>
+    <li><span class="chip skill">skill</span><div><b>Calcula cards de check-in e checkout</b> (skill <code>cards-checkin-checkout</code>, fórmula 2, sem tolerância de D+1). Sem reserva = 100%.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Calcula avaliações por checkout</b> (skill <code>avaliacoes-por-reserva</code>). Rodar o mais tarde possível, no dia 14, e dizer no comunicado que o número pode subir um pouco. Sem checkout = 100%.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Calcula resolução de manutenções</b> com <code>references/manutencao.sql</code> no Sapron. Antes, roda a consulta de conferência do fim do arquivo: se aparecer origem nova que fecha em massa com 0 dia, perguntar ao responsável antes de seguir. A preventiva automática sem evidência sai da média.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Ocorrências da Qualidade</b> (acesso <code>ocorrencias-qualidade</code>): conta só <code>status_etapa = ocorrencia-com-pontuacao</code> do mês de aplicação. Grava uma linha por ocorrência na aba <code>penalidades franquias</code> e a nota "Tempo médio de resposta (SLA)" da Implantação, que é <code>5 − nº de ocorrências de categoria Implantação</code> (mínimo 0).<small>Chamado repetido entre meses não pode ser cobrado duas vezes: não grava e avisa. Franquia do app que não está no Indicadores: não grava, avisa o responsável e a Victória Magri (Slack U07A3PPEWKG).</small></div></li>
+    <li><span class="chip pes">responsável</span><div><b>Baixa o CSV de notas de visita</b> do hub da Consultoria, logado: <code>https://consultoriaregional.seazone.dev/api/consultoria/encaminhamentos/relatorio-score?mes=AAAA-MM</code>. A skill não consegue baixar sozinha.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Monta as 5 notas da Consultoria</b> com <code>notas_consultoria.py</code>: visitada no mês usa a nota da visita; não visitada repete o mês anterior do Histórico; franquia nova leva 5. Grava na aba <code>Notas consultoria &lt;mês&gt;</code> e <b>para</b>.</div></li>
+    <li><span class="chip pes">responsável</span><div><b>Audita as notas da Consultoria</b> direto na aba. Depois do ok, a skill relê a aba (nunca regrava por cima) e gera as linhas do Histórico.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Monta a gravação e mostra a conferência:</b> médias da rede dos três critérios, notas de manutenção, franquias com cards abaixo de 80%, maiores mudanças contra o mês anterior. <b>Só grava com ok explícito.</b></div></li>
+    <li><span class="chip skill">skill</span><div><b>Grava nas planilhas</b> pelo Composio, uma chamada por planilha, e lê de volta. Guarda antes os valores atuais de R:T, V:X e da BD Manutenção.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Verifica:</b> critérios gravados batem para todas as franquias; toda coluna com fórmula na linha de cima e sem fórmula na linha nova (aconteceu em set/2026); procura <code>#REF!</code> silencioso, porque as fórmulas escondem erro em zero.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Gera o CSV de ocorrências</b> para o ScorePulse (<code>csv_upload_ocorrencias.py</code>) e compara a assinatura com a aba de penalidades. Se não bater, não entrega.</div></li>
+    <li><span class="chip pes">responsável</span><div><b>Sobe o CSV</b> em <code>https://scorepulse.seazone.com.br/configuracoes</code>. A skill não faz o upload.</div></li>
+    <li><span class="chip pes">responsável + Rosi</span><div><b>Nota de presença nos treinamentos</b> (coluna Y da Score novo). Pede à Rosi Silvestre quem faltou e quantos treinamentos houve. Dois treinamentos: 0 falta = 5, 1 falta = 3, 2 faltas = 0. Um treinamento: presente = 5, ausente = 0.</div></li>
+    <li><span class="chip pes">Rayanne</span><div><b>Valida o Score do mês.</b> Sem o ok explícito dela, nada é gravado na BD Score 4.0.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Grava o mês na BD Score 4.0</b> (aba BD Meses) com <code>montar_bd_meses.py</code>. O script para se o mês já existir ou se os cabeçalhos não baterem. Relê e confere; a coluna A tem de aparecer como <code>01/MM/AA</code>.</div></li>
+    <li><span class="chip pes">responsável</span><div><b>Publica no dia 15</b> e religa o Enhanced Control do Composio, se foi desligado. <span class="pill bad">Comunicação às franquias: sem ferramenta, confirmar com o David</span></div></li>
+  </ol>
+  <p class="muted">Pontos que a skill não faz: Realocações (N) e Comunicação assertiva no suporte (P) são lançadas por outro time; ela só confere se chegaram.</p>
+
+  <h3>Parte 2 · Stop de crescimento</h3>
+  <p class="muted">App stopdecrescimento.seazone.properties (Coolify, Supabase) · processo v2 validado em 17/09/2026. Dois tipos: <b>total</b> (não recebe imóvel) e <b>exceto mesmo prédio</b>. Em conflito, o total prevalece.</p>
+  <ol class="steps">
+    <li><span class="chip auto">automático</span><div><b>A rodada das 9h aplica stop pela classificação do Score:</b> Ruim ou Péssimo vira total; Regular por três meses seguidos vira exceto mesmo prédio. Fora: franquia em Integração ou com menos de 6 imóveis.</div></li>
+    <li><span class="chip auto">automático</span><div><b>Avisa no #avisos-operação</b> e pergunta a quem pediu se o stop continua.</div></li>
+    <li><span class="chip auto">automático</span><div><b>Sugestão por crescimento</b> (todo dia 16): franquia com 40 imóveis ou mais que ganhou, em 30 dias, 5 imóveis ou mais acima da média das 11 janelas anteriores. Chega à Gerência de BackOffice com tamanho, salto, parcela de transferência, score e se deixa uma região sem ninguém.</div></li>
+    <li><span class="chip pes">Gerência de BackOffice</span><div><b>Decide.</b> A rodada sugere, não aplica. Aplicar e remover pelo app, ou pelo acesso <code>stop-crescimento</code> (<code>aplicar_stop</code>, <code>remover_stop</code>) com chave de gerência.</div></li>
+    <li><span class="chip auto">automático</span><div><b>Stop com mais de 90 dias exige decisão.</b> A 1ª cobrança vai à gerência do motivo, a 2ª cruza para a outra, e da 3ª em diante as duas são cobradas toda semana.</div></li>
+    <li><span class="chip auto">automático</span><div><b>Segunda, 9h:</b> <code>bot-sem-receber-imoveis</code> avisa franquias aptas sem imóvel novo há N dias.</div></li>
+  </ol>
+  <p class="muted">Stop por manutenção em aberto (acima de 0,30 por imóvel, piso de 10 imóveis) está desenhado e <b>desligado</b>. Stops por distrato e grande operação são permanentes e ficam fora da revisão mensal.</p>
+
+  <h3>Parte 3 · Reciclagem de franquias · dia útil depois do fechamento</h3>
+  <ol class="steps">
+    <li><span class="chip skill">skill</span><div><b>Coleta do ScorePulse.</b> <code>fetch_scores.py --out /tmp/reciclagem_dados.json</code>. Pagina todos os scores e calcula tendência e reincidência pelo histórico inteiro. Precisa de <code>SCOREPULSE_API_KEY</code>.</div></li>
+    <li><span class="chip pes">quem roda</span><div><b>Confere:</b> o período é o mês esperado e há cerca de 100 franquias ou mais no mês. Se vier perto de 70, a paginação falhou.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Escreve a narrativa</b> (grupos Principal e Preventivo, turma de até 10) e recalcula as médias a partir das linhas que aparecem na tela. Todo número do texto tem de bater com uma tabela da página.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Monta o HTML</b> a partir do template, só trocando dados, em <code>Desktop/reciclagem-franquias/reciclagem-&lt;mês&gt;-&lt;ano&gt;.html</code>, e valida em largura de computador e de celular.</div></li>
+    <li><span class="chip pes">quem roda</span><div><b>Google Doc e Slack só se pedirem.</b> Doc na pasta "Reciclagem de franquias"; o move às vezes falha por tempo esgotado, então mover à mão.</div></li>
+  </ol>
+
+  <div class="open"><h3>Decisões em aberto</h3><ol><li><b>Comunicação do Score:</b> não achei ferramenta. Como é feita hoje? Perguntar ao David.</li><li><b>Hora do Stop:</b> o README do app diz "dia seguinte à publicação" e o processo v2 diz "todo dia 16". Qual vale?</li><li><b>Chave do ScorePulse:</b> como o Vini gera a dele?</li></ol></div>
+
+  <div class="agent">
+    <h3>Dá para virar agente</h3>
+    <p><b>Fechamento do Score:</b> a skill já é quase um agente. Falta rodar sozinha a partir do dia 10, avisar o que trava e subir o CSV. Ficam com pessoa: auditoria da Consultoria, ok da Rayanne, presença.</p>
+    <p><b>Reciclagem e comunicação:</b> encadear depois do fechamento e entregar lista e texto prontos.</p>
+  </div>
+</section>
+
+<!-- ═════════════ TAXA DE LIMPEZA ═════════════ -->
+<section class="area tab" id="taxa" hidden>
+  <div class="area-head"><h2>Taxa de limpeza</h2><span class="muted">processos ADM 2.2, 2.5, 2.6, 6.1 e 9.1 · quem decide: gente</span></div>
+  <p class="lead">Quatro rotinas, todas sob pedido. A skill dá o parecer e o texto; quem decide e quem grava é pessoa.</p>
+
+  <h3>Antes de rodar</h3>
+  <p class="muted">Cada pessoa usa o próprio acesso. Chave nunca vai no chat nem no repositório.</p>
+  <ul class="pre"><li><b>Sapron e Nekt</b>: cadastro, histórico e ocupação</li><li><b>Chave da calculadora</b>: no app: engrenagem → Integração MCP → "Sua chave"; aparece uma vez e gerar outra revoga a anterior. <span class="pill warn">só na máquina da Isa</span></li><li><b>Stays (<code>STAYS_LOGIN</code> e <code>STAYS_SENHA</code>)</b>: variáveis de ambiente do próprio usuário, com permissão de escrita</li><li><b>Node 20+ e <code>gh</code></b>: <code>gh</code> autenticado em conta com acesso ao repo privado <code>calculadora-taxa-limpeza-2026-revisada</code></li></ul>
+
+  <h3>Fluxograma</h3>
+  <p class="legend"><span class="chip auto">automático</span> <span class="chip skill">skill</span> <span class="chip pes">pessoa</span> <span class="muted">Losango = ponto de decisão ou de ok. Tracejado vermelho = lacuna.</span></p>
+  <p class="sub">Rotina A · pedido de mudança de taxa</p>
+  <div class="flow"><pre class="mermaid">
+flowchart TD
+A1["Pedido: imóvel, valor e quem pediu"]:::pes --> A2["Régua da calculadora"]:::skill --> A3["Ocupação de 90 dias na Nekt"]:::skill --> A4["Matriz de decisão e parecer com números"]:::skill --> A5{"Isa decide"}:::pes
+A5 -->|reprova ou não reduz| A6["Responde com o custo aberto"]:::pes
+A5 -->|aprova| B1
+classDef auto fill:#dff1e5,stroke:#2f7d4a,color:#1b2127
+classDef skill fill:#e3ecfb,stroke:#3a63c4,color:#1b2127
+classDef pes fill:#fbefd5,stroke:#b07a12,color:#1b2127
+classDef gap fill:#fbe4e1,stroke:#b3362c,color:#1b2127,stroke-dasharray:5 3
+
+</pre></div>
+  <p class="sub">Rotina B · gravar na Stays</p>
+  <div class="flow"><pre class="mermaid">
+flowchart TD
+B1["Lista CÓDIGO VALOR"]:::pes --> B2["Planeja, só lê"]:::skill --> B3{"Tabela ok?"}:::pes
+B3 -->|ok| B4["Aplica e relê campo a campo"]:::skill --> B5["Sapron mostra depois do próximo sync"]:::auto
+B4 -.erro ou arrependimento.-> B6["Reverter: nova rodada com os valores de antes"]:::skill
+classDef auto fill:#dff1e5,stroke:#2f7d4a,color:#1b2127
+classDef skill fill:#e3ecfb,stroke:#3a63c4,color:#1b2127
+classDef pes fill:#fbefd5,stroke:#b07a12,color:#1b2127
+classDef gap fill:#fbe4e1,stroke:#b3362c,color:#1b2127,stroke-dasharray:5 3
+
+</pre></div>
+  <p class="sub">Rotina C · avisos de cadastro</p>
+  <div class="flow"><pre class="mermaid">
+flowchart TD
+C1["Baixa a base inteira"]:::skill --> C2["Gera o texto de pedido"]:::skill --> C3["Isa tira o que o app já dispensou"]:::pes --> C4["Copia no app os 5 blocos da Stays"]:::pes --> C5["Envia à Implantação"]:::pes
+classDef auto fill:#dff1e5,stroke:#2f7d4a,color:#1b2127
+classDef skill fill:#e3ecfb,stroke:#3a63c4,color:#1b2127
+classDef pes fill:#fbefd5,stroke:#b07a12,color:#1b2127
+classDef gap fill:#fbe4e1,stroke:#b3362c,color:#1b2127,stroke-dasharray:5 3
+
+</pre></div>
+  <h3>Rotina A · Pedido de mudança de taxa de um imóvel</h3>
+  <p class="muted">Skill <code>operacao:analise-taxa-limpeza</code>, modo A. Uma vez por máquina: Node 20+, <code>gh</code> com acesso ao repo da calculadora, chave da calculadora em <code>chave.txt</code> (primeira linha) e Nekt conectada.</p>
+  <ol class="steps">
+    <li><span class="chip pes">quem pede</span><div><b>Entrada:</b> código do imóvel (ex. SGA0815), valor pedido (opcional) e <b>quem pediu</b>: franquia, proprietário, RM ou Operação. Numa redução, quem pediu muda a resposta.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Passo 1 · Régua da calculadora.</b> <code>node scripts/regua.js --code SGA0815</code>. Devolve taxa atual, taxa que deveria cobrar, custo aberto, mercado da praça e avisos. Confira o campo <code>fonte_base</code>: se vier <code>build</code>, a base pode estar defasada e o parecer precisa dizer isso.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Passo 2 · Ocupação na Nekt.</b> <code>scripts/ocupacao.sql</code> com o código. Decide a janela dos últimos 90 dias. Imóvel em Onboarding ou com menos de 30 noites de histórico: decidir só pela régua e dizer.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Passo 3 · Decide pela matriz.</b> Gestão digital: taxa certa é R$ 0. <b>Aumento:</b> ocupação abaixo de 50% = reprovado; 50% ou mais e pedido até a taxa devida = aprovado; acima dela = reprovado com contraproposta. <b>Redução pedida pela franquia:</b> aprovado, e pede para registrar exceção. <b>Redução pedida pelo proprietário:</b> taxa já na régua ou abaixo = não reduzir; acima da régua com risco de distrato e ocupação abaixo de 50% = encaminhar à franquia.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Passo 4 · Texto do parecer</b> com números. Se a diferença for de R$ 5 ou menos, dizer que está no fio da navalha.</div></li>
+    <li><span class="chip pes">Isa</span><div><b>Decide e responde.</b> A skill não altera o Sapron.</div></li>
+  </ol>
+  <p class="muted">Modo B: a franquia contesta com planilha de custos de vários imóveis, e a skill compara linha a linha. Modo C: exceção para casa ou cobertura grande, com a gestão já autorizando; fluxo em <code>references/excecao_imovel.md</code>.</p>
+
+  <h3>Rotina B · Gravar a taxa nova na Stays</h3>
+  <p class="muted">Skill <code>operacao:ajuste-taxa-stays</code>. Precisa de <code>STAYS_LOGIN</code> e <code>STAYS_SENHA</code> com permissão de escrita.</p>
+  <ol class="steps">
+    <li><span class="chip pes">quem roda</span><div><b>Entrada:</b> uma linha por imóvel, <code>CÓDIGO VALOR</code>. Se vier planilha, usar só as colunas de código e de valor novo. Ignorar qualquer coluna "taxa de hoje": em 17/09 ela estava velha em 44 de 113 imóveis.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Planeja (só lê):</b> <code>python ajuste_taxa.py planejar &lt;arquivo&gt;</code>. Acha o anúncio, lê a taxa viva e imprime a tabela inteira.</div></li>
+    <li><span class="chip pes">quem roda</span><div><b>Dá o ok para aquela tabela.</b> Confirmar cada redução com quem pediu; olhar valor fora de 30 a 1500 e anúncio inativo; informar o motivo (ex. "Calculadora 2026, lote 29/10"). Ok de outra rodada não vale.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Aplica:</b> <code>python ajuste_taxa.py aplicar "&lt;rodada&gt;" --confirmar --motivo "&lt;motivo&gt;"</code>. Para cada imóvel: relê, grava só a taxa de limpeza, relê e compara campo a campo. Qualquer diferença para a execução e o original fica no backup.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Relata:</b> contagem por resultado, o que não deu certo e o caminho do registro. Sempre avisar que o Sapron só mostra o valor novo depois do próximo sync com a Stays, e que a chegada nas OTAs não foi confirmada.</div></li>
+    <li><span class="chip skill">skill</span><div><b>Reverter, se preciso:</b> <code>python ajuste_taxa.py reverter "&lt;rodada&gt;"</code> gera a lista com os valores de antes, que entra num novo planejar, ok e aplicar.</div></li>
+  </ol>
+
+  <h3>Rotina C · Avisos de cadastro da calculadora → pedido para a Implantação</h3>
+  <p class="muted">Skill <code>franquias:warnings-calculadora</code>. O texto vai para a Implantação <b>pela mão da Isa</b>; a skill só prepara.</p>
+  <ol class="steps">
+    <li><span class="chip skill">skill</span><div><b>Baixa a base inteira:</b> <code>warnings_calculadora.py baixar</code> (cerca de 4.300 imóveis em 29/10). A base inteira é obrigatória, porque "Região destoa" compara com os irmãos da franquia em qualquer status.<small>Erro 401: a chave foi trocada, regravar <code>chave.txt</code>. Erro 403: testar a API pelo manifesto.</small></div></li>
+    <li><span class="chip skill">skill</span><div><b>Gera o texto</b> no formato do app: <code>warnings_calculadora.py gerar --saida &lt;arquivo&gt;</code>, geral ou <code>--franquia &lt;código&gt;</code>.</div></li>
+    <li><span class="chip pes">Isa</span><div><b>Compara com as dispensas do app.</b> O acesso não mostra o que ela já dispensou; o que lá está dispensado sai do texto.</div></li>
+    <li><span class="chip pes">Isa</span><div><b>Copia no app os 5 blocos que dependem da Stays</b> (capacidade, lavabo, banheiro, tipo, sem anúncio): aba Warnings → "copiar pedido". Células "ver no app" também vêm de lá.</div></li>
+    <li><span class="chip pes">Isa</span><div><b>Apaga o aviso interno do topo e envia</b> à Implantação.</div></li>
+  </ol>
+
+  <h3>Rotina D · Base de custo e histórico</h3>
+  <ol class="steps">
+    <li><span class="chip auto">automático</span><div><b>semente-lavanderias</b> (GitHub Actions da calculadora) mantém o custo de lavanderia atualizado. Dono: Weslley com a Isa. <span class="pill warn">frequência a confirmar</span></div></li>
+    <li><span class="chip skill">skill</span><div><b>Taxa antes e depois:</b> <code>operacao:taxa-limpeza-antes</code> lê o histórico de cadastro do Sapron. Se a troca não deixou registro, ela diz que não dá para saber quando. O sync da Stays desfaz a automação da vistoria.</div></li>
+  </ol>
+
+  <details class="ferr"><summary>Skills que se sobrepõem</summary><ul>
+    <li><code>franquias:taxa-limpeza</code> (painel) e <code>operacao:analise-taxa-limpeza</code> (parecer) fazem quase a mesma coisa. <code>comparacao-taxas-divergentes</code> é de uso pontual. Vale decidir qual fica antes de montar agente.</li>
+  </ul></details>
+
+  <div class="open"><h3>Decisões em aberto</h3><ol><li><b>Skills que se repetem:</b> qual fica, <code>taxa-limpeza</code> ou <code>analise-taxa-limpeza</code>?</li><li><b>semente-lavanderias:</b> com que frequência roda? Confirmar com o Weslley.</li><li><b>Chave da calculadora:</b> como o Vini gera a dele?</li></ol></div>
+
+  <div class="agent">
+    <h3>Dá para virar agente</h3>
+    <p><b>Pedido de taxa ponta a ponta:</b> entra o pedido, sai o parecer com a régua, o texto de resposta e, depois do ok, a planilha de ajuste para a Stays. A gravação continua só com ok, como já é.</p>
+  </div>
+</section>
+
+<section class="area tab" id="outros" hidden>
+  <div class="area-head"><h2>Outros processos</h2><span class="muted">o que está no inventário do Backoffice e fora das quatro abas</span></div>
+  <p class="lead">Abra a categoria para ver as ferramentas. Aqui não há passo a passo: é o que cada uma faz, quem cuida, em que pé está e como usar. Fonte: inventário de automações, lido em 30/10/2026.</p>
+  <details class="cat"><summary><b>Danos</b> <span class="muted">Fabi · 16 ferramentas · processos Danos 2 a 12 e KPIs de Danos</span></summary><div class="tbl"><table><thead><tr><th>Ferramenta</th><th>Tipo</th><th>O que faz</th><th>Situação</th><th>Como usar</th></tr></thead><tbody>
+    <tr><td>AirCover Autofill</td><td>extensão</td><td>Preenche o pedido no AirCover (15 para 4 min por pedido).</td><td><span class="pill ok">ativo</span></td><td>Chrome das analistas</td></tr>
+    <tr><td>Extensão Acionar Airbnb</td><td>extensão</td><td>Escala o dano ao Airbnb em até 24h depois da recusa.</td><td><span class="pill ok">ativo</span> v0.16.2</td><td>Chrome das analistas</td></tr>
+    <tr><td><code>operacao:cobrar-dano-newbyte</code></td><td>skill</td><td>Cobra o hóspede nas reservas que não são do Airbnb.</td><td><span class="pill ok">ativo</span></td><td><code>/operacao:cobrar-dano-newbyte</code></td></tr>
+    <tr><td>Extensão Finalizar Dano</td><td>extensão</td><td>Finaliza o dano depois do pagamento.</td><td><span class="pill ok">ativo</span></td><td>Chrome das analistas</td></tr>
+    <tr><td><code>operacao:sinistro-easycover</code></td><td>skill</td><td>Abre o sinistro no portal da NOW, com anexos.</td><td><span class="pill ok">ativo</span></td><td><code>/operacao:sinistro-easycover</code></td></tr>
+    <tr><td><code>operacao:cobertura-desastre-natural</code></td><td>skill</td><td>Cobre EasyCover, AirCover, RC de Anfitriões Airbnb, RC de Parceiros Booking e Assistência 24h.</td><td><span class="pill ok">ativo</span></td><td><code>/operacao:cobertura-desastre-natural</code></td></tr>
+    <tr><td>Cobrança Judicial de Danos</td><td>agente (Olimpo)</td><td>Posta o card às 18h no canal do Jurídico.</td><td><span class="pill ok">ativo</span> roda em lab, não em prd</td><td>Canal do Jurídico no Slack</td></tr>
+    <tr><td>Assistente Extrajudicial de Danos</td><td>agente (Olimpo)</td><td>Etapa 1, "Analisar tratativa", no canal real desde 14/10. Finalizar pelo Slack depende de ação nova do Sapron.</td><td><span class="pill warn">atenção · em desenvolvimento</span></td><td>Canal no Slack</td></tr>
+    <tr><td>Extensão Contador de Etapa</td><td>extensão</td><td>Mostra há quanto tempo cada card está na etapa: verde até 24h, amarelo 24 a 48h, vermelho acima de 48h.</td><td><span class="pill ok">ativo</span></td><td>Kanban de danos do Sapron</td></tr>
+    <tr><td><code>operacao:revisar-danos-solicitacao</code></td><td>skill</td><td>Confere evidências, orçamento e teto de 70% da limpeza extra, e ordena do mais crítico ao mais redondo. Só leitura.</td><td><span class="pill warn">atenção · em teste</span></td><td><code>/operacao:revisar-danos-solicitacao</code></td></tr>
+    <tr><td><code>operacao:atualizar-danos-abertos</code></td><td>skill</td><td>Atualiza a planilha "Danos em Aberto acima de R$ 1.000".</td><td><span class="pill ok">ativo</span></td><td><code>/operacao:atualizar-danos-abertos</code></td></tr>
+    <tr><td><code>operacao:video-sem-audio</code></td><td>skill</td><td>Tira o áudio dos vídeos das franquias e divide em partes de até 58 s (o Airbnb só aceita vídeo menor que 60 s).</td><td><span class="pill ok">ativo</span></td><td><code>/operacao:video-sem-audio</code></td></tr>
+    <tr><td><code>operacao:danos-ponta-a-ponta</code></td><td>skill</td><td>Painel do dia: cada card aberto com fase, prazo e a skill que resolve. Criada em 29/10.</td><td><span class="pill ok">ativo</span></td><td><code>/operacao:danos-ponta-a-ponta</code></td></tr>
+    <tr><td><code>operacao:contestar-dano-airbnb</code></td><td>skill</td><td>Abre o pedido no AirCover. A Fabi usa a extensão em paralelo.</td><td><span class="pill ok">ativo</span></td><td><code>/operacao:contestar-dano-airbnb</code></td></tr>
+    <tr><td><code>operacao:suportes-danos-franquias</code></td><td>skill</td><td>Fila de suportes de Danos no Suporte Unificado. Só rascunha, nunca responde.</td><td><span class="pill ok">ativo</span></td><td><code>/operacao:suportes-danos-franquias</code></td></tr>
+    <tr><td><code>operacao:hub-servicos-danos</code></td><td>skill</td><td>Levanta os fornecedores usados nos danos a partir de orçamentos e notas do Sapron.</td><td><span class="pill ok">ativo</span></td><td><code>/operacao:hub-servicos-danos</code></td></tr>
+  </tbody></table></div></details>
+  <details class="cat"><summary><b>Jurídico e comissão</b> <span class="muted">Isa · 4 ferramentas</span></summary><div class="tbl"><table><thead><tr><th>Ferramenta</th><th>Tipo</th><th>O que faz</th><th>Situação</th><th>Como usar</th></tr></thead><tbody>
+    <tr><td>Assistente Jurídico das Franquias</td><td>app</td><td>Responde dúvida jurídica sem abrir chamado.</td><td><span class="pill warn">atenção · login pendente desde 17/08</span></td><td>suporte-juridico-franquias.seazone.properties</td></tr>
+    <tr><td>sync-mgo</td><td>GitHub Actions</td><td>Sincroniza o MGO com o Assistente Jurídico.</td><td><span class="pill bad">quebrado · 5 falhas seguidas desde 14/09; falta o secret JURIDICO_SYNC_URL</span></td><td>Página do Actions do repo assistente-juridico-franquias</td></tr>
+    <tr><td>Lembrete de objeções jurídicas</td><td>agente (Olimpo)</td><td>Lembra de validar o catálogo de objeções.</td><td><span class="pill warn">atenção · ainda não houve o disparo trimestral</span></td><td>Canal no Slack</td></tr>
+    <tr><td><code>geral:auditoria-comissao-franquias</code></td><td>skill</td><td>Audita a comissão do host na base toda, com a régua de % por versão de contrato.</td><td><span class="pill ok">ativo</span></td><td><code>/geral:auditoria-comissao-franquias</code></td></tr>
+  </tbody></table></div></details>
+  <details class="cat"><summary><b>UTI</b> <span class="muted">Carol (dona) · Isa (opera) · 1 ferramenta</span></summary><div class="tbl"><table><thead><tr><th>Ferramenta</th><th>Tipo</th><th>O que faz</th><th>Situação</th><th>Como usar</th></tr></thead><tbody>
+    <tr><td>Central da UTI e robô Derek</td><td>app</td><td>Trata os imóveis críticos no prazo (processos UTI 1 a 7).</td><td><span class="pill warn">atenção · só existe em staging; o robô não tem verificação</span></td><td>central-uti-stg.seazone.properties</td></tr>
+  </tbody></table></div></details>
+  <details class="cat"><summary><b>KPIs e rotinas de gestão</b> <span class="muted">Isa · 4 ferramentas</span></summary><div class="tbl"><table><thead><tr><th>Ferramenta</th><th>Tipo</th><th>O que faz</th><th>Situação</th><th>Como usar</th></tr></thead><tbody>
+    <tr><td><code>operacao:kpis-adm-fin-franquias</code></td><td>skill</td><td>Lança os KPIs diários dos setores 2, 42 e 43 até as 10h. Substituiu a versão local do David.</td><td><span class="pill ok">ativo</span></td><td><code>/operacao:kpis-adm-fin-franquias</code></td></tr>
+    <tr><td><code>franquias:kpis-franquias</code></td><td>skill</td><td>Mesma função da anterior, em outra versão.</td><td><span class="pill warn">decidir qual fica</span></td><td><code>/franquias:kpis-franquias</code></td></tr>
+    <tr><td><code>operacao:monthly-franquias-adm-fin</code></td><td>skill</td><td>Monthly comentada na 1ª semana do mês. Nova versão da monthly local do David.</td><td><span class="pill ok">ativo</span></td><td><code>/operacao:monthly-franquias-adm-fin</code></td></tr>
+    <tr><td><code>franquias:heartbeat-adm-fin</code></td><td>skill</td><td>Monta o heartbeat de Adm/Fin de quinta, a partir do Slack, do Suporte Unificado e do radar de despesas.</td><td><span class="pill ok">ativo</span></td><td><code>/franquias:heartbeat-adm-fin</code></td></tr>
+  </tbody></table></div></details>
+  <details class="cat"><summary><b>Plataformas e conexões</b> <span class="muted">David e diversos · 3 itens</span></summary><div class="tbl"><table><thead><tr><th>Ferramenta</th><th>Tipo</th><th>O que faz</th><th>Situação</th><th>Como usar</th></tr></thead><tbody>
+    <tr><td>plataforma-processos</td><td>app (Next.js + Supabase)</td><td>Governança de processos do BackOffice: 9 módulos, 40 tabelas. O handoff da Rayanne ao David é de 19/10: rotacionar chaves expostas, pedir URL corporativa e fazer o primeiro deploy.</td><td><span class="pill warn">conferir se o deploy já foi feito</span></td><td>Repo <code>seazone-tech/plataforma-processos</code>, arquivo <code>docs/HANDOFF_DAVID.md</code></td></tr>
+    <tr><td>Inventário de automações</td><td>repositório</td><td>Fonte da verdade de tudo que é automatizado no Backoffice. Mudança entra por pull request e o Alfred precisa passar.</td><td><span class="pill ok">ativo</span></td><td>Repo <code>seazone-tech/inventario-automacoes-backoffice</code>; pedir "verifica minhas automações"</td></tr>
+    <tr><td>MCPs da área</td><td>conexões</td><td>Conexões do Claude com os sistemas (Hub MCP no ai-portal).</td><td><span class="pill warn">atenção · sia-chats com erro 401 desde 15/10</span></td><td>ai-portal → MCPs → Hub MCP</td></tr>
+  </tbody></table></div></details>
+</section>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>
+(function(){
+  var ids=["geral","despesas","distrato","score","taxa","outros"];
+  var ok=typeof mermaid!=="undefined";
+  if(ok) mermaid.initialize({startOnLoad:false,theme:"base",securityLevel:"loose",flowchart:{useMaxWidth:true,htmlLabels:true,curve:"basis"},themeVariables:{fontFamily:"Literata, Georgia, serif",fontSize:"14px",lineColor:"#5b6670"}});
+  function draw(){
+    if(!ok) return;
+    var n=[].filter.call(document.querySelectorAll("pre.mermaid"),function(el){return !el.closest("[hidden]")&&!el.dataset.processed});
+    if(n.length) mermaid.run({nodes:n}).catch(function(){});
+  }
+  function show(){
+    var t=(location.hash||"").slice(1); if(ids.indexOf(t)<0) t="geral";
+    document.querySelectorAll(".tab").forEach(function(el){ el.hidden=(el.dataset.group||el.id)!==t; });
+    document.querySelectorAll(".tabs a").forEach(function(a){
+      if(a.dataset.t===t) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");
+    });
+    draw();
+  }
+  window.addEventListener("hashchange",function(){show();window.scrollTo(0,0)});
+  show();
+})();
+</script>

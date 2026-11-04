@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Canvas Backoffice · Manutenção</title>
+<style>
+:root{--bg:#f7f7f5;--card:#fff;--ink:#1d1c1d;--mute:#616061;--line:#e2e2e0;--acc:#1264a3;--warn:#fff4d6;--del:#fde8e8}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,"Segoe UI",Roboto,sans-serif;margin:0;padding:24px 16px}
+main{max-width:820px;margin:0 auto}
+.box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 24px;margin:0 0 20px}
+.guia h2{font-size:17px;margin:0 0 8px}.guia ol{margin:0;padding-left:20px}.guia li{margin:6px 0}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;background:#e8f1fb;color:var(--acc);margin-bottom:8px}
+.del{background:var(--del)}.warn{background:var(--warn)}
+#copiar h1{font-size:24px;margin:8px 0 12px}#copiar h3{font-size:17px;margin:18px 0 6px}
+#copiar ul{margin:0;padding-left:22px}#copiar li{margin:3px 0}
+a{color:var(--acc)}
+button{font:inherit;font-weight:600;background:var(--acc);color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer}
+code{background:#f0f0ee;padding:1px 5px;border-radius:4px;font-size:13px}
+</style>
+</head>
+<body><main>
+
+<div class="box guia">
+  <span class="tag">Canvas: Administrativo e financeiro (F085GTJ526S) · lido em 03/11/2026</span>
+  <h2>Como aplicar (5 min)</h2>
+  <ol>
+    <li>Abra o canvas: https://seazone-fund.slack.com/docs/TDLTVAWQ6/F085GTJ526S</li>
+    <li><b>Topo:</b> logo acima de "Processos de gestão", crie um título grande (H1): <code>🏦 Parte 1 · Administrativo e Financeiro</code>. Tudo o que já existe fica embaixo dele.</li>
+    <li><b>Tire do bloco Adm/Fin</b> (apagar, porque vai para a Parte 2):
+      <ul>
+        <li>Em <i>Processos primários</i>: o subtítulo inteiro <b>"Manutenção (Vinícius)"</b> com os 6 itens.</li>
+        <li>Em <i>Materiais de suporte → Base de conhecimento</i>: <b>"Processo de Manutenção"</b> e o <b>último</b> "Manutenção Recorrente para Imóveis" (ele aparece 2 vezes na lista).</li>
+        <li>Em <i>Arquivo morto</i>: <b>"Processo de Manutenção Franquias (PDA)"</b> e <b>"Processo de Controle de Manutenção"</b>.</li>
+      </ul>
+    </li>
+    <li><b>Fim:</b> depois de "Time do administrativo e financeiro" e antes do rodapé "Página atualizada por", clique em <b>Copiar bloco</b> abaixo e cole.</li>
+    <li>Os links viram cartão com o nome do documento quando colados. Se algum ficar como URL crua, é só deixar: o Slack mostra o título para quem tem acesso.</li>
+  </ol>
+</div>
+
+<div class="box">
+  <button onclick="copiar()">Copiar bloco</button> <span id="ok" style="color:var(--mute);margin-left:8px"></span>
+  <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+  <div id="copiar">
+    <h1>🔧 Parte 2 · Manutenção</h1>
+    <p>A Manutenção cuida do imóvel da franquia em bom estado: Central de Manutenção no Sapron (urgente, corretiva e adequação), manutenção recorrente, ocorrências e acompanhamento das franquias críticas. Agentes de IA na Central desde set/26.</p>
+    <p>Faz parte do Backoffice, liderado pela Rayanne Oliveira.</p>
+
+    <h3>Processos primários</h3>
+    <ul>
+      <li><a href="https://seazone-fund.slack.com/docs/TDLTVAWQ6/F0BT15VFMJB">[NOVO] Processo Controle de Manutenção</a></li>
+      <li><a href="https://seazone-fund.slack.com/docs/TDLTVAWQ6/F09LGCX3BQB">Processo de Adequação - Manutenção - Franquias</a></li>
+      <li><a href="https://seazone-fund.slack.com/docs/TDLTVAWQ6/F0ADEP5Q0F3">Abertura de ocorrências de Manutenção de imóveis - BackOffice - Franquias</a></li>
+      <li><a href="https://seazone-fund.slack.com/docs/TDLTVAWQ6/F0AE6HSJH7U">Monitoramento mensal de Franquias Críticas</a></li>
+      <li><a href="https://seazone-fund.slack.com/docs/TDLTVAWQ6/F0BLQ8LUN03">Documentação de Processo – Inventário Recorrente de Imóveis</a></li>
+      <li><a href="https://seazone-fund.slack.com/docs/TDLTVAWQ6/F093X89J3AN">Manutenção Recorrente para Imóveis</a></li>
+      <li><a href="https://seazone-fund.slack.com/docs/TDLTVAWQ6/F0C4C659XC3">Processo de manutenção recorrente</a></li>
+    </ul>
+
+    <h3>Materiais de suporte</h3>
+    <ul>
+      <li><a href="https://seazone-fund.slack.com/docs/TDLTVAWQ6/F09984838AC">Processo de Manutenção</a></li>
+      <li><a href="https://seazone-fund.slack.com/docs/TDLTVAWQ6/F093X89J3AN">Manutenção Recorrente para Imóveis</a></li>
+    </ul>
+
+    <h3>Arquivo morto</h3>
+    <ul>
+      <li><a href="https://seazone-fund.slack.com/docs/TDLTVAWQ6/F09CC91D60N">Processo de Manutenção Franquias (PDA)</a></li>
+      <li><a href="https://seazone-fund.slack.com/docs/TDLTVAWQ6/F08SDMP2B5G">Processo de Controle de Manutenção</a></li>
+    </ul>
+
+    <h3>👥 Responsável pela manutenção</h3>
+    <p>Vinícius Satores</p>
+  </div>
+</div>
+
+</main>
+<script>
+function copiar(){
+  const el=document.getElementById('copiar');
+  const r=document.createRange();r.selectNodeContents(el);
+  const s=window.getSelection();s.removeAllRanges();s.addRange(r);
+  let ok=false;try{ok=document.execCommand('copy')}catch(e){}
+  document.getElementById('ok').textContent=ok?'Copiado. Cole no canvas.':'Selecionado. Aperte Ctrl+C.';
+}
+</script>
+</body></html>
